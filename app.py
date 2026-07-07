@@ -14,7 +14,7 @@ st.markdown("---")
 # 2. CẤU HÌNH API & BẢO MẬT
 FINNHUB_API_KEY = st.secrets.get("FINNHUB_API_KEY", "d96keq1r01qr77dkrm4g")
 
-# 3. KHỔI TẠO DỮ LIỆU ĐỘNG (SESSION STATE) ĐỂ TRÁNH MẤT DỮ LIỆU KHI LÀM MỚI TRANG
+# 3. KHỞI TẠO DỮ LIỆU ĐỘNG (SESSION STATE) ĐỂ TRÁNH MẤT DỮ LIỆU KHI LÀM MỚI TRANG
 if "macro_history" not in st.session_state:
     st.session_state.macro_history = pd.DataFrame([
         {"Chỉ báo": "CPI", "Kỳ": "Tháng 05/2026", "Thực tế": 3.2, "Dự báo": 3.1, "Kỳ trước": 3.4, "Tác động": "Tốt cho USD / Xấu cho Vàng"},
@@ -163,7 +163,7 @@ elif module == "🇺🇸 Dữ Liệu Kinh Tế Mỹ":
 elif module == "💸 Dòng Tiền & Vị Thế Vốn":
     st.header("💸 Phân Tích Luân Chuyển Dòng Tiền Toàn Cầu")
     
-    # SỬA LỖI: Đã điền đầy đủ dữ liệu mảng số liệu mẫu cho Vị thế Long COT
+    # SỬA LỖI TRIỆT ĐỂ: Đã thêm đầy đủ dữ liệu mẫu cho mảng Vị thế Long COT
     df_flow = pd.DataFrame({
         "Ngày": ["02/07", "03/07", "04/07", "07/07", "08/07"],
         "Quỹ ETF GLD (Tấn)": [828.4, 829.1, 831.5, 830.2, 834.8],
@@ -263,4 +263,3 @@ st.toast("Đã đồng bộ nhật ký giao dịch!", icon="📝")
 if st.session_state.journal:
 st.markdown("### 📚 Lịch sử nhật ký giao dịch trong phiên")
 st.dataframe(pd.DataFrame(st.session_state.journal), use_container_width=True)
-
