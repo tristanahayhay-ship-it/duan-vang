@@ -205,61 +205,69 @@ elif module == "📈 Tin Tức & Cổ Phiếu":
 # MODULE 5: TIN TỨC CHIẾN TRANH
 # ==========================================
 elif module == "🪖 Tin Tức Chiến Tranh":
-st.header("🪖 Bản Tin Địa Chính Trị & Rủi Ro Xung Đột")
-col1, col2 = st.columns(2)
-with col1:
-st.subheader("📰 Cập nhật tình hình các chiến sự & Đàm phán")
-st.error("Căng thẳng khu vực Trung Đông: Tiến trình đàm phán tạm thời đi vào bế bẽ, nguy cơ rủi ro chuỗi cung ứng logistics đẩy cao tâm lý phòng vệ.")
-st.info("Cấm vận kinh tế: Các lệnh hạn chế thương mại mới đối với nhóm nguyên liệu thô tiếp tục tạo áp lực lên chuỗi cung ứng hàng hóa toàn cầu.")
-with col2:
-st.subheader("🗺 Bản đồ các vùng cảnh báo rủi ro xung đột cao")
-conflict_data = pd.DataFrame({
-'Khu vực': ['Trung Đông', 'Đông Âu', 'Biển Đông'],
-'Vĩ độ': [29.0, 48.0, 15.0],
-'Kinh độ': [47.0, 31.0, 115.0],
-'Mức độ rủi ro': ['🔴 Nguy cấp', '🔴 Rủi ro cao', '🟡 Cảnh báo']
-})
-fig_map = px.scatter_geo(
-conflict_data, lat='Vĩ độ', lon='Kinh độ', hover_name='Khu vực',
-text='Khu vực', size_max=15, title="Các tọa điểm nóng địa chính trị toàn cầu",
-projection="natural earth"
-)
-fig_map.update_layout(template="plotly_dark")
-st.plotly_chart(fig_map, use_container_width=True)
-==========================================
-MODULE 6: CÔNG CỤ HỖ TRỢ GIAO DỊCH
-==========================================
-elif module == "🛠 Công Cụ Hỗ Trợ Giao Dịch":
-st.header("🛠 Hệ Thống Chấm Điểm Kỹ Thuật & Nhật Ký Chiến Thuật")
-st.subheader("🎯 1. Các chỉ báo kỹ thuật đo lường chính (Khung D1)")
-c1, c2, c3 = st.columns(3)
-c1.metric("RSI (14)", "62.5", "Xu hướng Mua chiếm ưu thế")
-c2.metric("MACD Histogram", "+14.2", "Động lượng Tăng mạnh")
-c3.metric("Đường trung bình MA200", "$2,310", "Nằm trên cấu trúc tăng dài hạn")
-st.subheader("🧮 2. Chấm điểm áp lực xu hướng tổng hợp từ Vĩ mô")
-score = st.slider("Thang điểm áp lực (1: Cực kỳ hỗ trợ Vàng - 10: Áp lực giảm giá mạnh)", 1, 10, 3)
-if score <= 4:
-st.success("🟢 KẾT LUẬN XU HƯỚNG: BULLISH (Chiến lược: Chỉ canh Mua / Buy Only)")
-elif score >= 7:
-st.error("🔴 KẾT LUẬN XU HƯỚNG: BEARISH (Chiến lược: Chỉ canh Bán / Sell Only)")
-else:
-st.warning("🟡 KẾT LUẬN XU HƯỚNG: SIDEWAYS (Thị trường tích lũy biên độ)")
-st.markdown("---")
-st.subheader("📝 3. Nhật ký giao dịch chiến thuật & Nhận định cá nhân")
-with st.form("journal_form", clear_on_submit=True):
-col_j1, col_j2 = st.columns(2)
-with col_j1:
-action = st.selectbox("Hành động lệnh:", ["BUY", "SELL", "STANDBY"])
-price_entry = st.number_input("Mức giá entry dự kiến:", value=0.0)
-with col_j2:
-notes = st.text_area("Ghi chú phân tích kỹ thuật và quản lý vốn:")
-if st.form_submit_button("💾 Lưu chiến thuật vào nhật ký"):
-entry = {
-"Thời gian": datetime.now().strftime("%Y-%m-%d %H:%M"),
-"Lệnh": action, "Mức giá": price_entry, "Ghi chú": notes
-}
-st.session_state.journal.append(entry)
-st.toast("Đã đồng bộ nhật ký giao dịch!", icon="📝")
-if st.session_state.journal:
-st.markdown("### 📚 Lịch sử nhật ký giao dịch trong phiên")
-st.dataframe(pd.DataFrame(st.session_state.journal), use_container_width=True)
+    st.header("🪖 Bản Tin Địa Chính Trị & Rủi Ro Xung Đột")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("📰 Cập nhật tình hình các chiến sự & Đàm phán")
+        st.error("**Căng thẳng khu vực Trung Đông:** Tiến trình đàm phán tạm thời đi vào bế bẽ, nguy cơ rủi ro chuỗi cung ứng logistics đẩy cao tâm lý phòng vệ.")
+        st.info("**Cấm vận kinh tế:** Các lệnh hạn chế thương mại mới đối với nhóm nguyên liệu thô tiếp tục tạo áp lực lên chuỗi cung ứng hàng hóa toàn cầu.")
+    
+    with col2:
+        st.subheader("🗺️ Bản đồ các vùng cảnh báo rủi ro xung đột cao")
+        conflict_data = pd.DataFrame({
+            'Khu vực': ['Trung Đông', 'Đông Âu', 'Biển Đông'],
+            'Vĩ độ': [29.0, 48.0, 15.0],
+            'Kinh độ': [47.0, 31.0, 115.0],
+            'Mức độ rủi ro': ['🔴 Nguy cấp', '🔴 Rủi ro cao', '🟡 Cảnh báo']
+        })
+        fig_map = px.scatter_geo(
+            conflict_data, lat='Vĩ độ', lon='Kinh độ', hover_name='Khu vực',
+            text='Khu vực', size_max=15, title="Các tọa điểm nóng địa chính trị toàn cầu",
+            projection="natural earth"
+        )
+        fig_map.update_layout(template="plotly_dark")
+        st.plotly_chart(fig_map, use_container_width=True)
+
+# ==========================================
+# MODULE 6: CÔNG CỤ HỖ TRỢ GIAO DỊCH
+# ==========================================
+elif module == "🛠️ Công Cụ Hỗ Trợ Giao Dịch":
+    st.header("🛠️ Hệ Thống Chấm Điểm Kỹ Thuật & Nhật Ký Chiến Thuật")
+    
+    st.subheader("🎯 1. Các chỉ báo kỹ thuật đo lường chính (Khung D1)")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("RSI (14)", "62.5", "Xu hướng Mua chiếm ưu thế")
+    c2.metric("MACD Histogram", "+14.2", "Động lượng Tăng mạnh")
+    c3.metric("Đường trung bình MA200", "$2,310", "Nằm trên cấu trúc tăng dài hạn")
+    
+    st.subheader("🧮 2. Chấm điểm áp lực xu hướng tổng hợp từ Vĩ mô")
+    score = st.slider("Thang điểm áp lực (1: Cực kỳ hỗ trợ Vàng - 10: Áp lực giảm giá mạnh)", 1, 10, 3)
+    if score <= 4:
+        st.success("🟢 KẾT LUẬN XU HƯỚNG: BULLISH (Chiến lược: Chỉ canh Mua / Buy Only)")
+    elif score >= 7:
+        st.error("🔴 KẾT LUẬN XU HƯỚNG: BEARISH (Chiến lược: Chỉ canh Bán / Sell Only)")
+    else:
+        st.warning("🟡 KẾT LUẬN XU HƯỚNG: SIDEWAYS (Thị trường tích lũy biên độ)")
+
+    st.markdown("---")
+    st.subheader("📝 3. Nhật ký giao dịch chiến thuật & Nhận định cá nhân")
+    with st.form("journal_form", clear_on_submit=True):
+        col_j1, col_j2 = st.columns(2)
+        with col_j1:
+            action = st.selectbox("Hành động lệnh:", ["BUY", "SELL", "STANDBY"])
+            price_entry = st.number_input("Mức giá entry dự kiến:", value=0.0)
+        with col_j2:
+            notes = st.text_area("Ghi chú phân tích kỹ thuật và quản lý vốn:")
+            
+        if st.form_submit_button("💾 Lưu chiến thuật vào nhật ký"):
+            entry = {
+                "Thời gian": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                "Lệnh": action, "Mức giá": price_entry, "Ghi chú": notes
+            }
+            st.session_state.journal.append(entry)
+            st.toast("Đã đồng bộ nhật ký giao dịch!", icon="📝")
+            
+    if st.session_state.journal:
+        st.markdown("### 📚 Lịch sử nhật ký giao dịch trong phiên")
+        st.dataframe(pd.DataFrame(st.session_state.journal), use_container_width=True)
