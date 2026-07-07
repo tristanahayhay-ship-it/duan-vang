@@ -201,7 +201,7 @@ elif module == "💸 Dòng Tiền & Vị Thế Vốn":
     df_flow = pd.DataFrame({
         "Tuần": ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4", "Tuần 5"],
         "Dự trữ ETF Vàng (Tấn)": [828.4, 829.1, 831.5, 830.2, 834.8],
-        "Vị thế Long COT (Hợp đồng)":,
+        "Vị thế Long COT (Hợp đồng)": [250000, 252000, 248000, 255000, 260000],
         "Lợi suất thực Real Yield (%)": [2.01, 1.98, 1.95, 1.96, 1.91]
     })
     
