@@ -163,12 +163,12 @@ elif module == "🇺🇸 Dữ Liệu Kinh Tế Mỹ":
 elif module == "💸 Dòng Tiền & Vị Thế Vốn":
     st.header("💸 Phân Tích Luân Chuyển Dòng Tiền Toàn Cầu")
     
-    # SỬA LỖI TRIỆT ĐỂ: Đã thêm đầy đủ dữ liệu mẫu cho mảng Vị thế Long COT
+    # SỬA LỖI GỐC: Điền chính xác mảng số liệu mẫu cho "Vị thế Long COT (Hợp đồng)"
     df_flow = pd.DataFrame({
         "Ngày": ["02/07", "03/07", "04/07", "07/07", "08/07"],
         "Quỹ ETF GLD (Tấn)": [828.4, 829.1, 831.5, 830.2, 834.8],
         "Dự trữ Ngân hàng TW (Triệu Oz)": [39.1, 39.1, 39.2, 39.2, 39.4],
-        "Vị thế Long COT (Hợp đồng)":,
+        "Vị thế Long COT (Hợp đồng)": [250000, 252000, 248000, 255000, 260000]
         "Lợi suất thực Real Yield (%)": [2.01, 1.98, 1.95, 1.96, 1.91]
     })
     
