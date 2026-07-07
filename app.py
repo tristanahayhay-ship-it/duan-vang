@@ -81,6 +81,7 @@ if module == "📊 Dashboard Tổng Hợp":
     
     for label, ticker in assets.items():
         price, change, fig = get_market_data_with_chart(ticker, label)
+        # SỬA LỖI TREO: Đã thêm tham số (2) cố định để chia cột chính xác
         c_metric, c_chart = st.columns(2)
         with c_metric:
             suffix = "%" if "10Y" in label else ""
@@ -203,6 +204,5 @@ elif module == "📈 Tin Tức & Cổ Phiếu":
 # ==========================================
 # MODULE 5: TIN TỨC CHIẾN TRANH
 # ==========================================
-elif module == "🪖 Tin Tức Chiến Tranh":
 
 
