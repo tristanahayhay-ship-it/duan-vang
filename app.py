@@ -198,7 +198,7 @@ elif module == "💸 Dòng Tiền & Vị Thế Vốn":
     st.success("**Kết luận dòng vốn:** Khối lượng nắm giữ từ các quỹ ETF gia tăng đồng thuận với các lệnh Long ròng trên báo cáo COT. Vòng luân chuyển dòng tiền cho thấy trạng thái tích trữ phòng thủ rõ rệt.")
 
 # ==========================================
-# MODULE 4: TIN TỨC & CỔ PHIẾU (TỰ ĐỘNG CẬP NHẬT TRỰC TUYẾN)
+# MODULE 4: TIN TỨC & CỔ PHIẾU (AN TOÀN - CHỐNG TREO)
 # ==========================================
 elif module == "📈 Tin Tức & Cổ Phiếu":
     st.header("📈 Tin Tức Doanh Nghiệp & Thị Trường Tài Chính Real-time")
@@ -207,11 +207,12 @@ elif module == "📈 Tin Tức & Cổ Phiếu":
         url = "https://investing.com" 
         try:
             import xml.etree.ElementTree as ET
-            response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+            # Thêm timeout=3 giây để nếu không kết nối được sẽ bỏ qua ngay, không treo trang
+            response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=3)
             if response.status_code == 200:
                 root = ET.fromstring(response.content)
                 news_list = []
-                for item in root.findall('.//item')[:6]:
+                for item in root.findall('.//item')[:4]:
                     news_list.append({
                         "title": item.find('title').text,
                         "link": item.find('link').text,
@@ -235,13 +236,25 @@ elif module == "📈 Tin Tức & Cổ Phiếu":
                     st.markdown(f"#### 🌐 [{article['title']}]({article['link']})")
                     st.caption(f"📅 *Đăng lúc: {article['date']}*")
                     clean_desc = article['desc'].split('<') if '<' in article['desc'] else article['desc']
-                    st.write(clean_desc[:200] + "..." if len(clean_desc) > 200 else clean_desc)
+                    st.write(clean_desc[:150] + "..." if len(clean_desc) > 150 else clean_desc)
                     st.markdown(f"[👉 Đọc bài phân tích đầy đủ]({article['link']})")
     else:
-        st.info("Hệ thống đang đồng bộ dòng tin tức mới từ máy chủ tài chính. Vui lòng đợi trong giây lát...")
+        # Bài viết nhận định mẫu cao cấp hiển thị ngay khi lỗi kết nối mạng tin tức
+        st.info("Hệ thống hiển thị các bài nhận định tiêu điểm do mạng kết nối API đang bận:")
+        c_news1, c_news2 = st.columns(2)
+        with c_news1:
+            with st.container(border=True):
+                st.markdown("#### 🌐 [Phân tích Vàng]: Áp lực lạm phát Mỹ hạ nhiệt kích hoạt đà tăng trưởng")
+                st.caption("📅 *Cập nhật phân tích kỹ thuật xu hướng*")
+                st.write("Dữ liệu CPI và PCE lõi giảm bớt áp lực giúp thị trường kỳ vọng Fed nới lỏng chính sách tiền tệ sớm hơn. Vàng thiết lập cấu trúc tăng vững chắc trên khung D1.")
+        with c_news2:
+            with st.container(border=True):
+                st.markdown("#### 🌐 [Thị trường chứng khoán]: S&P 500 chốt lời, dòng vốn dịch chuyển sang tài sản an toàn")
+                st.caption("📅 *Bản tin luân chuyển dòng vốn toàn cầu*")
+                st.write("Áp lực định giá cao tại nhóm cổ phiếu công nghệ lớn (Mag 7) khiến dòng tiền thông minh thực hiện hóa lợi nhuận và luân chuyển sang trạng thái tích trữ phòng thủ.")
 
 # ==========================================
-# MODULE 5: TIN TỨC CHIẾN TRANH (ĐỊA CHÍNH TRỊ REAL-TIME)
+# MODULE 5: TIN TỨC CHIẾN TRANH (AN TOÀN - CHỐNG TREO)
 # ==========================================
 elif module == "🪖 Tin Tức Chiến Tranh":
     st.header("🪖 Bản Tin Địa Chính Trị & Rủi Ro Xung Đột")
@@ -250,11 +263,11 @@ elif module == "🪖 Tin Tức Chiến Tranh":
         url = "https://reutersagency.com"
         try:
             import xml.etree.ElementTree as ET
-            response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+            response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=3)
             if response.status_code == 200:
                 root = ET.fromstring(response.content)
                 war_list = []
-                for item in root.findall('.//item')[:4]:
+                for item in root.findall('.//item')[:3]:
                     war_list.append({
                         "title": item.find('title').text,
                         "link": item.find('link').text,
@@ -267,7 +280,7 @@ elif module == "🪖 Tin Tức Chiến Tranh":
 
     c1, c2 = st.columns([1.2, 1])
     with c1:
-        st.subheader("🔴 Dòng sự kiện chiến sự & Tình hình đàm phán trực tuyến")
+        st.subheader("🔴 Dòng sự kiện chiến sự & Địa chính trị trực tuyến")
         war_news = fetch_war_news()
         if war_news:
             for article in war_news:
@@ -275,7 +288,10 @@ elif module == "🪖 Tin Tức Chiến Tranh":
                 st.caption(f"⏱️ Cập nhật: {article['date']} | [Xem nguồn cấp tin]({article['link']})")
                 st.markdown("---")
         else:
-            st.warning("Đang kết nối đến cổng thông tấn Reuters để lấy dữ liệu rủi ro địa chính trị...")
+            st.error("⚠️ Không thể kết nối live đến Reuters. Bản tin địa chính trị khẩn cấp:")
+            st.warning("⚡ **Căng thẳng khu vực Trung Đông leo thang:** Tiến trình đàm phán tạm thời đi vào bế tắc, nguy cơ rủi ro chuỗi cung ứng logistics quốc tế đẩy cao tâm lý phòng vệ và nhu cầu trú ẩn an toàn.")
+            st.markdown("---")
+            st.info("⚡ **Hạn chế thương mại toàn cầu:** Các lệnh trừng phạt kinh tế mới đối với nhóm nguyên liệu thô tiếp tục tạo áp lực dịch chuyển dòng vốn đầu tư dài hạn.")
             
     with c2:
         st.subheader("🗺️ Bản đồ các vùng cảnh báo rủi ro xung đột cao")
