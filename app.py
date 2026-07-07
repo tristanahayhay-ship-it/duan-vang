@@ -23,7 +23,7 @@ module_selection = st.sidebar.radio(
 def fetch_market_data(ticker_symbol):
     try:
         ticker = yf.Ticker(ticker_symbol)
-        hist = ticker.history(period="2d")
+        hist = ticker.history(period="7d")
         if len(hist) >= 2:
             current = hist['Close'].iloc[-1]
             prev = hist['Close'].iloc[-2]
