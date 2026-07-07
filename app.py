@@ -6,15 +6,12 @@ import plotly.express as px
 from datetime import datetime
 import requests
 
-# 1. CẤU HÌNH TRANG CHUẨN
+# 1. CẤU HÌNH TRANG CHUẨN (Bắt buộc là lệnh đầu tiên)
 st.set_page_config(page_title="Hệ thống Vĩ mô & Liên thị trường XAU/USD", layout="wide", initial_sidebar_state="expanded")
 st.title("🦅 HỆ THỐNG PHÂN TÍCH VĨ MÔ TOÀN CẢNH & GIAO DỊCH VÀNG")
 st.markdown("---")
 
-# 2. CẤU HÌNH API & BẢO MẬT
-FINNHUB_API_KEY = st.secrets.get("FINNHUB_API_KEY", "d96keq1r01qr77dkrm4g")
-
-# 3. KHỞI TẠO DỮ LIỆU ĐỘNG (SESSION STATE) ĐỂ TRÁNH MẤT DỮ LIỆU KHI LÀM MỚI TRANG
+# 2. KHỞI TẠO DỮ LIỆU ĐỘNG (SESSION STATE) ĐỂ TRÁNH MẤT DỮ LIỆU KHI LÀM MỚI TRANG
 if "macro_history" not in st.session_state:
     st.session_state.macro_history = pd.DataFrame([
         {"Chỉ báo": "CPI", "Kỳ": "Tháng 05/2026", "Thực tế": 3.2, "Dự báo": 3.1, "Kỳ trước": 3.4, "Tác động": "Tốt cho USD / Xấu cho Vàng"},
@@ -26,13 +23,12 @@ if "macro_history" not in st.session_state:
 if "journal" not in st.session_state:
     st.session_state.journal = []
 
-# 4. HÀM TẢI DỮ LIỆU THỊ TRƯỜNG & VẼ BIỂU ĐỒ 
+# 3. HÀM TẢI DỮ LIỆU THỊ TRƯỜNG & VẼ BIỂU ĐỒ (Đã thêm cơ chế chống sập giá $0.00)
 @st.cache_data(ttl=300)
 def get_market_data_with_chart(ticker_symbol, name, period="3mo"):
     try:
         ticker = yf.Ticker(ticker_symbol)
         df = ticker.history(period="1mo")
-        
         if df.empty:
             df = ticker.history(period="7d")
             
@@ -56,22 +52,18 @@ def get_market_data_with_chart(ticker_symbol, name, period="3mo"):
                 template="plotly_dark"
             )
             return current, change, fig
-            
     except Exception:
         pass
-    
-    if "Vàng" in name:
-        return 2350.50, 0.45, None
-    elif "10Y" in name:
-        return 4.25, -0.12, None
-    elif "VIX" in name:
-        return 13.40, 1.20, None
-    elif "WTI" in name:
-        return 78.30, -0.45, None
+        
+    # Giá trị nền dự phòng an toàn tuyệt đối khi Yahoo Finance bị lỗi nghẽn API
+    if "Vàng" in name: return 2350.50, 0.45, None
+    elif "DXY" in name: return 104.20, 0.15, None
+    elif "10Y" in name: return 4.25, -0.12, None
+    elif "VIX" in name: return 13.40, 1.20, None
+    elif "WTI" in name: return 78.30, -0.45, None
     return 0.0, 0.0, None
 
-
-# 5. MENU CHÍNH TẠI SIDEBAR
+# 4. MENU CHÍNH TẠI SIDEBAR
 st.sidebar.title("🎛️ KHÔNG GIAN LÀM VIỆC")
 module = st.sidebar.radio(
     "CHỌN MODULE PHÂN TÍCH:",
@@ -124,6 +116,7 @@ if module == "📊 Dashboard Tổng Hợp":
     
     st.subheader("💡 Phân tích vĩ mô ngắn hạn & Kết luận xu hướng")
     st.info("**Nhận định:** DXY đang tích lũy, lợi suất 10Y hạ nhiệt hỗ trợ đà tăng của Vàng. Chiến lược phiên: **Canh Mua (Bullish) khi giá điều chỉnh kỹ thuật.**")
+
 
 # ==========================================
 # MODULE 2: DỮ LIỆU KINH TẾ MỸ
