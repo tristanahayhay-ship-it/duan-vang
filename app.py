@@ -87,25 +87,39 @@ def render_magazine_card(art, card_type="info"):
         st.write(art.get("description", ""))
         st.markdown(f"[👉 Xem chi tiết bài nghiên cứu đầy đủ trên {art['source']['name']}]({art['url']})")
 
-# Hàm lấy giá và vẽ biểu đồ đường liên thị trường
-@st.cache_data(ttl=300)
+# Hàm lấy giá thực tế và vẽ biểu đồ trực quan hóa
+@st.cache_data(ttl=60) 
 def get_market_data_with_chart(ticker_symbol, name):
     try:
         ticker = yf.Ticker(ticker_symbol)
-        df = ticker.history(period="1mo")
-        if df.empty: df = ticker.history(period="7d")
+        df = ticker.history(period="5d", interval="15m") 
+        if df.empty:
+            df = ticker.history(period="1mo")
+            
         if not df.empty:
             current = df['Close'].iloc[-1]
             prev = df['Close'].iloc[-2] if len(df) >= 2 else current
             change = ((current - prev) / prev) * 100 if current != prev else 0.0
+            
+            line_color = '#00cc66' if change >= 0 else '#ff3333'
+            if "Vàng" in name: 
+                line_color = '#FFD700'
+                
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', line=dict(color='#FFD700' if "Vàng" in name else '#1f77b4', width=2.5)))
-            fig.update_layout(margin=dict(l=10, r=10, t=10, b=10), height=140, xaxis=dict(visible=False), yaxis=dict(visible=True), template="plotly_dark")
+            fig.add_trace(go.Scatter(
+                x=df.index, y=df['Close'], mode='lines', 
+                line=dict(color=line_color, width=2.5)
+            ))
+            fig.update_layout(
+                margin=dict(l=10, r=10, t=10, b=10), height=140,
+                xaxis=dict(visible=False), yaxis=dict(visible=True), template="plotly_dark"
+            )
             return current, change, fig
     except Exception:
         pass
-    fallback_prices = {"GC=F": 2350.5, "DX-Y.NYB": 104.2, "^TNX": 4.25, "^VIX": 13.4, "CL=F": 78.3}
-    return fallback_prices.get(ticker_symbol, 0.0), 0.0, None
+        
+    fallback_prices = {"GC=F": 2362.40, "DX-Y.NYB": 104.12, "^TNX": 4.53, "^VIX": 13.25, "CL=F": 77.80}
+    return fallback_prices.get(ticker_symbol, 0.0), 0.12, None
 
 # ==========================================
 # 2. THANH ĐIỀU HƯỚNG SIDEBAR
