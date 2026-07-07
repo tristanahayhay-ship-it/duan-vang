@@ -3,7 +3,7 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import datetime, timedelta
+from datetime import datetime
 import requests
 
 # 1. CẤU HÌNH TRANG CHUẨN
@@ -16,11 +16,10 @@ FINNHUB_API_KEY = st.secrets.get("FINNHUB_API_KEY", "d96keq1r01qr77dkrm4g")
 
 # 3. KHỞI TẠO DỮ LIỆU ĐỘNG (SESSION STATE) ĐỂ TRÁNH MẤT DỮ LIỆU KHI LÀM MỚI TRANG
 if "macro_history" not in st.session_state:
-    # Khởi tạo dữ liệu lịch sử cho các chỉ số vĩ mô Mỹ (Mô phỏng chu kỳ 3 kỳ gần nhất)
     st.session_state.macro_history = pd.DataFrame([
         {"Chỉ báo": "CPI", "Kỳ": "Tháng 05/2026", "Thực tế": 3.2, "Dự báo": 3.1, "Kỳ trước": 3.4, "Tác động": "Tốt cho USD / Xấu cho Vàng"},
         {"Chỉ báo": "CPI", "Kỳ": "Tháng 04/2026", "Thực tế": 3.4, "Dự báo": 3.4, "Kỳ trước": 3.5, "Tác động": "Trung lập"},
-        {"Chỉ báo": "NFP", "Kỳ": "Tháng 05/2026", "Thực tế": 175, "Dự báo": 185, "Kỳ trước": 210, "Tác động": "Xấu cho USD / Tốt cho Vàng"},
+        {"Chỉ báo": "NFP", "Kỳ": "Tháng 05/2026", "Thực tế": 175.0, "Dự báo": 185.0, "Kỳ trước": 210.0, "Tác động": "Xấu cho USD / Tốt cho Vàng"},
         {"Chỉ báo": "GDP", "Kỳ": "Q1/2026", "Thực tế": 1.6, "Dự báo": 2.0, "Kỳ trước": 3.4, "Tác động": "Xấu cho USD / Tốt cho Vàng"},
     ])
 
@@ -38,7 +37,6 @@ def get_market_data_with_chart(ticker_symbol, name, period="3mo"):
             prev = df['Close'].iloc[-2]
             change = ((current - prev) / prev) * 100
             
-            # Tạo biểu đồ đường thẳng thu nhỏ (Sparkline/Trend)
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=df.index, y=df['Close'], mode='lines', line=dict(color='#FFD700' if "Vàng" in name else '#1f77b4', width=2)))
             fig.update_layout(
@@ -81,10 +79,9 @@ if module == "📊 Dashboard Tổng Hợp":
         "Giá Dầu Thô WTI": "CL=F"
     }
     
-    # Hiển thị Metric kèm Biểu đồ mini cho từng tài sản
     for label, ticker in assets.items():
         price, change, fig = get_market_data_with_chart(ticker, label)
-        c_metric, c_chart = st.columns([1, 2])
+        c_metric, c_chart = st.columns(2)
         with c_metric:
             suffix = "%" if "10Y" in label else ""
             prefix = "" if "10Y" in label or "DXY" in label or "VIX" in label else "$"
@@ -95,19 +92,18 @@ if module == "📊 Dashboard Tổng Hợp":
         st.markdown("<hr style='margin:0.5em 0px;'>", unsafe_allow_html=True)
 
     st.subheader("📅 Lịch kinh tế tiêu điểm hôm nay")
-    # Giao diện hiển thị lịch kinh tế mẫu chuyên nghiệp
     mock_calendar = pd.DataFrame({
         "Thời gian": ["19:30", "19:30", "21:00"], 
         "Quốc gia": ["USD", "USD", "USD"],
         "Sự kiện kinh tế": ["Core CPI m/m (Chỉ số lạm phát lõi)", "Yêu cầu trợ cấp thất nghiệp lần đầu", "Doanh số bán nhà xây mới"],
         "Dự báo": ["0.3%", "215K", "680K"], 
-        "Thực tế": ["⏱️ 19:30 Công bố", "⏱️ 19:30 Công bố", "⏱️ 21:00 Công bố"], 
+        "Thực tế": ["⏱️ Chờ công bố", "⏱️ Chờ công bố", "⏱️ Chờ công bố"], 
         "Tác động dự kiến": ["🔴 Biến động mạnh", "🟡 Biến động vừa", "🟢 Biến động thấp"]
     })
     st.dataframe(mock_calendar, use_container_width=True, hide_index=True)
     
     st.subheader("💡 Phân tích vĩ mô ngắn hạn & Kết luận xu hướng")
-    st.info("**Nhận định:** DXY đang có dấu hiệu tích lũy quanh vùng 104.5 trong khi Lợi suất 10Y giảm nhẹ hỗ trợ cho giá Vàng giữ vững trên mốc tâm lý. Chiến lược chủ đạo trong phiên: **Ưu tiên canh Mua (Bullish) khi giá điều chỉnh kỹ thuật.**")
+    st.info("**Nhận định:** DXY đang tích lũy, lợi suất 10Y hạ nhiệt hỗ trợ đà tăng của Vàng. Chiến lược phiên: **Canh Mua (Bullish) khi giá điều chỉnh kỹ thuật.**")
 
 # ==========================================
 # MODULE 2: DỮ LIỆU KINH TẾ MỸ
@@ -118,16 +114,15 @@ elif module == "🇺🇸 Dữ Liệu Kinh Tế Mỹ":
     macro_indicators = ["CPI", "Core CPI", "PCE", "Core PCE", "NFP", "Tỷ lệ thất nghiệp", "GDP", "PMI", "Doanh số bán lẻ", "JOLTS", "ADP", "ISM Manufacturing/Services"]
     selected_ind = st.selectbox("🎯 Chọn chỉ số vĩ mô để theo dõi chu kỳ:", macro_indicators)
     
-    # Bộ lọc hiển thị lịch sử của chỉ số đã chọn
     filtered_df = st.session_state.macro_history[st.session_state.macro_history["Chỉ báo"] == selected_ind]
     
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns(2)
     with col1:
         st.subheader(f"📊 Bảng dữ liệu lịch sử: {selected_ind}")
         if not filtered_df.empty:
             st.dataframe(filtered_df, use_container_width=True, hide_index=True)
         else:
-            st.warning("Chưa có dữ liệu nhập cho chỉ số này. Hãy điền form bên dưới để cập nhật tự động.")
+            st.warning("Chưa có dữ liệu cho chỉ số này. Hãy cập nhật ở biểu mẫu phía dưới.")
             
     with col2:
         st.subheader("📈 Biểu đồ diễn biến chu kỳ")
@@ -138,7 +133,7 @@ elif module == "🇺🇸 Dữ Liệu Kinh Tế Mỹ":
             st.info("Biểu đồ sẽ hiển thị khi có dữ liệu.")
 
     st.markdown("---")
-    st.subheader("📥 Cập nhật số liệu mới (Điền Form tự động vẽ lại biểu đồ)")
+    st.subheader("📥 Cập nhật số liệu mới")
     with st.form("macro_entry", clear_on_submit=True):
         c1, c2, c3 = st.columns(3)
         with c1:
@@ -158,8 +153,8 @@ elif module == "🇺🇸 Dữ Liệu Kinh Tế Mỹ":
     st.markdown("---")
     st.subheader("🎙️ Theo dõi các bài phát biểu quan trọng (Fed / Tổng thống)")
     st.markdown("""
-    * **[Báo cáo từ Chủ tịch Fed]:** Phát biểu tại điều trần Quốc hội nhấn mạnh lộ trình lãi suất sẽ phụ thuộc hoàn toàn vào dữ liệu lạm phát hạ nhiệt bền vững.
-    * **[Nhận định]:** Diễn biến này làm giảm kỳ vọng thắt chặt, tạo động lực tăng trưởng trung hạn cho dòng vốn dịch chuyển sang tài sản an toàn (Vàng).
+    * **[Báo cáo từ Chủ tịch Fed]:** Lộ trình điều chỉnh lãi suất sẽ phụ thuộc hoàn toàn vào tốc độ hạ nhiệt ổn định của lạm phát.
+    * **[Nhận định ảnh hưởng]:** Tuyên bố mang tính trung lập, làm giảm rủi ro thắt chặt đột ngột, giữ vững tâm lý kỳ vọng tăng trưởng trung hạn cho thị trường Vàng.
     """)
 
 # ==========================================
@@ -168,12 +163,11 @@ elif module == "🇺🇸 Dữ Liệu Kinh Tế Mỹ":
 elif module == "💸 Dòng Tiền & Vị Thế Vốn":
     st.header("💸 Phân Tích Luân Chuyển Dòng Tiền Toàn Cầu")
     
-    # Giả lập dữ liệu dòng tiền theo ngày
     df_flow = pd.DataFrame({
         "Ngày": ["02/07", "03/07", "04/07", "07/07", "08/07"],
         "Quỹ ETF GLD (Tấn)": [828.4, 829.1, 831.5, 830.2, 834.8],
         "Dự trữ Ngân hàng TW (Triệu Oz)": [39.1, 39.1, 39.2, 39.2, 39.4],
-        "Vị thế Long COT (Hợp đồng)": [245000, 248000, 250000, 252000, 258000],
+        "Vị thế Long COT (Hợp đồng)":,
         "Lợi suất thực Real Yield (%)": [2.01, 1.98, 1.95, 1.96, 1.91]
     })
     
@@ -187,7 +181,7 @@ elif module == "💸 Dòng Tiền & Vị Thế Vốn":
     
     st.markdown("---")
     st.subheader("🎯 Phân tích hành động & Nước đi của dòng tiền")
-    st.success("**Kết luận:** Các quỹ ETF lớn (GLD) liên tục mua ròng trong 2 phiên gần nhất kết hợp với báo cáo COT cho thấy phe mua lớn (Non-Commercial) đang tăng vị thế vị thế Long. Dòng tiền thông minh đang dịch chuyển khỏi tài sản rủi ro để chuẩn bị cho chu kỳ phòng thủ.")
+    st.success("**Kết luận dòng vốn:** Khối lượng nắm giữ từ các quỹ ETF gia tăng đồng thuận với các lệnh Long ròng trên báo cáo COT. Vòng luân chuyển dòng tiền cho thấy trạng thái tích trữ phòng thủ rõ rệt.")
 
 # ==========================================
 # MODULE 4: TIN TỨC & CỔ PHIẾU
@@ -199,4 +193,16 @@ elif module == "📈 Tin Tức & Cổ Phiếu":
     with col1:
         st.subheader("🏢 Sức khỏe tài chính các Doanh nghiệp lớn")
         st.markdown("""
+        * **Nhóm Công nghệ lớn (Mag 7):** Doanh thu ổn định nhưng tốc độ tăng trưởng có phần chững lại, dòng tiền ngắn hạn có xu hướng dịch chuyển tìm kiếm biên an toàn.
+        * **Doanh nghiệp Khai thác Vàng (NEM, GOLD):** Hưởng lợi biên lợi nhuận ròng tăng vọt do duy trì được nền giá sản phẩm neo ở mức cao lịch sử.
+        """)
+    with col2:
+        st.subheader("📰 Tin tức thị trường chứng khoán")
+        st.warning("Chỉ số S&P 500 gặp áp lực điều chỉnh kỹ thuật nhẹ tại các mốc kháng cự cũ khi tâm lý lo ngại rủi ro hạ cánh mềm quay trở lại.")
+
+# ==========================================
+# MODULE 5: TIN TỨC CHIẾN TRANH
+# ==========================================
+elif module == "🪖 Tin Tức Chiến Tranh":
+
 
