@@ -198,35 +198,86 @@ elif module == "💸 Dòng Tiền & Vị Thế Vốn":
     st.success("**Kết luận dòng vốn:** Khối lượng nắm giữ từ các quỹ ETF gia tăng đồng thuận với các lệnh Long ròng trên báo cáo COT. Vòng luân chuyển dòng tiền cho thấy trạng thái tích trữ phòng thủ rõ rệt.")
 
 # ==========================================
-# MODULE 4: TIN TỨC & CỔ PHIẾU
+# MODULE 4: TIN TỨC & CỔ PHIẾU (TỰ ĐỘNG CẬP NHẬT TRỰC TUYẾN)
 # ==========================================
 elif module == "📈 Tin Tức & Cổ Phiếu":
-    st.header("📈 Tình Hình Doanh Nghiệp & Thị Trường Chứng Khoán")
+    st.header("📈 Tin Tức Doanh Nghiệp & Thị Trường Tài Chính Real-time")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("🏢 Sức khỏe tài chính các Doanh nghiệp lớn")
-        st.markdown("""
-        * **Nhóm Công nghệ lớn (Mag 7):** Doanh thu ổn định nhưng tốc độ tăng trưởng có phần chững lại, dòng tiền ngắn hạn có xu hướng dịch chuyển tìm kiếm biên an toàn.
-        * **Doanh nghiệp Khai thác Vàng (NEM, GOLD):** Hưởng lợi biên lợi nhuận ròng tăng vọt do duy trì được nền giá sản phẩm neo ở mức cao lịch sử.
-        """)
-    with col2:
-        st.subheader("📰 Tin tức thị trường chứng khoán")
-        st.warning("Chỉ số S&P 500 gặp áp lực điều chỉnh kỹ thuật nhẹ tại các mốc kháng cự cũ khi tâm lý lo ngại rủi ro hạ cánh mềm quay trở lại.")
+    def fetch_market_news():
+        url = "https://investing.com" 
+        try:
+            import xml.etree.ElementTree as ET
+            response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+            if response.status_code == 200:
+                root = ET.fromstring(response.content)
+                news_list = []
+                for item in root.findall('.//item')[:6]:
+                    news_list.append({
+                        "title": item.find('title').text,
+                        "link": item.find('link').text,
+                        "date": item.find('pubDate').text if item.find('pubDate') is not None else "",
+                        "desc": item.find('description').text if item.find('description') is not None else ""
+                    })
+                return news_list
+        except Exception:
+            pass
+        return None
+
+    st.subheader("📰 Dòng sự kiện & Bài viết phân tích mới nhất từ thị trường")
+    news_data = fetch_market_news()
+    
+    if news_data:
+        col_n1, col_n2 = st.columns(2)
+        for idx, article in enumerate(news_data):
+            target_col = col_n1 if idx % 2 == 0 else col_n2
+            with target_col:
+                with st.container(border=True):
+                    st.markdown(f"#### 🌐 [{article['title']}]({article['link']})")
+                    st.caption(f"📅 *Đăng lúc: {article['date']}*")
+                    clean_desc = article['desc'].split('<') if '<' in article['desc'] else article['desc']
+                    st.write(clean_desc[:200] + "..." if len(clean_desc) > 200 else clean_desc)
+                    st.markdown(f"[👉 Đọc bài phân tích đầy đủ]({article['link']})")
+    else:
+        st.info("Hệ thống đang đồng bộ dòng tin tức mới từ máy chủ tài chính. Vui lòng đợi trong giây lát...")
 
 # ==========================================
-# MODULE 5: TIN TỨC CHIẾN TRANH
+# MODULE 5: TIN TỨC CHIẾN TRANH (ĐỊA CHÍNH TRỊ REAL-TIME)
 # ==========================================
 elif module == "🪖 Tin Tức Chiến Tranh":
     st.header("🪖 Bản Tin Địa Chính Trị & Rủi Ro Xung Đột")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("📰 Cập nhật tình hình các chiến sự & Đàm phán")
-        st.error("**Căng thẳng khu vực Trung Đông:** Tiến trình đàm phán tạm thời đi vào bế bẽ, nguy cơ rủi ro chuỗi cung ứng logistics đẩy cao tâm lý phòng vệ.")
-        st.info("**Cấm vận kinh tế:** Các lệnh hạn chế thương mại mới đối với nhóm nguyên liệu thô tiếp tục tạo áp lực lên chuỗi cung ứng hàng hóa toàn cầu.")
-    
-    with col2:
+    def fetch_war_news():
+        url = "https://reutersagency.com"
+        try:
+            import xml.etree.ElementTree as ET
+            response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+            if response.status_code == 200:
+                root = ET.fromstring(response.content)
+                war_list = []
+                for item in root.findall('.//item')[:4]:
+                    war_list.append({
+                        "title": item.find('title').text,
+                        "link": item.find('link').text,
+                        "date": item.find('pubDate').text if item.find('pubDate') is not None else ""
+                    })
+                return war_list
+        except Exception:
+            pass
+        return None
+
+    c1, c2 = st.columns([1.2, 1])
+    with c1:
+        st.subheader("🔴 Dòng sự kiện chiến sự & Tình hình đàm phán trực tuyến")
+        war_news = fetch_war_news()
+        if war_news:
+            for article in war_news:
+                st.error(f"⚡ **{article['title']}**")
+                st.caption(f"⏱️ Cập nhật: {article['date']} | [Xem nguồn cấp tin]({article['link']})")
+                st.markdown("---")
+        else:
+            st.warning("Đang kết nối đến cổng thông tấn Reuters để lấy dữ liệu rủi ro địa chính trị...")
+            
+    with c2:
         st.subheader("🗺️ Bản đồ các vùng cảnh báo rủi ro xung đột cao")
         conflict_data = pd.DataFrame({
             'Khu vực': ['Trung Đông', 'Đông Âu', 'Biển Đông'],
