@@ -63,7 +63,43 @@ def plot_candlestick(df, title):
     return fig
 
 # SIDEBAR: Điều hướng chính
+# SIDEBAR: Điều hướng chính và Cài đặt hệ thống
 st.sidebar.title("🧭 Điều Hướng Hệ Thống")
+
+# ===================================================================================================
+# ⚙️ BẢNG ĐIỀU KHIỂN HỆ THỐNG (GÓC TRÊN TRÁI)
+# ===================================================================================================
+with st.sidebar.expander("⚙️ Cài đặt Hệ thống (Múi giờ / Ngôn ngữ / Theme)", expanded=False):
+    # 1. Chọn ngôn ngữ
+    lang_option = st.selectbox("🌐 Ngôn ngữ (Language):", ["Tiếng Việt (VN)", "English (US)"])
+    
+    # 2. Chọn múi giờ
+    timezone_option = st.selectbox("🕒 Múi giờ (Timezone):", ["Việt Nam (GMT+7)", "New York (EST/GMT-5)", "London (GMT+0)"])
+    
+    # 3. Nút bấm mô phỏng chỉnh ánh sáng (Bổ trợ giao diện)
+    theme_option = st.radio("🌗 Giao diện hiển thị:", ["Chế độ Sáng (Light)", "Chế độ Tối (Dark)"], horizontal=True)
+
+# Khai báo timezone an toàn để tránh lỗi đồng hồ hệ thống
+from datetime import timezone
+now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
+
+if timezone_option == "Việt Nam (GMT+7)":
+    now_selected = now_utc + timedelta(hours=7)
+    tz_suffix = "Giờ Việt Nam"
+elif timezone_option == "New York (EST/GMT-5)":
+    now_selected = now_utc - timedelta(hours=5)
+    tz_suffix = "Giờ New York"
+else:
+    now_selected = now_utc
+    tz_suffix = "Giờ Quốc tế GMT"
+
+current_time_str = now_selected.strftime("%d/%m/%Y — %H:%M:%S")
+
+# Hiển thị đồng hồ thời gian động ngay dưới bảng cài đặt
+st.sidebar.markdown(f"📅 **Thời gian:** {current_time_str} *({tz_suffix})*")
+st.sidebar.markdown("---")
+# ===================================================================================================
+
 menu = st.sidebar.radio(
     "Chọn chuyên mục:",
     ["Dashboard Tổng Quan", "Dữ Liệu Kinh Tế Mỹ", "Dòng Tiền (Flow of Funds)", "Tin Tức & Cổ Phiếu", "Địa Chính Trị & Chiến Tranh", "Công Cụ Hỗ Trợ & Demo Trade", "Giá Vàng VIỆT NAM"]
