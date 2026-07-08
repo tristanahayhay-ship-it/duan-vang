@@ -840,63 +840,58 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
             pass
         return news_list
 
-    # 3. ĐỔ DỮ LIỆU TIN TỨC VÀO TỪNG TAB GIAO DIỆN CHÍNH XÁC THEO SỐ CHỈ MỤC, [1], [2]...
-    with news_tabs[0]: # SỬA THÀNH news_tabs[0] - Tab Tiền tệ
+    # 3. ĐỔ DỮ LIỆU TIN TỨC VÀO TỪNG TAB GIAO DIỆN CHÍNH XÁC THEO SỐ CHỈ MỤC,,...
+    with news_tabs[0]:  # Tab 0: Tiền tệ
         st.subheader("💱 Tin tức Thị trường Tiền tệ & Tỷ giá USD/VND")
-        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
-")
+        news_data = fetch_vnexpress_news("https://vnexpress.net")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
             st.info("Hiện tại chưa có tin mới về Tiền tệ.")
 
-    with news_tabs[1]: # SỬA THÀNH news_tabs[1] - Tab Hàng hóa
+    with news_tabs[1]:  # Tab 1: Hàng hóa
         st.subheader("🛢️ Tin tức Thị trường Hàng hóa, Vàng & Dầu thô")
-        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
-)
+        news_data = fetch_vnexpress_news("https://vnexpress.net")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
             st.info("Hiện tại chưa có tin mới về Hàng hóa.")
 
-    with news_tabs[2]: # SỬA THÀNH news_tabs[2] - Tab Chứng khoán
+    with news_tabs[2]:  # Tab 2: Chứng khoán
         st.subheader("📉 Tin tức Thị trường Chứng khoán VN-Index & Quốc tế")
-        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
-)
+        news_data = fetch_vnexpress_news("https://vnexpress.net")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
             st.info("Hiện tại chưa có tin mới về Chứng khoán.")
 
-    with news_tabs[3]: # SỬA THÀNH news_tabs[3] - Tab Kinh tế & Chỉ báo
+    with news_tabs[3]:  # Tab 3: Kinh tế & Chỉ báo
         st.subheader("📊 Chỉ báo Kinh tế Vĩ mô & Chính sách Tiền tệ")
-        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
-)
+        news_data = fetch_vnexpress_news("https://vnexpress.net")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
             st.info("Hiện tại chưa có tin mới về Chỉ báo Kinh tế.")
 
-    with news_tabs[4]: # SỬA THÀNH news_tabs[4] - Tab Thế giới
+    with news_tabs[4]:  # Tab 4: Thế giới
         st.subheader("🌍 Tin tức Kinh tế Thế giới & Địa chính trị")
-        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
-)
+        news_data = fetch_vnexpress_news("https://vnexpress.net")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
             st.info("Hiện tại chưa có tin mới về Kinh tế Thế giới.")
 
-    with news_tabs[5]: # SỬA THÀNH news_tabs[5] - Tab Tin Nóng Hồi
+    with news_tabs[5]:  # Tab 5: Tin Nóng Hổi
         st.subheader("🔥 Tin tức Tài chính Nóng hổi trong 24 giờ qua")
-        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
-)
+        news_data = fetch_vnexpress_news("https://vnexpress.net")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
             st.info("Hiện tại chưa có tin mới nóng hổi.")
+
