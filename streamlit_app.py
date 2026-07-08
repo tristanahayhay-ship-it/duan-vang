@@ -689,104 +689,106 @@ elif menu == "📅 Lịch Kinh Tế & AI Nhận Định (USD)":
 # 9. 🤖 AI Giải Đáp & Phân Tích
 # ===================================================================================================
 elif menu == "🤖 AI Giải Đáp & Phân Tích":
-    st.title("🤖 Trợ Lý AI Phân Tích Vĩ Mô & Chiến Lược Giao Dịch")
-    st.caption("Đặt câu hỏi trực tiếp để nhận phân tích chuyên sâu, giải đáp thuật ngữ vĩ mô và kịch bản thị trường từ AI")
+    st.title("🤖 Trợ Lý AI Vĩ Mô Thực Tế (Tích Hợp Gemini 1.5 Flash)")
+    st.caption("AI tự động đọc hiểu Lịch Kinh Tế tuần này kết hợp mô hình ngôn ngữ lớn để phân tích chuyên sâu")
 
-    # 1. GỢI Ý CÁC CÂU HỎI MẪU CHO NGƯỜI DÙNG CHỌN NHANH
-    st.write("💡 **Các chủ đề gợi ý bạn có thể hỏi AI:**")
+    # 1. KHỞI TẠO CLIENT GEMINI TỪ SECRETS AN TOÀN
+    from google import genai
+    
+    try:
+        api_key = st.secrets["GEMINI_API_KEY"]
+        client = genai.Client(api_key=api_key)
+    except Exception as e:
+        st.error("Chưa cấu hình GEMINI_API_KEY trong phần Settings -> Secrets của Streamlit Cloud.")
+        st.stop()
+
+    # 2. HÀM CHUYỂN ĐỔI DỮ LIỆU LỊCH KINH TẾ THÀNH VĂN BẢN CHO AI ĐỌC
+    def build_calendar_context():
+        context = "DANH SÁCH LỊCH KINH TẾ ĐỒNG USD TUẦN NÀY ĐỂ BẠN PHÂN TÍCH:\n"
+        try:
+            # Gọi hàm lấy lịch kinh tế từ chuyên mục số 8
+            df_context = get_economic_calendar()
+            if df_context is not None and not df_context.empty:
+                for _, row in df_context.iterrows():
+                    context += f"- Tin tức: {row['title']} | Ngày: {row['date']} lúc {row['time']} | Dự báo: {row['forecast']} | Kỳ trước: {row['previous']}\n"
+            else:
+                context += "Hiện tại không có dữ liệu lịch kinh tế hoặc lỗi tải hệ thống.\n"
+        except:
+            context += "Không thể đọc dữ liệu lịch kinh tế mục 8.\n"
+        return context
+
+    # 3. GỢI Ý CÁC CÂU HỎI MẪU CHO NGƯỜI DÙNG CHỌN NHANH
+    st.write("💡 **Các chủ đề gợi ý phân tích dòng dữ liệu:**")
     col_suggest1, col_suggest2 = st.columns(2)
     with col_suggest1:
-        s1 = st.button("📈 Khi lạm phát CPI Mỹ tăng thì giá Vàng biến động thế nào?")
-        s2 = st.button("🛡️ Tại sao căng thẳng địa chính trị lại làm tăng sức mạnh của Vàng?")
+        s1 = st.button("📈 Hôm nay hoặc tuần này có tin tức vĩ mô gì mạnh không AI?")
+        s2 = st.button("⚖️ Đánh giá rủi ro cho giá Vàng dựa trên lịch kinh tế tuần này.")
     with col_suggest2:
-        s3 = st.button("💵 Mối quan hệ nghịch đảo giữa chỉ số DXY và XAU/USD là gì?")
-        s4 = st.button("🏦 Nếu FED hạ lãi suất, tôi nên mua Vàng miếng hay Vàng nhẫn?")
+        s3 = st.button("💵 Phân tích xu hướng đồng USD trong vài ngày tới.")
+        s4 = st.button("🏦 FED sẽ dựa vào tin tức nào tuần này để điều hành lãi suất?")
 
     st.markdown("---")
 
-    # 2. KHỞI TẠO BỘ NHỚ LƯU TRỮ LỊCH SỬ CHAT (SESSION STATE)
+    # 4. KHỞI TẠO BỘ NHỚ LƯU TRỮ LỊCH SỬ CHAT (SESSION STATE)
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = [
-            {"role": "assistant", "content": "Xin chào! Tôi là Trợ lý AI chuyên sâu về Kinh tế Vĩ mô và Thị trường Vàng. Bạn cần tôi phân tích kịch bản tin tức, giải đáp thuật ngữ hay đưa ra chiến lược quản lý vốn nào hôm nay?"}
+            {"role": "assistant", "content": "Xin chào! Tôi là Trợ lý AI thực tế được kết nối dữ liệu trực tiếp với Lịch Kinh Tế. Bạn có thể hỏi tôi bất kỳ câu hỏi vĩ mô nào hoặc yêu cầu tôi quét các tin tức mạnh trong tuần này!"}
         ]
 
-    # 3. HIỂN THỊ LỊCH SỬ ĐOẠN CHAT TRÊN GIAO DIỆN
+    # 5. HIỂN THỊ LỊCH SỬ ĐOẠN CHAT TRÊN GIAO DIỆN
     for message in st.session_state.chat_history:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # 4. HÀM XỬ LÝ PHẢN HỒI THÔNG MINH CỦA AI (KỊCH BẢN DỮ LIỆU ĐA BIẾN)
-    def generate_ai_response(prompt):
-        prompt_lower = prompt.lower()
+    # 6. HÀM GỌI API GEMINI THỰC TẾ ĐỂ TRẢ LỜI TỰ DO
+    def ask_gemini_with_context(user_prompt):
+        # Lấy ngữ cảnh lịch kinh tế thời gian thực
+        calendar_data = build_calendar_context()
         
-        # Kịch bản 1: Hỏi về CPI / Lạm phát
-        if "cpi" in prompt_lower or "lạm phát" in prompt_lower:
-            return """##### 🧠 Phân tích từ AI về tác động của Lạm phát (CPI):
-1. **Bản chất cốt lõi:** CPI (Chỉ số giá tiêu dùng) đo lường lạm phát. FED dựa vào CPI để quyết định tăng hoặc hạ lãi suất.
-2. **Kịch bản biến động:**
-   * **Nếu CPI tăng cao hơn dự báo:** FED sẽ có xu hướng giữ lãi suất cao lâu hơn (Diều hâu) ➔ Đồng USD (DXY) và Lợi suất trái phiếu tăng mạnh ➔ **Giá Vàng (XAU/USD) sẽ chịu áp lực giảm sập mạnh ngắn hạn**.
-   * **Nếu CPI giảm mạnh hơn dự báo:** FED có cơ sở để cắt giảm lãi suất sớm hơn (Bồ câu) ➔ DXY suy yếu ➔ **Giá Vàng sẽ bứt phá phi mã**.
-3. **Chiến lược giao dịch:** Trước giờ công bố tin CPI, tuyệt đối không nhồi lệnh lớn. Nên chờ cấu trúc nến H1 đóng cửa sau tin 15 phút để giao dịch theo xu hướng rõ ràng."""
+        # Thiết lập System Instruction để ép AI làm chuyên gia tài chính vĩ mô
+        system_instruction = """
+        Bạn là một chuyên gia phân tích kinh tế vĩ mô đầu ngành và là cố vấn chiến lược thị trường vàng (XAU/USD).
+        Bạn có nhiệm vụ hỗ trợ người dùng giải đáp thắc mắc. 
+        ĐẶC BIỆT: Hãy đọc kỹ danh sách Lịch Kinh Tế được cung cấp trong ngữ cảnh dưới đây để trả lời chính xác ngày giờ, số liệu dự báo của các tin tức (như CPI, Unemployment Claims, FED...) khi người dùng hỏi về tin tức trong ngày/tuần.
+        Luôn trả lời bằng Tiếng Việt, luận điểm rõ ràng, chuyên nghiệp, sử dụng các ký hiệu emoji cảnh báo trực quan sinh động.
+        """
+        
+        full_content = f"{calendar_data}\n\nCÂU HỎI CỦA NGƯỜI DÙNG: {user_prompt}"
+        
+        try:
+            # Gọi API thực tế thông qua mô hình tối ưu gemini-1.5-flash
+            response = client.models.generate_content(
+                model='gemini-1.5-flash',
+                contents=full_content,
+                config=dict(system_instruction=system_instruction, temperature=0.3)
+            )
+            return response.text
+        except Exception as e:
+            return f"❌ Lỗi kết nối API Gemini thực tế: {str(e)}. Vui lòng kiểm tra lại cấu hình key."
 
-        # Kịch bản 2: Hỏi về Địa chính trị / Chiến tranh
-        elif "địa chính trị" in prompt_lower or "chiến tranh" in prompt_lower or "xung đột" in prompt_lower:
-            return """##### 🌍 Phân tích từ AI về Yếu tố Địa chính trị:
-1. **Tài sản trú ẩn an toàn (Safe-haven Asset):** Vàng luôn là hầm trú ẩn tối cao của dòng tiền khi thế giới xảy ra bất ổn, chiến tranh hoặc cấm vận kinh tế.
-2. **Cơ chế tác động:** Khi căng thẳng leo thang, các ngân hàng trung ương toàn cầu (đặc biệt là Trung Quốc, Nga, Ấn Độ) có xu hướng bán bớt dự trữ bằng USD/Trái phiếu Mỹ để **chuyển dịch mạnh sang gom mua Vàng vật chất** nhằm phòng thủ rủi ro đóng băng tài sản.
-3. **Lời khuyên:** Trong bối cảnh địa chính trị nóng, các nhịp giảm kỹ thuật của giá Vàng thường chỉ là ngắn hạn. Xu hướng chủ đạo trong trung hạn vẫn sẽ là **Bullish (Ưu tiên các vị thế Mua rải khi giá điều chỉnh về vùng hỗ trợ)**."""
-
-        # Kịch bản 3: Hỏi về DXY (Đồng USD)
-        elif "dxy" in prompt_lower or "usd" in prompt_lower:
-            return """##### 💵 Phân tích mối quan hệ tương quan XAU/USD & DXY Index:
-1. **Tương quan nghịch đảo (Negative Correlation):** Thống kê lịch sử cho thấy giá Vàng thế giới và chỉ số sức mạnh đồng USD (DXY) có mối quan hệ ngược chiều nhau lên tới **80% thời gian**.
-2. **Lý do kỹ thuật:** Vàng được định giá bằng đồng USD. Khi chỉ số DXY tăng giá (đồng USD có giá trị hơn), người mua bằng các đồng tiền khác (như EUR, JPY, VND) phải tốn nhiều chi phí hơn để sở hữu cùng một lượng Vàng, làm giảm nhu cầu mua và đẩy giá Vàng đi xuống.
-3. **Ứng dụng thực tế:** Hãy luôn mở biểu đồ DXY song song với biểu đồ Vàng. Nếu DXY đứt gãy vùng hỗ trợ kỹ thuật quan trọng trên khung ngày, đó là tín hiệu cực mạnh kích hoạt một đà tăng trưởng dài hạn cho XAU/USD."""
-
-        # Kịch bản 4: Hỏi về Lãi suất / FED
-        elif "fed" in prompt_lower or "lãi suất" in prompt_lower:
-            return """##### 🏦 Nhận định chiến lược về Chính sách Lãi suất của FED:
-1. **Kẻ thù của Vàng là Lãi suất cao:** Vàng là tài sản không sản sinh lợi suất (không trả cổ tức/lãi suất như gửi ngân hàng hay mua trái phiếu). Do đó, khi FED duy trì lãi suất ở đỉnh, chi phí cơ hội của việc nắm giữ Vàng sẽ rất cao.
-2. **Kịch bản chu kỳ cắt giảm lãi suất:** Khi FED chính thức bước vào chu kỳ nới lỏng tiền tệ (hạ lãi suất):
-   * Áp lực chi phí cơ hội biến mất.
-   * Đồng USD mất giá trị dòng tiền đầu tư gửi tiết kiệm.
-   ➔ **Dòng tiền thông minh bắt buộc phải chảy sang Vàng, kích hoạt chu kỳ siêu tăng giá (Super Bullrun).**
-3. **Khuyên dùng tại Việt Nam:** Nếu FED hạ lãi suất, biên độ tăng của **Vàng Nhẫn 9999** thường sẽ nhạy bén và bám sát tốc độ tăng của thế giới hơn so với Vàng miếng SJC (vốn bị kiểm soát chặt về nguồn cung độc quyền)."""
-
-        # Kịch bản mặc định: Trả lời tự động thông minh bằng AI tổng hợp dữ liệu vĩ mô
-        else:
-            return f"""##### 🤖 Ý kiến tổng hợp từ Trợ lý AI:
-Cảm ơn bạn đã đặt câu hỏi: *"{prompt}"*. 
-
-Dựa trên các thuật toán theo dõi dòng tiền (Flow of Funds) và dữ liệu lịch kinh tế hiện tại của hệ thống, tôi khuyến nghị bạn nên phân tách câu hỏi này thành các yếu tố tác động đến 3 trục chính:
-1. **Chính sách tiền tệ:** Yếu tố này có làm thay đổi lộ trình lãi suất của FED trong ngắn hạn không?
-2. **Tâm lý thị trường (Sentiment):** Hiện tại phe Bò (Mua) hay phe Gấu (Bán) đang chiếm ưu thế trên sàn giao dịch? (Bạn có thể kiểm tra thanh đo tâm lý ở Mục số 8).
-3. **Xu hướng kỹ thuật:** Giá có đang nằm trên đường trung bình động MA20 để ủng hộ xu hướng tăng không?
-
-*Nếu bạn muốn biết chi tiết cụ thể hơn về một thuật ngữ hoặc chỉ báo nào, hãy gõ từ khóa rõ ràng (Ví dụ: 'CPI', 'DXY', 'FED', 'Địa chính trị') để tôi phân tích chuyên sâu nhé!*"""
-
-    # 5. XỬ LÝ KHI NGƯỜI DÙNG BẤM CÁC NÚT GỢI Ý NHANH
+    # 7. XỬ LÝ KHI NGƯỜI DÙNG BẤM CÁC NÚT GỢI Ý NHANH
     chosen_prompt = None
-    if s1: chosen_prompt = "Khi lạm phát CPI Mỹ tăng thì giá Vàng biến động thế nào?"
-    if s2: chosen_prompt = "Tại sao căng thẳng địa chính trị lại làm tăng sức mạnh của Vàng?"
-    if s3: chosen_prompt = "Mối quan hệ nghịch đảo giữa chỉ số DXY và XAU/USD là gì?"
-    if s4: chosen_prompt = "Nếu FED hạ lãi suất, tôi nên mua Vàng miếng hay Vàng nhẫn?"
+    if s1: chosen_prompt = "Hôm nay hoặc tuần này có tin tức vĩ mô gì mạnh không AI?"
+    if s2: chosen_prompt = "Đánh giá rủi ro cho giá Vàng dựa trên lịch kinh tế tuần này."
+    if s3: chosen_prompt = "Phân tích xu hướng đồng USD trong vài ngày tới."
+    if s4: chosen_prompt = "FED sẽ dựa vào tin tức nào tuần này để điều hành lãi suất?"
 
     if chosen_prompt:
         st.session_state.chat_history.append({"role": "user", "content": chosen_prompt})
-        response = generate_ai_response(chosen_prompt)
+        with st.spinner("AI đang đọc dữ liệu lịch kinh tế và phân tích..."):
+            response = ask_gemini_with_context(chosen_prompt)
         st.session_state.chat_history.append({"role": "assistant", "content": response})
         st.rerun()
 
-    # 6. Ô NHẬP LIỆU CHAT TRỰC TIẾP TỪ NGƯỜI DÙNG (CHAT INPUT)
-    if user_query := st.chat_input("Nhập câu hỏi vĩ mô hoặc thuật ngữ tài chính tại đây..."):
-        # Hiển thị câu hỏi của user
+    # 8. Ô NHẬP LIỆU CHAT TRỰC TIẾP TỪ NGƯỜI DÙNG (CHAT INPUT TỰ DO)
+    if user_query := st.chat_input("Nhập câu hỏi tự do vĩ mô tại đây (Ví dụ: Tuần này có tin CPI không?)..."):
         st.session_state.chat_history.append({"role": "user", "content": user_query})
         with st.chat_message("user"):
             st.markdown(user_query)
             
-        # Hệ thống AI tính toán và đưa ra câu trả lời tương ứng
         with st.chat_message("assistant"):
-            ai_response = generate_ai_response(user_query)
+            with st.spinner("Gemini đang xử lý dữ liệu vĩ mô..."):
+                ai_response = ask_gemini_with_context(user_query)
             st.markdown(ai_response)
             
         st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
