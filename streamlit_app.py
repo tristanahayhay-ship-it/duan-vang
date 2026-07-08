@@ -1,3 +1,4 @@
+import yfinance as yf
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -79,14 +80,55 @@ st.sidebar.info("Khuyến nghị hôm nay: **BULLISH GOLD** (Ưu tiên Mua) do c
 if menu == "Dashboard Tổng Quan":
     st.title("🪙 Kinh Tế Vĩ Mô & Nhận Định Giá Vàng")
     st.caption("Hệ thống tự động cập nhật dữ liệu liên tục kết hợp trí tuệ nhân tạo AI phân tích xu hướng")
-    
-    # Hàng chỉ số nhanh
-    col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("XAU/USD", "2,354.50", "+12.40 (+0.53%)")
-    col2.metric("DXY Index", "104.15", "-0.22 (-0.21%)")
-    col3.metric("US 10Y Yield", "4.21%", "-0.04%")
-    col4.metric("VIX Index", "13.85", "+0.45 (+3.36%)")
-    col5.metric("Crude Oil WTI", "$78.40", "+0.65 (+0.84%)")
+    # =========================================================
+# HÀNG CHỈ SỐ LẤY DỮ LIỆU REAL-TIME TỪ YAHOO FINANCE
+# =========================================================
+import yfinance as yf
+
+@st.cache_data(ttl=60)  # Lưu bộ nhớ đệm 60 giây để tải nhanh và không bị khóa IP
+def get_live_market_data():
+    tickers = {
+        "Vàng (XAU/USD)": "GC=F",
+        "DXY Index": "DX-Y.NYB",
+        "US 10Y Yield": "^TNX",
+        "VIX Index": "^VIX",
+        "Crude Oil WTI": "CL=F"
+    }
+    results = {}
+    for name, sym in tickers.items():
+        try:
+            t = yf.Ticker(sym)
+            hist = t.history(period="2d")
+            if len(hist) >= 2:
+                close_today = hist['Close'].iloc[-1]
+                close_yesterday = hist['Close'].iloc[-2]
+                change = close_today - close_yesterday
+                pct_change = (change / close_yesterday) * 100
+                results[name] = (round(close_today, 2), round(change, 2), round(pct_change, 2))
+            else:
+                results[name] = (0.0, 0.0, 0.0)
+        except:
+            results[name] = (0.0, 0.0, 0.0)
+    return results
+
+# Gọi hàm lấy giá trực tuyến
+market_data = get_live_market_data()
+g_price, g_chg, g_pct = market_data.get("Vàng (XAU/USD)", (2354.50, 0.0, 0.0))
+dxy_price, dxy_chg, dxy_pct = market_data.get("DXY Index", (104.15, 0.0, 0.0))
+us10y_price, us10y_chg, us10y_pct = market_data.get("US 10Y Yield", (4.21, 0.0, 0.0))
+vix_price, vix_chg, vix_pct = market_data.get("VIX Index", (13.85, 0.0, 0.0))
+oil_price, oil_chg, oil_pct = market_data.get("Crude Oil WTI", (78.40, 0.0, 0.0))
+
+# Hiển thị ra các cột metric trên giao diện
+col1, col2, col3, col4, col5 = st.columns(5)
+
+col1.metric("XAU/USD", f"{g_price:,}", f"{g_chg:+} ({g_pct:+2f}%)")
+col2.metric("DXY Index", f"{dxy_price}", f"{dxy_chg:+} ({dxy_pct:+2f}%)")
+col3.metric("US 10Y Yield", f"{us10y_price}%", f"{us10y_chg:+} ({us10y_pct:+2f}%)")
+col4.metric("VIX Index", f"{vix_price}", f"{vix_chg:+} ({vix_pct:+2f}%)")
+col5.metric("Crude Oil WTI", f"${oil_price}", f"{oil_chg:+} ({oil_pct:+2f}%)")
+# =========================================================
+
 
     # Biểu đồ kỹ thuật tương tác
     st.subheader("📊 Biểu đồ Kỹ thuật Liên thông Vĩ mô")
