@@ -123,7 +123,7 @@ st.sidebar.markdown("---")
 
 menu = st.sidebar.radio(
     "Chọn chuyên mục:",
-    ["Dashboard Tổng Quan", "Dữ Liệu Kinh Tế Mỹ", "Dòng Tiền (Flow of Funds)", "Tin Tức & Cổ Phiếu", "Địa Chính Trị & Chiến Tranh", "Công Cụ Hỗ Trợ & Demo Trade", "Giá Vàng VIỆT NAM", "📅 Lịch Kinh Tế & AI Nhận Định (USD)", "🤖 AI Giải Đáp & Phân Tích"]
+    ["Dashboard Tổng Quan", "Dữ Liệu Kinh Tế Mỹ", "Dòng Tiền (Flow of Funds)", "Tin Tức & Cổ Phiếu", "Địa Chính Trị & Chiến Tranh", "Công Cụ Hỗ Trợ & Demo Trade", "Giá Vàng VIỆT NAM", "📅 Lịch Kinh Tế & AI Nhận Định (USD)", "🤖 AI Giải Đáp & Phân Tích", "📰 Tin Tức Tài Chính Đa Kênh"]
 )
 
 st.sidebar.markdown("---")
