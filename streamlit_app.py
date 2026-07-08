@@ -516,9 +516,9 @@ elif menu == "📅 Lịch Kinh Tế & AI Nhận Định (USD)":
     @st.cache_data(ttl=300) # Lưu bộ nhớ đệm 5 phút để tối ưu tốc độ tải
     def get_economic_calendar():
         try:
-        # Sử dụng nguồn cấp JSON tuần sạch của ForexFactory thay vì trang chủ bị chân
-        url = "https://forexfactory.com"
-        response = requests.get(url, timeout=10)
+            # Sử dụng nguồn cấp JSON tuần sạch của ForexFactory thay vì trang chủ bị chân
+            url = "https://forexfactory.com"
+            response = requests.get(url, timeout=10)
             if response.status_code == 200:
                 df = pd.DataFrame(response.json())
                 # Chỉ lọc các tin tức liên quan trực tiếp đến đồng USD
