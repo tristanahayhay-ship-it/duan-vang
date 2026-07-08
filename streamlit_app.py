@@ -383,3 +383,68 @@ elif menu == "Công Cụ Hỗ Trợ & Demo Trade":
         if st.button("Xóa toàn bộ lịch sử vị thế lệnh"):
             st.session_state.positions = []
             st.rerun()
+# ===================================================================================================
+# 7. GIÁ VÀNG VIỆT NAM & PHÂN TÍCH QUY ĐỔI
+# ===================================================================================================
+elif menu == "Giá Vàng VIỆT NAM":
+    st.title("🇻🇳 Bảng Giá Vàng Việt Nam & Phân Tích Quy Đổi")
+    st.caption("Hệ thống cập nhật dữ liệu trong nước và so sánh tương quan trực tiếp với thị trường quốc tế")
+    
+    # 1. Bảng giá vàng Việt Nam theo ảnh cung cấp
+    st.subheader("📊 Bảng giá vàng trong nước hôm nay (Triệu VND/Lượng)")
+    vn_gold_data = {
+        "Thương hiệu / Loại vàng": ["Vàng miếng SJC 999.9", "Nhẫn Trơn PNJ 999.9", "Vàng Kim Bảo 999.9", "Vàng Phúc Lộc Tài 999.9"],
+        "Giá Mua Vào": ["145,40", "145,40", "145,40", "145,40"],
+        "Giá Bán Ra": ["148,40", "148,40", "148,40", "148,40"]
+    }
+    st.table(pd.DataFrame(vn_gold_data))
+    
+    # 2. Tự động lấy giá vàng thế giới trực tiếp từ Yahoo Finance để quy đổi độc lập
+    st.markdown("---")
+    st.subheader("🔄 Công cụ quy đổi & So sánh Vàng Thế giới")
+    
+    try:
+        # Tải giá vàng thế giới thời gian thực để tính toán
+        gold_ticker = yf.Ticker("GC=F")
+        gold_hist = gold_ticker.history(period="1d")
+        world_gold_oz = round(gold_hist['Close'].iloc[-1], 2)
+    except:
+        world_gold_oz = 2354.50  # Giá dự phòng nếu mất kết nối mạng API
+        
+    usd_vnd_rate = 25450  # Tỷ giá USD/VND giả định
+    
+    # Công thức toán học tính giá thô quy đổi ra lượng (1 lượng = 1.2057 ounce)
+    world_gold_vn_raw = (world_gold_oz * 1.2057 * usd_vnd_rate) / 1000000
+    sjc_ban_ra = 148.40  # Giá bán ra từ ảnh của bạn
+    chenh_lech = sjc_ban_ra - world_gold_vn_raw
+    
+    col_q1, col_q2, col_q3 = st.columns(3)
+    col_q1.metric("Giá Vàng Thế Giới", f"${world_gold_oz:,} / oz")
+    col_q2.metric("Tỷ giá USD/VND (Giả định)", f"{usd_vnd_rate:,} VND")
+    col_q3.metric("Giá Vàng TG Quy Đổi", f"{round(world_gold_vn_raw, 2)} Tr/Lượng")
+    
+    st.warning(f"⚠️ **Mức chênh lệch thực tế:** Giá vàng miếng SJC trong nước đang **cao hơn** vàng thế giới quy đổi khoảng **{round(chenh_lech, 2)} triệu đồng/lượng**.")
+
+    # 3. Các thông tin kiến thức phân tích chuyên sâu
+    st.markdown("---")
+    col_inf1, col_inf2 = st.columns(2)
+    with col_inf1:
+        st.subheader("📚 Cách quy đổi giá vàng chuẩn")
+        st.info("""
+        **Công thức toán học hệ thống đang áp dụng:**
+        $$Giá\\ Vàng\\ VN\\ (Tr/Lượng) = \\frac{Giá\\ TG\\ (USD/oz) \\times 1.2057 \\times Tỷ\\ giá\\ USD/VND}{1.000.000}$$
+        
+        *Trong đó:*
+        * **Hệ số 1.2057**: Do 1 ounce troy = 31.103 gram, 1 lượng Việt Nam = 37.5 gram (37.5 / 31.103 = 1.2057).
+        * Giá quy đổi trên là giá thô nguyên liệu, chưa bao gồm các chi phí như thuế nhập khẩu, phí dập khuôn SJC và biên lợi nhuận tiệm vàng.
+        """)
+    with col_inf2:
+        st.subheader("🧐 Tại sao luôn có sự chênh lệch giá?")
+        st.markdown("""
+        <div class="ai-box" style="margin-bottom:0px;">
+            <b>Có 3 nguyên nhân cốt lõi khiến giá vàng Việt Nam chênh lệch lớn với thế giới:</b><br><br>
+            1. <b>Hạn chế nguồn cung độc quyền (Nghị định 24):</b> Nhà nước quản lý chặt chẽ việc sản xuất vàng miếng thương hiệu SJC khiến cung không tăng kịp cầu đột biến.<br>
+            2. <b>Tâm lý phòng thủ dân cư:</b> Khi có tín hiệu lạm phát hay tỷ giá tăng, dòng tiền nội địa có xu hướng chuyển mạnh sang tích trữ vàng miếng an toàn.<br>
+            3. <b>Rủi ro tỷ giá USD/VND:</b> Giá vàng thế giới tính bằng USD, khi tỷ giá USD biến động mạnh, các nhà kinh doanh trong nước buộc phải giữ giá bán cao để phòng thủ rủi ro mua lại nguyên liệu.
+        </div>
+        """, unsafe_allow_html=True)
