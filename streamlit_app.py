@@ -754,13 +754,20 @@ elif menu == "🤖 AI Giải Đáp & Phân Tích":
         """
         
         full_content = f"{calendar_data}\n\nCÂU HỎI CỦA NGƯỜI DÙNG: {user_prompt}"
-        
         try:
-            # Gọi API thực tế thông qua mô hình tối ưu gemini-1.5-flash
+            # Ép cấu hình sử dụng phiên bản API ổn định để sửa lỗi 404
+            from google.genai import types
+            
+            config = types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=0.3,
+            )
+            
+            # Sử dụng mô hình thế hệ mới gemini-2.5-flash xử lý vĩ mô cực nhạy
             response = client.models.generate_content(
-                model='models/gemini-1.5-flash',
+                model='gemini-2.5-flash',
                 contents=full_content,
-                config=dict(system_instruction=system_instruction, temperature=0.3)
+                config=config
             )
             return response.text
         except Exception as e:
