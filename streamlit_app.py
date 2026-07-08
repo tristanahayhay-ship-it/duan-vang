@@ -27,39 +27,57 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Hàm giả lập dữ liệu nến (Thay thế bằng API thực tế như yfinance khi deploy)
-def generate_candle_data(symbol, days=60):
-    np.random.seed(42)
-    dates = pd.date_range(end=datetime.today(), periods=days)
-    if symbol == "XAU/USD":
-        start_price = 2300
-    elif symbol == "DXY":
-        start_price = 104
-    elif symbol == "US10Y":
-        start_price = 4.2
-    elif symbol == "VIX":
-        start_price = 14
-    else: # WTI
-        start_price = 78
-        
-    prices = [start_price]
-    for _ in range(days-1):
-        prices.append(prices[-1] + np.random.normal(0, start_price*0.01))
-        
-    df = pd.DataFrame(index=dates)
-    df['Open'] = prices + np.random.normal(0, np.array(prices)*0.002, days)
-    df['High'] = df['Open'] + np.abs(np.random.normal(0, np.array(prices)*0.005, days))
-    df['Low'] = df['Open'] - np.abs(np.random.normal(0, np.array(prices)*0.005, days))
-    df['Close'] = (df['Open'] + df['High'] + df['Low']) / 3 + np.random.normal(0, np.array(prices)*0.002, days)
-    return df
+def get_real_market_data(symbol, days=90):
+    ticker_mapping = {
+        "XAU/USD": "GC=F",
+        "DXY": "DX-Y.NYB",
+        "US10Y": "^TNX",
+        "VIX": "^VIX",
+        "WTI Oil": "CL=F"
+    }
+    ticker_sym = ticker_mapping.get(symbol, "GC=F")
+    try:
+        end_date = datetime.today()
+        start_date = end_date - timedelta(days=days)
+        t = yf.Ticker(ticker_sym)
+        df = t.history(start=start_date, end=end_date)
+        return df
+    except Exception as e:
+        st.error(f"Lỗi kết nối dữ liệu {symbol}: {str(e)}")
+        return pd.DataFrame()
 
-def plot_candlestick(df, title):
-    fig = go.Figure(data=[go.Candlestick(
-        x=df.index,
-        open=df['Open'], high=df['High'],
-        low=df['Low'], close=df['Close'],
-        increasing_line_color='#22c55e', decreasing_line_color='#ef4444'
-    )])
-    fig.update_layout(title=title, xaxis_rangeslider_visible=False, height=350, margin=dict(l=20, r=20, t=40, b=20))
+def plot_tradingview_chart(df, title):
+    if df.empty:
+        return go.Figure()
+        
+    from plotly.subplots import make_subplots
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, 
+                        vertical_spacing=0.05, row_width=[0.2, 0.8])
+                        
+    fig.add_trace(go.Candlestick(
+        x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'],
+        name="Giá",
+        increasing_line_color='#22c55e', decreasing_line_color='#ef4444',
+        increasing_fillcolor='#22c55e', decreasing_fillcolor='#ef4444'
+    ), row=1, col=1)
+    
+    if 'Volume' in df.columns and df['Volume'].sum() > 0:
+        colors = ['#22c55e' if row['Close'] >= row['Open'] else '#ef4444' for _, row in df.iterrows()]
+        fig.add_trace(go.Bar(
+            x=df.index, y=df['Volume'], name="Volume", showlegend=False, marker_color=colors
+        ), row=2, col=1)
+        
+    fig.update_xaxes(type='category', tickformat='%d/%m', gridcolor='#e2e8f0', row=1, col=1)
+    fig.update_xaxes(type='category', tickformat='%d/%m', gridcolor='#e2e8f0', row=2, col=1)
+    fig.update_yaxes(gridcolor='#e2e8f0', row=1, col=1)
+    fig.update_yaxes(gridcolor='#e2e8f0', showticklabels=False, row=2, col=1)
+    
+    fig.update_layout(
+        title=dict(text=title, font=dict(size=16, color='#1e293b')),
+        xaxis_rangeslider_visible=False, height=450,
+        margin=dict(l=10, r=10, t=40, b=10), hovermode='x unified',
+        plot_bgcolor='white', paper_bgcolor='rgba(0,0,0,0)'
+    )
     return fig
 
 # SIDEBAR: Điều hướng chính
@@ -170,8 +188,8 @@ if menu == "Dashboard Tổng Quan":
     # Biểu đồ kỹ thuật tương tác
     st.subheader("📊 Biểu đồ Kỹ thuật Liên thông Vĩ mô")
     asset_option = st.selectbox("Chọn tài sản để xem biểu đồ chi tiết:", ["XAU/USD", "DXY", "US10Y", "VIX", "WTI Oil"])
-    df_asset = generate_candle_data(asset_option)
-    st.plotly_chart(plot_candlestick(df_asset, f"Biểu đồ kỹ thuật tương tác {asset_option}"), use_container_width=True)
+    df_asset = get_real_market_data(asset_option)
+    st.plotly_chart(plot_tradingview_chart(df_asset, f"Xu hướng thị trường thực tế: {asset_option}"), use_container_width=True)
 
     # Lịch kinh tế và Nhận định AI
     st.markdown("---")
