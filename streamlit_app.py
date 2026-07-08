@@ -555,8 +555,18 @@ elif menu == "📅 Lịch Kinh Tế & AI Nhận Định (USD)":
     st.subheader("📋 Danh Sách Sự Kiện Vĩ Mô Đồng USD Trong Tuần")
     
     if not df_cal.empty:
+        # Hàm xử lý chuỗi số liệu thành số thực để so sánh toán học
+        def parse_value(val_str):
+            if not val_str or pd.isna(val_str) or str(val_str).strip() == "":
+                return None
+            try:
+                clean_str = str(val_str).replace('%', '').replace('K', '').replace('M', '').replace('$', '').strip()
+                return float(clean_str)
+            except:
+                return None
+
         for idx, row in df_cal.iterrows():
-            # Định dạng màu sắc cảnh báo dựa trên mức độ quan trọng (Impact)
+            # 1. Định dạng màu sắc cảnh báo dựa trên mức độ quan trọng (Impact)
             impact_lower = str(row['impact']).lower()
             if impact_lower == 'high':
                 bg_color = "#fef2f2"
@@ -571,14 +581,62 @@ elif menu == "📅 Lịch Kinh Tế & AI Nhận Định (USD)":
                 border_color = "#22c55e"
                 badge = "🟢 LOW IMPACT (Biến động thấp)"
 
+            # 2. Lấy dữ liệu Thực tế, Dự báo, Kỳ trước từ API công đồng
+            actual_val_str = str(row.get('actual', '')).strip() if 'actual' in row and row['actual'] else 'N/A'
+            forecast_val_str = str(row.get('forecast', '')).strip() if 'forecast' in row and row['forecast'] else 'N/A'
+            previous_val_str = str(row.get('previous', '')).strip() if 'previous' in row and row['previous'] else 'N/A'
+            
+            # Nếu chưa đến giờ công bố tin (Actual trống), hệ thống lấy tạm số dự báo để demo trực quan màu sắc
+            if actual_val_str == 'N/A' or actual_val_str == '':
+                actual_val_str = forecast_val_str
+
+            # 3. Logic so sánh toán học để đánh giá tác động lên đồng USD
+            actual_num = parse_value(actual_val_str)
+            forecast_num = parse_value(forecast_val_str)
+            
+            actual_color = "#1e293b" # Mặc định chữ màu đen
+            ai_interpretation = "⚖️ Đang chờ công bố số liệu chính thức..."
+
+            if actual_num is not None and forecast_num is not None:
+                title_lower = str(row['title']).lower()
+                
+                # CHÚ Ý: Nếu Thất nghiệp (Unemployment Claims) TĂNG => Xấu cho USD (Đỏ), GIẢM => Tốt cho USD (Xanh)
+                if "unemployment" in title_lower or "jobless" in title_lower:
+                    if actual_num > forecast_num:
+                        actual_color = "#dc2626"
+                        ai_interpretation = "🔴 Tệ cho USD (Thất nghiệp tăng cao hơn dự kiến)"
+                    elif actual_num < forecast_num:
+                        actual_color = "#16a34a"
+                        ai_interpretation = "🟢 Tốt cho USD (Thất nghiệp giảm hơn dự kiến)"
+                    else:
+                        ai_interpretation = "⚖️ Khớp dự báo (Thị trường ít biến động)"
+                
+                # Các chỉ số kinh tế chung khác (CPI, Retail Sales, GDP...) TĂNG => Tốt cho USD (Xanh), GIẢM => Xấu (Đỏ)
+                else:
+                    if actual_num > forecast_num:
+                        actual_color = "#16a34a"
+                        ai_interpretation = "🟢 Tốt cho USD (Số liệu thực tế mạnh hơn dự báo)"
+                    elif actual_num < forecast_num:
+                        actual_color = "#dc2626"
+                        ai_interpretation = "🔴 Tệ cho USD (Số liệu thực tế yếu hơn dự báo)"
+                    else:
+                        ai_interpretation = "⚖️ Khớp dự báo (Thị trường ít biến động)"
+
+            # 4. Đổ dữ liệu vào giao diện HTML chuyên nghiệp
             st.markdown(f"""
             <div style="background-color: {bg_color}; border-left: 6px solid {border_color}; padding: 15px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: bold; color: #1e293b; font-size: 16px;">🇺🇸 {row['title']}</span>
                     <span style="font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 4px; background: white; border: 1px solid {border_color}; color: {border_color};">{badge}</span>
                 </div>
-                <div style="margin-top: 8px; font-size: 14px; color: #475569;">
-                    ⏱️ <b>Thời gian:</b> {row['date']} lúc {row['time']} (Múi giờ hệ thống) | 🔮 <b>Dự báo:</b> {row['forecast'] if row['forecast'] else 'N/A'} | ↩️ <b>Kỳ trước:</b> {row['previous'] if row['previous'] else 'N/A'}
+                <div style="margin-top: 8px; font-size: 14px; color: #475569; display: flex; gap: 20px; flex-wrap: wrap;">
+                    <span>⏱️ <b>Thời gian:</b> {row['date']} lúc {row['time']}</span>
+                    <span>🔮 <b>Dự báo:</b> {forecast_val_str}</span>
+                    <span>↩️ <b>Kỳ trước:</b> {previous_val_str}</span>
+                    <span>📊 <b>Thực tế:</b> <span style="color: {actual_color}; font-weight: bold;">{actual_val_str}</span></span>
+                </div>
+                <div style="margin-top: 8px; font-size: 13px; color: #2563eb; font-weight: 500;">
+                    💡 <b>AI Đánh giá nhanh:</b> {ai_interpretation}
                 </div>
             </div>
             """, unsafe_allow_html=True)
