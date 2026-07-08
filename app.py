@@ -35,69 +35,46 @@ tabs = st.tabs([
 ])
 
 # ==============================================================================
-# TAB 1: DASHBOARD TỔNG QUAN
+# TAB 1: DASHBOARD TỔNG QUAN (ĐÃ SỬA LỖI TỪ CHỐI KẾT NỐI BIỂU ĐỒ)
 # ==============================================================================
 with tabs[0]:
-    st.subheader("📡 Thị Trường Thời Gian Thực (Investing/TradingView Widgets)")
+    st.subheader("📡 Thị Trường Thời Gian Thực (TradingView Official Advanced Widgets)")
     
     # Bố cục lưới cho các biểu đồ kỹ thuật tương tác
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("**🟡 Giá Vàng (XAU/USD) & 💵 Chỉ số DXY**")
-        # Nhúng Widget biểu đồ tương tác mã vàng và DXY
+        st.markdown("**🟡 Giá Vàng (XAU/USD)**")
+        # Nhúng Widget biểu đồ vàng chính thức
         st.components.v1.html("""
-            <div style="height:400px;">
-            <iframe src="https://tradingview.com" width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
+            <div class="tradingview-widget-container" style="height:400px;width:100%;">
+              <div id="tradingview_gold" style="height:100%;width:100%;"></div>
+              <script type="text/javascript" src="https://tradingview.com"></script>
+              <script type="text/javascript">
+              new TradingView.widget({
+              "width": "100%",
+              "height": "100%",
+              "symbol": "OANDA:XAUUSD",
+              "interval": "D",
+              "timezone": "Asia/Ho_Chi_Minh",
+              "theme": "dark",
+              "style": "1",
+              "locale": "vi",
+              "enable_publishing": false,
+              "hide_side_toolbar": false,
+              "allow_symbol_change": true,
+              "container_id": "tradingview_gold"
+              });
+              </script>
             </div>
         """, height=400)
 
         st.markdown("**📉 Chỉ số Biến Động VIX**")
+        # Nhúng Widget biểu đồ VIX chính thức
         st.components.v1.html("""
-            <div style="height:300px;">
-            <iframe src="https://tradingview.com" width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-            </div>
-        """, height=300)
-
-    with col2:
-        st.markdown("**🇺🇸 Lợi Suất Trái Phiếu Mỹ 10 Năm (US10Y)**")
-        st.components.v1.html("""
-            <div style="height:400px;">
-            <iframe src="https://tradingview.com" width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-            </div>
-        """, height=400)
-
-        st.markdown("**🛢️ Giá Dầu Thô WTI**")
-        st.components.v1.html("""
-            <div style="height:300px;">
-            <iframe src="https://tradingview.com" width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
-            </div>
-        """, height=300)
-
-    st.markdown("---")
-    st.subheader("📅 Lịch Kinh Tế & Phân Tích Xu Hướng AI")
-    
-    col_calendar, col_ai = st.columns([2, 1])
-    with col_calendar:
-        st.markdown("**Lịch Kinh Tế Hôm Nay (Nguồn dữ liệu kết nối từ ForexFactory)**")
-        # Giả lập bảng lịch kinh tế nâng cao
-        calendar_data = pd.DataFrame({
-            "Thời gian": ["19:30", "19:30", "22:00"],
-            "Tiền tệ": ["USD", "USD", "USD"],
-            "Sự kiện": ["Core CPI m/m", "CPI y/y", "Thành viên FOMC phát biểu"],
-            "Mức độ": ["🔴 Cao", "🔴 Cao", "🟠 Trung bình"],
-            "Dự báo": ["0.2%", "3.1%", "-"],
-            "Thực tế": ["0.3%", "3.2%", "-"]
-        })
-        st.dataframe(calendar_data, use_container_width=True)
-        
-    with col_ai:
-        st.markdown("🤖 **AI Nhận Định & Kết Luận Xu Hướng Từ FXStreet-VN**")
-        st.info(
-            "**Tóm tắt tin tức:** CPI Mỹ cao hơn dự báo làm giảm khả năng Fed hạ lãi suất sớm. "
-            "Áp lực bán ngắn hạn xuất hiện trên đồ thị XAU/USD.\n\n"
-            "➡️ **Kết luận xu hướng AI:** **BEARISH (GIẢM GIÁ NGẮN HẠN)** đối với Vàng. Mục tiêu hỗ trợ gần nhất: $2600."
-        )
+            <div class="tradingview-widget-container" style="height:300px;width:100%;">
+              <div id="tradingview_vix" style="height:100%;width:100%;"></div>
+              <script type="text/javascript" src="
 
 # ==============================================================================
 # TAB 2: DỮ LIỆU KINH TẾ MỸ
