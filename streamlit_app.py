@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.graph_objects as px
-import plotly.express as pex
+import plotly.graph_objects as go
+import plotly.express as px
+
 from datetime import datetime, timedelta
 
 # Cấu hình trang Streamlit
