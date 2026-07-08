@@ -35,7 +35,7 @@ tabs = st.tabs([
 ])
 
 # ==============================================================================
-# TAB 1: DASHBOARD TỔNG QUAN (ĐÃ SỬA LỖI TỪ CHỐI KẾT NỐI BIỂU ĐỒ)
+# TAB 1: DASHBOARD TỔNG QUAN
 # ==============================================================================
 with tabs[0]:
     st.subheader("📡 Thị Trường Thời Gian Thực (TradingView Official Advanced Widgets)")
@@ -44,7 +44,7 @@ with tabs[0]:
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("**🟡 Giá Vàng (XAU/USD)**")
+        st.markdown("**🟡 Giá Vàng (XAU/USD) & 💵 Chỉ số DXY**")
         # Nhúng Widget biểu đồ vàng chính thức
         st.components.v1.html("""
             <div class="tradingview-widget-container" style="height:400px;width:100%;">
@@ -74,9 +74,7 @@ with tabs[0]:
         st.components.v1.html("""
             <div class="tradingview-widget-container" style="height:300px;width:100%;">
               <div id="tradingview_vix" style="height:100%;width:100%;"></div>
-              <script type="text/javascript" src="
-              https://tradingview.com
-              "></script>
+              <script type="text/javascript" src="https://tradingview.com"></script>
               <script type="text/javascript">
               new TradingView.widget({
               "width": "100%",
@@ -99,9 +97,7 @@ with tabs[0]:
         st.components.v1.html("""
             <div class="tradingview-widget-container" style="height:400px;width:100%;">
               <div id="tradingview_us10y" style="height:100%;width:100%;"></div>
-              <script type="text/javascript" src="
-              https://tradingview.com
-              "></script>
+              <script type="text/javascript" src="https://tradingview.com"></script>
               <script type="text/javascript">
               new TradingView.widget({
               "width": "100%",
@@ -123,9 +119,7 @@ with tabs[0]:
         st.components.v1.html("""
             <div class="tradingview-widget-container" style="height:300px;width:100%;">
               <div id="tradingview_wti" style="height:100%;width:100%;"></div>
-              <script type="text/javascript" src="
-              https://tradingview.com
-              "></script>
+              <script type="text/javascript" src="https://tradingview.com"></script>
               <script type="text/javascript">
               new TradingView.widget({
               "width": "100%",
@@ -148,6 +142,7 @@ with tabs[0]:
     col_calendar, col_ai = st.columns([2, 1])
     with col_calendar:
         st.markdown("**Lịch Kinh Tế Hôm Nay (Nguồn dữ liệu kết nối từ ForexFactory)**")
+        # Giả lập bảng lịch kinh tế nâng cao
         calendar_data = pd.DataFrame({
             "Thời gian": ["19:30", "19:30", "22:00"],
             "Tiền tệ": ["USD", "USD", "USD"],
@@ -165,7 +160,6 @@ with tabs[0]:
             "Áp lực bán ngắn hạn xuất hiện trên đồ thị XAU/USD.\n\n"
             "➡️ **Kết luận xu hướng AI:** **BEARISH (GIẢM GIÁ NGẮN HẠN)** đối với Vàng. Mục tiêu hỗ trợ gần nhất: $2600."
         )
-
 
 # ==============================================================================
 # TAB 2: DỮ LIỆU KINH TẾ MỸ
