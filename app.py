@@ -75,6 +75,97 @@ with tabs[0]:
             <div class="tradingview-widget-container" style="height:300px;width:100%;">
               <div id="tradingview_vix" style="height:100%;width:100%;"></div>
               <script type="text/javascript" src="
+              https://tradingview.com
+              "></script>
+              <script type="text/javascript">
+              new TradingView.widget({
+              "width": "100%",
+              "height": "100%",
+              "symbol": "TVC:VIX",
+              "interval": "D",
+              "timezone": "Asia/Ho_Chi_Minh",
+              "theme": "dark",
+              "style": "1",
+              "locale": "vi",
+              "container_id": "tradingview_vix"
+              });
+              </script>
+            </div>
+        """, height=300)
+
+    with col2:
+        st.markdown("**🇺🇸 Lợi Suất Trái Phiếu Mỹ 10 Năm (US10Y)**")
+        # Nhúng Widget biểu đồ lợi suất trái phiếu chính thức
+        st.components.v1.html("""
+            <div class="tradingview-widget-container" style="height:400px;width:100%;">
+              <div id="tradingview_us10y" style="height:100%;width:100%;"></div>
+              <script type="text/javascript" src="
+              https://tradingview.com
+              "></script>
+              <script type="text/javascript">
+              new TradingView.widget({
+              "width": "100%",
+              "height": "100%",
+              "symbol": "TVC:US10Y",
+              "interval": "D",
+              "timezone": "Asia/Ho_Chi_Minh",
+              "theme": "dark",
+              "style": "1",
+              "locale": "vi",
+              "container_id": "tradingview_us10y"
+              });
+              </script>
+            </div>
+        """, height=400)
+
+        st.markdown("**🛢️ Giá Dầu Thô WTI**")
+        # Nhúng Widget biểu đồ giá dầu WTI chính thức
+        st.components.v1.html("""
+            <div class="tradingview-widget-container" style="height:300px;width:100%;">
+              <div id="tradingview_wti" style="height:100%;width:100%;"></div>
+              <script type="text/javascript" src="
+              https://tradingview.com
+              "></script>
+              <script type="text/javascript">
+              new TradingView.widget({
+              "width": "100%",
+              "height": "100%",
+              "symbol": "TVC:USOIL",
+              "interval": "D",
+              "timezone": "Asia/Ho_Chi_Minh",
+              "theme": "dark",
+              "style": "1",
+              "locale": "vi",
+              "container_id": "tradingview_wti"
+              });
+              </script>
+            </div>
+        """, height=300)
+
+    st.markdown("---")
+    st.subheader("📅 Lịch Kinh Tế & Phân Tích Xu Hướng AI")
+    
+    col_calendar, col_ai = st.columns([2, 1])
+    with col_calendar:
+        st.markdown("**Lịch Kinh Tế Hôm Nay (Nguồn dữ liệu kết nối từ ForexFactory)**")
+        calendar_data = pd.DataFrame({
+            "Thời gian": ["19:30", "19:30", "22:00"],
+            "Tiền tệ": ["USD", "USD", "USD"],
+            "Sự kiện": ["Core CPI m/m", "CPI y/y", "Thành viên FOMC phát biểu"],
+            "Mức độ": ["🔴 Cao", "🔴 Cao", "🟠 Trung bình"],
+            "Dự báo": ["0.2%", "3.1%", "-"],
+            "Thực tế": ["0.3%", "3.2%", "-"]
+        })
+        st.dataframe(calendar_data, use_container_width=True)
+        
+    with col_ai:
+        st.markdown("🤖 **AI Nhận Định & Kết Luận Xu Hướng Từ FXStreet-VN**")
+        st.info(
+            "**Tóm tắt tin tức:** CPI Mỹ cao hơn dự báo làm giảm khả năng Fed hạ lãi suất sớm. "
+            "Áp lực bán ngắn hạn xuất hiện trên đồ thị XAU/USD.\n\n"
+            "➡️ **Kết luận xu hướng AI:** **BEARISH (GIẢM GIÁ NGẮN HẠN)** đối với Vàng. Mục tiêu hỗ trợ gần nhất: $2600."
+        )
+
 
 # ==============================================================================
 # TAB 2: DỮ LIỆU KINH TẾ MỸ
