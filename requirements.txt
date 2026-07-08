@@ -1,5 +1,4 @@
-streamlit
-yfinance
-plotly
-pandas
+flask
+flask-cors
 requests
+python-dotenv
