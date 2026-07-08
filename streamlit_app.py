@@ -758,7 +758,7 @@ elif menu == "🤖 AI Giải Đáp & Phân Tích":
         try:
             # Gọi API thực tế thông qua mô hình tối ưu gemini-1.5-flash
             response = client.models.generate_content(
-                model='gemini-1.5-flash',
+                model='models/gemini-1.5-flash',
                 contents=full_content,
                 config=dict(system_instruction=system_instruction, temperature=0.3)
             )
