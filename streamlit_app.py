@@ -320,9 +320,9 @@ elif menu == "Địa Chính Trị & Chiến Tranh":
             'Quốc gia': ['Mỹ (8,133 Tấn)', 'Nga (2,332 Tấn)', 'Trung Quốc (2,264 Tấn)', 'Đức (3,352 Tấn)', 'Úc (Dự trữ mỏ)', 'Ấn Độ (822 Tấn)'],
             'Mức độ rủi ro địa chính trị': [20, 85, 50, 30, 10, 40]
         })
-        fig_map = pex.scatter_mapbox(map_data, lat="lat", lon="lon", hover_name="Quốc gia", 
+        fig_map = px.scatter_mapbox(map_data, lat="lat", lon="lon", hover_name="Quốc gia", 
                                      color="Mức độ rủi ro địa chính trị", size="Mức độ rủi ro địa chính trị",
-                                     color_continuous_scale=pex.colors.cyclical.IceFire, size_max=15, zoom=0.5, height=300)
+                                     color_continuous_scale=px.colors.cyclical.IceFire, size_max=15, zoom=0.5, height=300)
         fig_map.update_layout(mapbox_style="open-street-map", margin=dict(l=0, r=0, t=0, b=0))
         st.plotly_chart(fig_map, use_container_width=True)
         st.caption("Chấm màu thể hiện mức độ tích trữ vàng và phân vùng rủi ro khủng hoảng của khu vực.")
