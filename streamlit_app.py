@@ -66,7 +66,7 @@ def plot_candlestick(df, title):
 st.sidebar.title("🧭 Điều Hướng Hệ Thống")
 menu = st.sidebar.radio(
     "Chọn chuyên mục:",
-    ["Dashboard Tổng Quan", "Dữ Liệu Kinh Tế Mỹ", "Dòng Tiền (Flow of Funds)", "Tin Tức & Cổ Phiếu", "Địa Chính Trị & Chiến Tranh", "Công Cụ Hỗ Trợ & Demo Trade"]
+    ["Dashboard Tổng Quan", "Giá Vàng VIỆT NAM", "Dữ Liệu Kinh Tế Mỹ", "Dòng Tiền (Flow of Funds)", "Tin Tức & Cổ Phiếu", "Địa Chính Trị & Chiến Tranh", "Công Cụ Hỗ Trợ & Demo Trade"]
 )
 
 st.sidebar.markdown("---")
