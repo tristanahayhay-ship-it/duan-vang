@@ -209,11 +209,11 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
     
     # Giả lập dữ liệu biểu đồ cột
     np.random.seed(10)
-    chart_dates = pd.date_range(end=datetime.today(), periods=months_range, freq='M').strftime('%Y-%m')
+    chart_dates = pd.date_range(end=datetime.today(), periods=months_range, freq='ME').strftime('%Y-%m')
     chart_values = np.random.normal(3.0, 0.5, months_range) if selected_macro=="CPI" else np.random.normal(180, 40, months_range)
     
     df_macro_chart = pd.DataFrame({"Thời gian": chart_dates, "Giá trị": chart_values})
-    fig_macro = pex.bar(df_macro_chart, x="Thời gian", y="Giá trị", title=f"Lịch sử biến động chỉ số {selected_macro}", color="Giá trị", color_continuous_scale="Blues")
+    fig_macro = px.bar(df_macro_chart, x="Thời gian", y="Giá trị", title=f"Lịch sử biến động chỉ số {selected_macro}", color="Giá trị", color_continuous_scale="Blues")
     st.plotly_chart(fig_macro, use_container_width=True)
     
     st.markdown("---")
