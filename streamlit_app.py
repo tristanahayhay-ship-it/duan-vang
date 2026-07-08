@@ -53,7 +53,7 @@ def generate_candle_data(symbol, days=60):
     return df
 
 def plot_candlestick(df, title):
-    fig = px.Figure(data=[px.Candlestick(
+    fig = go.Figure(data=[go.Candlestick(
         x=df.index,
         open=df['Open'], high=df['High'],
         low=df['Low'], close=df['Close'],
