@@ -843,7 +843,7 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
     # 3. ĐỔ DỮ LIỆU TIN TỨC VÀO TỪNG TAB GIAO DIỆN CHÍNH XÁC THEO SỐ CHỈ MỤC, [1], [2]...
     with news_tabs[0]: # SỬA THÀNH news_tabs[0] - Tab Tiền tệ
         st.subheader("💱 Tin tức Thị trường Tiền tệ & Tỷ giá USD/VND")
-        news_data = fetch_vnexpress_news(""https://vnexpress.net/rss/kinh-doanh.rss"
+        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
 ")
         if news_data:
             for news in news_data:
@@ -853,8 +853,8 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
 
     with news_tabs[1]: # SỬA THÀNH news_tabs[1] - Tab Hàng hóa
         st.subheader("🛢️ Tin tức Thị trường Hàng hóa, Vàng & Dầu thô")
-        news_data = fetch_vnexpress_news(""https://vnexpress.net/rss/kinh-doanh.rss"
-")
+        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
+)
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
@@ -863,8 +863,8 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
 
     with news_tabs[2]: # SỬA THÀNH news_tabs[2] - Tab Chứng khoán
         st.subheader("📉 Tin tức Thị trường Chứng khoán VN-Index & Quốc tế")
-        news_data = fetch_vnexpress_news(""https://vnexpress.net/rss/kinh-doanh.rss"
-")
+        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
+)
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
@@ -873,8 +873,8 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
 
     with news_tabs[3]: # SỬA THÀNH news_tabs[3] - Tab Kinh tế & Chỉ báo
         st.subheader("📊 Chỉ báo Kinh tế Vĩ mô & Chính sách Tiền tệ")
-        news_data = fetch_vnexpress_news(""https://vnexpress.net/rss/kinh-doanh.rss"
-")
+        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
+)
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
@@ -883,8 +883,8 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
 
     with news_tabs[4]: # SỬA THÀNH news_tabs[4] - Tab Thế giới
         st.subheader("🌍 Tin tức Kinh tế Thế giới & Địa chính trị")
-        news_data = fetch_vnexpress_news(""https://vnexpress.net/rss/kinh-doanh.rss"
-")
+        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
+)
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
@@ -893,8 +893,8 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
 
     with news_tabs[5]: # SỬA THÀNH news_tabs[5] - Tab Tin Nóng Hồi
         st.subheader("🔥 Tin tức Tài chính Nóng hổi trong 24 giờ qua")
-        news_data = fetch_vnexpress_news(""https://vnexpress.net/rss/kinh-doanh.rss"
-")
+        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss"
+)
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
