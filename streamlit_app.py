@@ -142,33 +142,46 @@ st.sidebar.title("🧭 Điều Hướng Hệ Thống")
 # ⚙️ BẢNG ĐIỀU KHIỂN HỆ THỐNG (GÓC TRÊN TRÁI)
 # ===================================================================================================
 with st.sidebar.expander("⚙️ Cài đặt Hệ thống (Múi giờ / Ngôn ngữ / Theme)", expanded=False):
-    # 1. Chọn ngôn ngữ
+    # 1. Chọn ngôn ngữ (Liên kết biến lang_option)
     lang_option = st.selectbox("🌐 Ngôn ngữ (Language):", ["Tiếng Việt (VN)", "English (US)"])
     
-    # 2. Chọn múi giờ
+    # 2. Chọn múi giờ (Liên kết biến timezone_option)
     timezone_option = st.selectbox("🕒 Múi giờ (Timezone):", ["Việt Nam (GMT+7)", "New York (EST/GMT-5)", "London (GMT+0)"])
     
-    # 3. Nút bấm mô phỏng chỉnh ánh sáng (Bổ trợ giao diện)
+    # 3. Nút bấm chỉnh ánh sáng (Liên kết biến theme_option để ép theme Streamlit)
     theme_option = st.radio("🌗 Giao diện hiển thị:", ["Chế độ Sáng (Light)", "Chế độ Tối (Dark)"], horizontal=True)
 
-# Khai báo timezone an toàn để tránh lỗi đồng hồ hệ thống
-from datetime import timezone
-now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
-
-if timezone_option == "Việt Nam (GMT+7)":
-    now_selected = now_utc + timedelta(hours=7)
-    tz_suffix = "Giờ Việt Nam"
-elif timezone_option == "New York (EST/GMT-5)":
-    now_selected = now_utc - timedelta(hours=5)
-    tz_suffix = "Giờ New York"
+# Cấu hình ép giao diện Sáng/Tối trực tiếp bằng CSS dựa theo nút chọn của người dùng
+if theme_option == "Chế độ Sáng (Light)":
+    st.markdown("""<style>html, body, [data-testid="stAppViewContainer"] { background-color: #f8fafc !important; color: #0f172a !important; } .stMarkdown, p, h1, h2, h3 { color: #0f172a !important; }</style>""", unsafe_allow_html=True)
 else:
-    now_selected = now_utc
-    tz_suffix = "Giờ Quốc tế GMT"
+    st.markdown("""<style>html, body, [data-testid="stAppViewContainer"] { background-color: #0b0f19 !important; color: #f3f4f6 !important; } .stMarkdown, p, h1, h2, h3 { color: #f3f4f6 !important; }</style>""", unsafe_allow_html=True)
 
-current_time_str = now_selected.strftime("%d/%m/%Y — %H:%M:%S")
+# Khai báo cấu trúc đồng hồ động nhảy giây thực tế độc lập qua Fragment (Chạy ngầm mỗi 1 giây)
+@st.fragment(run_every=1)
+def hien_thi_dong_ho_sidebar_live(tz_option, lang_opt):
+    from datetime import timezone
+    now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
 
-# Hiển thị đồng hồ thời gian động ngay dưới bảng cài đặt
-st.sidebar.markdown(f"📅 **Thời gian:** {current_time_str} *({tz_suffix})*")
+    # Xử lý múi giờ
+    if tz_option == "Việt Nam (GMT+7)":
+        now_selected = now_utc + timedelta(hours=7)
+        tz_suffix = "Giờ Việt Nam" if lang_opt == "Tiếng Việt (VN)" else "Vietnam Time"
+    elif tz_option == "New York (EST/GMT-5)":
+        now_selected = now_utc - timedelta(hours=5)
+        tz_suffix = "Giờ New York" if lang_opt == "Tiếng Việt (VN)" else "New York Time"
+    else:
+        now_selected = now_utc
+        tz_suffix = "Giờ Quốc tế GMT" if lang_opt == "Tiếng Việt (VN)" else "GMT International Time"
+
+    current_time_str = now_selected.strftime("%d/%m/%Y — %H:%M:%S")
+    
+    # Xử lý ngôn ngữ hiển thị của nhãn đồng hồ
+    label_text = "Thời gian:" if lang_opt == "Tiếng Việt (VN)" else "Current Time:"
+    st.markdown(f"📅 **{label_text}** `{current_time_str}` *({tz_suffix})*")
+
+# Kích hoạt gọi hàm đồng hồ động kết hợp đa biến đầu vào
+hien_thi_dong_ho_sidebar_live(timezone_option, lang_option)
 st.sidebar.markdown("---")
 # ===================================================================================================
 
