@@ -922,8 +922,7 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
 # ===================================================================================================
 # 11. Mô phỏng: Ghế nóng FED
 # ===================================================================================================
-# DÁN VÀO HÀNG CUỐI CÙNG CỦA FILE (Nhớ đổi tên chữ "Tên Mục Mô Phỏng Của Bạn" đúng với tên bạn đã đặt ở Sidebar)
-elif chuyen_muc == "Tên Mục Mô Phỏng Của Bạn":
+elif selected_tab == "Mô phỏng: Ghế nóng FED":
     st.title("🏛️ Phòng Mô Phỏng: Bạn Là Chủ Tịch FED")
     st.subheader("Đóng vai Jerome Powell và đưa ra quyết định chính sách kinh tế vĩ mô")
     st.markdown("---")
