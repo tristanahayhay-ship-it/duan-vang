@@ -997,3 +997,25 @@ elif menu == "Mô phỏng: Ghế nóng FED":
         ket_qua_ai = f"⚖️ **Đánh giá từ AI:** Bạn chọn **Giữ nguyên chính sách (Neutral)** ở mức {BASE_FED_RATE}%. Đây là bước đi thận trọng dựa trên dữ liệu (Data-dependent) để tiếp tục quan sát tác động thẩm thấu của các kỳ thắt chặt trước. Thị trường tài chính ngắn hạn sẽ phản ứng ổn định và không chịu các cú sốc tâm lý bất ngờ."
 
     st.info(ket_qua_ai)
+    # --- ĐOẠN NÂNG CẤP: VẼ BIỂU ĐỒ ĐƯỜNG XU HƯỚNG MÔ PHỎNG ---
+    st.markdown("---")
+    st.markdown("### 📈 Biểu đồ Tương quan Lạm phát & Thất nghiệp")
+    
+    # Tạo dải dữ liệu mô phỏng từ mức lãi suất 0% đến 10% để vẽ đồ thị nền
+    rate_axis = np.arange(0.0, 10.25, 0.25)
+    
+    # Tính toán mảng dữ liệu lạm phát và thất nghiệp tương ứng theo công thức kinh tế của bạn
+    cpi_trend = np.maximum(0.5, BASE_CPI - ((rate_axis - BASE_FED_RATE) * 0.4))
+    unrate_trend = np.maximum(2.5, BASE_UNRATE + ((rate_axis - BASE_FED_RATE) * 0.25))
+    
+    # Gộp dữ liệu vào một bảng DataFrame để Streamlit đọc
+    chart_data = pd.DataFrame({
+        'Lãi suất FED (%)': rate_axis,
+        'Lạm phát (CPI)': cpi_trend,
+        'Tỷ lệ Thất nghiệp': unrate_trend
+    })
+    chart_data = chart_data.set_index('Lãi suất FED (%)')
+    
+    # Vẽ biểu đồ đường đa biến lên màn hình
+    st.line_chart(chart_data)
+    st.caption("💡 *Ghi chú đồ thị: Khi bạn tăng lãi suất (trục X tiến về bên phải), đường Lạm phát sẽ đi xuống và đường Thất nghiệp sẽ đi lên.*")
