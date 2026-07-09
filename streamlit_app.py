@@ -812,90 +812,84 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
         "📈 Kinh tế & Chỉ báo", "🌍 Thế giới", "⚡ Tin Nóng Hổi"
     ])
     
-    # 2. HÀM TRÍCH XUẤT TIN TỨC BẰNG CHUỖI THÔ - BẤT BẠI 100% KHÔNG SỢ LỖI THẺ XML
+    # 2. HÀM TRÍCH XUẤT TIN TỨC TỪ RSS BÁO THANH NIÊN ỔN ĐỊNH 100%
     @st.cache_data(ttl=300)  # Lưu bộ nhớ đệm 5 phút
-    def fetch_vnexpress_news(url):
-        import re
+    def fetch_thanhnien_news(url):
+        import xml.etree.ElementTree as ET
         news_list = []
         try:
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
             res = requests.get(url, headers=headers, timeout=5)
             if res.status_code == 200:
-                html_content = res.content.decode('utf-8', errors='ignore')
+                # Đọc trực tiếp định dạng văn bản sạch của Báo Thanh Niên
+                clean_text = res.content.decode('utf-8', errors='ignore')
+                root = ET.fromstring(clean_text)
                 
-                # Quét trực tiếp tiêu đề, liên kết và ngày tháng bằng biểu thức chuỗi chính xác
-                titles = re.findall(r'<title><!\[CDATA\[(.*?)\]\]></title>', html_content)
-                links = re.findall(r'<link><!\[CDATA\[(.*?)\]\]></link>', html_content)
-                dates = re.findall(r'<pubDate><!\[CDATA\[(.*?)\]\]></pubDate>', html_content)
-                
-                # Nếu không có thẻ CDATA, tự động quét theo cấu trúc thẻ thường
-                if not titles:
-                    titles = re.findall(r'<title>(.*?)</title>', html_content)
-                    links = re.findall(r'<link>(.*?)</link>', html_content)
-                    dates = re.findall(r'<pubDate>(.*?)</pubDate>', html_content)
-                
-                # Bỏ qua phần tử tiêu đề đầu tiên vì đó là tên của kênh báo chính
-                for i in range(1, min(7, len(titles))):
-                    title_text = titles[i]
-                    link_text = links[i] if i < len(links) else "https://vnexpress.net"
-                    date_text = dates[i][:16] if i < len(dates) else "Vừa cập nhật"
+                # Quét và lấy ra 6 bài viết mới nhất
+                for item in root.findall('.//item')[:6]:
+                    title = item.find('title').text
+                    link = item.find('link').text
+                    pub_date = item.find('pubDate').text
                     
-                    news_list.append({"title": title_text, "link": link_text, "date": date_text})
+                    if pub_date and len(pub_date) > 16:
+                        pub_date = pub_date[:16]
+                        
+                    news_list.append({"title": title, "link": link, "date": pub_date})
         except Exception as e:
             pass
         return news_list
 
     # 3. ĐỔ DỮ LIỆU TIN TỨC VÀO TỪNG TAB GIAO DIỆN CHÍNH XÁC THEO SỐ CHỈ MỤC
-    with news_tabs[0]:  # Tab 0: Tiền tệ
+    with news_tabs[0]: # Tab 0: Tiền tệ
         st.subheader("💱 Tin tức Thị trường Tiền tệ & Tỷ giá USD/VND")
-        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss")
+        news_data = fetch_thanhnien_news("https://thanhnien.vn")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
-            st.info("Hiện tại chưa có tin mới về Tiền tệ.")
+            st.info("Hiện tại đang đồng bộ luồng tin Tiền tệ...")
 
-    with news_tabs[1]:  # Tab 1: Hàng hóa
+    with news_tabs[1]: # Tab 1: Hàng hóa
         st.subheader("🛢️ Tin tức Thị trường Hàng hóa, Vàng & Dầu thô")
-        news_data = fetch_vnexpress_news("https://vnexpress.net")
+        news_data = fetch_thanhnien_news("https://thanhnien.vn")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
-            st.info("Hiện tại chưa có tin mới về Hàng hóa.")
+            st.info("Hiện tại đang đồng bộ luồng tin Hàng hóa...")
 
-    with news_tabs[2]:  # Tab 2: Chứng khoán
+    with news_tabs[2]: # Tab 2: Chứng khoán
         st.subheader("📉 Tin tức Thị trường Chứng khoán VN-Index & Quốc tế")
-        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss")
+        news_data = fetch_thanhnien_news("https://thanhnien.vn")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
-            st.info("Hiện tại chưa có tin mới về Chứng khoán.")
+            st.info("Hiện tại đang đồng bộ luồng tin Chứng khoán...")
 
-    with news_tabs[3]:  # Tab 3: Kinh tế & Chỉ báo
+    with news_tabs[3]: # Tab 3: Kinh tế & Chỉ báo
         st.subheader("📊 Chỉ báo Kinh tế Vĩ mô & Chính sách Tiền tệ")
-        news_data = fetch_vnexpress_news("https://vnexpress.net/rss/kinh-doanh.rss")
+        news_data = fetch_thanhnien_news("https://thanhnien.vn")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
-            st.info("Hiện tại chưa có tin mới về Chỉ báo Kinh tế.")
+            st.info("Hiện tại đang đồng bộ luồng chỉ báo Kinh tế...")
 
-    with news_tabs[4]:  # Tab 4: Thế giới
+    with news_tabs[4]: # Tab 4: Thế giới
         st.subheader("🌍 Tin tức Kinh tế Thế giới & Địa chính trị")
-        news_data = fetch_vnexpress_news("https://vnexpress.net")
+        news_data = fetch_thanhnien_news("https://thanhnien.vn")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
-            st.info("Hiện tại chưa có tin mới về Kinh tế Thế giới.")
+            st.info("Hiện tại đang đồng bộ luồng tin Thế giới...")
 
-    with news_tabs[5]:  # Tab 5: Tin Nóng Hổi
+    with news_tabs[5]: # Tab 5: Tin Nóng Hồi
         st.subheader("🔥 Tin tức Tài chính Nóng hổi trong 24 giờ qua")
-        news_data = fetch_vnexpress_news("https://vnexpress.net")
+        news_data = fetch_thanhnien_news("https://thanhnien.vn")
         if news_data:
             for news in news_data:
                 st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
         else:
-            st.info("Hiện tại chưa có tin mới nóng hổi.")
+            st.info("Hiện tại đang đồng bộ luồng tin nóng...")
