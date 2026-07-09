@@ -1023,3 +1023,145 @@ elif menu == "Mô phỏng: Ghế nóng FED":
     # Vẽ biểu đồ động dạng vùng/đường thẳng phản hồi lập tức
     st.area_chart(chart_data)
     st.caption(f"💡 *Trạng thái hiện tại: Đồ thị đang hiển thị hành trình tác động từ mốc gốc {BASE_FED_RATE}% đến mốc quyết định {new_fed_rate}% của bạn.*")
+# ===================================================================================================
+# 12. Sơ đồ Kinh tế Mỹ & Vàng
+# ===================================================================================================
+elif menu == "Sơ đồ Kinh tế Mỹ & Vàng":
+    st.title("🏛️ Sơ Đồ Động Học Nền Kinh Tế Mỹ & Chu Kỳ Vàng")
+    st.caption("Mô phỏng cơ chế truyền dẫn chính sách vĩ mô, chu kỳ thực tế và tác động liên thị trường.")
+
+    # 1. THIẾT LẬP ĐIỂM DỮ LIỆU THỰC TẾ CƠ SỞ CHUẨN XÁC
+    # Tận dụng hàm get_live_market_data() sẵn có của bạn để lấy giá trị hiện tại
+    try:
+        live_data = get_live_market_data()
+        BASE_FED_RATE = 5.25  # Lãi suất cơ sở hiện tại
+        BASE_CPI = 3.1        # Lạm phát cơ sở
+        BASE_GDP = 2.2        # Tăng trưởng GDP cơ sở
+        BASE_DXY = live_data.get("DXY Index", 104.2)
+        BASE_GOLD = live_data.get("Vàng (XAU/USD)", 2350)
+    except:
+        BASE_FED_RATE = 5.25
+        BASE_CPI = 3.1
+        BASE_GDP = 2.2
+        BASE_DXY = 104.2
+        BASE_GOLD = 2350
+
+    # 2. THANH TRƯỢT ĐIỀU CHỈNH CHỈ SỐ MÔ PHỎNG VĨ MÔ
+    st.markdown("### 🎛️ Giả lập Biến động Nền Kinh tế")
+    
+    col_s1, col_s2, col_s3 = st.columns(3)
+    with col_s1:
+        sim_fed_rate = st.slider(
+            "Điều chỉnh Lãi suất FED (%)",
+            min_value=0.0,
+            max_value=10.0,
+            value=BASE_FED_RATE,
+            step=0.25
+        )
+    with col_s2:
+        sim_cpi = st.slider(
+            "Tỷ lệ Lạm phát CPI (%)",
+            min_value=-2.0,
+            max_value=15.0,
+            value=BASE_CPI,
+            step=0.1
+        )
+    with col_s3:
+        sim_gdp = st.slider(
+            "Tăng trưởng GDP Mỹ (%)",
+            min_value=-5.0,
+            max_value=8.0,
+            value=BASE_GDP,
+            step=0.1
+        )
+
+    # 3. MÔ HÌNH TOÁN HỌC ĐÁNH GIÁ CHU KỲ KINH TẾ THỰC TẾ
+    real_rate = sim_fed_rate - sim_cpi  # Lãi suất thực thực tế
+    
+    if sim_gdp > 2.5 and sim_cpi > 3.0:
+        chu_ky_kinh_te = "Tăng trưởng nóng (Overheating) — Cuối chu kỳ tăng trưởng (Late-Cycle)"
+        tac_dong_vang = "Tích cực (Vàng phát huy vai trò hầm trú ẩn phòng hộ lạm phát khi sức mua tiền giấy suy giảm)"
+    elif sim_gdp < 0 and sim_cpi > 4.0:
+        chu_ky_kinh_te = "Lạm phát đình đốn (Stagflation) — Suy thoái đi kèm áp lực giá cả tăng cao"
+        tac_dong_vang = "Cực kỳ Tích cực (Bối cảnh lịch sử chứng minh Vàng đạt hiệu suất vượt trội nhất trong pha kinh tế này)"
+    elif sim_gdp < 1.0 and sim_cpi < 1.5:
+        chu_ky_kinh_te = "Suy thoái / Thiểu phát (Recession/Deflation) — Đầu chu kỳ kinh tế (Early-Cycle)"
+        tac_dong_vang = "Trung tính đến Tích cực (FED buộc phải nới lỏng tiền tệ và hạ lãi suất, kích thích dòng tiền dịch chuyển qua Vàng)"
+    else:
+        chu_ky_kinh_te = "Phục hồi ổn định / Tăng trưởng bền vững (Goldilocks)"
+        tac_dong_vang = "Tiêu cực đến Trung tính (Tâm lý thị trường lạc quan, dòng tiền ưu tiên các tài sản rủi ro sinh lời cao như Cổ phiếu)"
+
+    # Khung hiển thị trực quan trạng thái đồng bộ
+    st.markdown(f"""
+    <div style='background-color: #f8fafc; border-left: 5px solid #0f172a; padding: 15px; border-radius: 6px; margin: 15px 0;'>
+        📌 <b>Pha Chu kỳ Kinh tế Giả lập:</b> {chu_ky_kinh_te} <br>
+        💵 <b>Lãi suất thực tế (Real Rate):</b> {real_rate:.2f}% (Lãi suất {sim_fed_rate}% - Lạm phát {sim_cpi}%) <br>
+        📊 <b>DXY thị trường gốc:</b> {BASE_DXY} | 📈 <b>Giá Vàng thị trường gốc:</b> ${BASE_GOLD:,} <br>
+        ⭐ <b>Xu hướng & Tương quan Vàng:</b> {tac_dong_vang}
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 4. SƠ ĐỒ LUỒNG DỊCH CHUYỂN DÒNG TIỀN (Sankey Diagram)
+    st.markdown("### ⛓️ Sơ Đồ Luồng Truyền Dẫn & Dịch Chuyển Dòng Tiền")
+    
+    # Định lượng độ lớn luồng tiền chạy dựa trên các chỉ số bạn kéo trên thanh trượt
+    flow_fed_usd = int(sim_fed_rate * 12)
+    flow_fed_bond = int(sim_fed_rate * 10)
+    flow_cpi_gold = int(sim_cpi * 15)
+    flow_gdp_stocks = int(max(sim_gdp, 0) * 18)
+    flow_usd_gold = int(max(115 - BASE_DXY, 8)) 
+
+    labels_sankey = ["Chính sách FED", "Đồng USD (DXY)", "Trái Phiếu Mỹ", "Nền Kinh Tế", "Thị trường Cổ phiếu", "VÀNG (XAUUSD)"]
+
+    fig_sankey = go.Figure(data=[go.Sankey(
+        node = dict(
+          pad = 12,
+          thickness = 18,
+          line = dict(color = "black", width = 0.5),
+          label = labels_sankey,
+          color = ["#2563eb", "#10b981", "#f59e0b", "#475569", "#db2777", "#d97706"]
+        ),
+        link = dict(
+          source = [0, 0, 3, 3, 1], 
+          target = [1, 2, 4, 5, 5], 
+          value = [flow_fed_usd, flow_fed_bond, flow_gdp_stocks, flow_cpi_gold, flow_usd_gold]
+      ))])
+
+    fig_sankey.update_layout(height=340, margin=dict(l=10, r=10, t=10, b=10))
+    st.plotly_chart(fig_sankey, use_container_width=True)
+
+    # 5. TÍCH HỢP AI ĐÁNH GIÁ (Thư viện google-genai)
+    st.markdown("### 🤖 Trợ Lý AI Nhận Định Kịch Bản")
+    
+    if st.button("🚀 Kích hoạt AI Phân Tích Chu Kỳ"):
+        with st.spinner("AI đang tính toán cấu trúc liên thị trường toàn cầu..."):
+            try:
+                from google import genai
+                client = genai.Client()
+                
+                prompt_text = f"""
+                Bạn là một chuyên gia phân tích kinh tế vĩ mô cấp cao. Hãy đánh giá kịch bản kinh tế Mỹ giả lập sau:
+                - Lãi suất điều hành FED: {sim_fed_rate}%
+                - Chỉ số lạm phát CPI: {sim_cpi}%
+                - Tốc độ tăng trưởng GDP: {sim_gdp}%
+                Đồng thời kết hợp với dữ liệu thị trường thực tế hiện tại: Chỉ số DXY đạt {BASE_DXY}, Giá Vàng thế giới đạt ${BASE_GOLD}.
+                
+                Hãy phân tích ngắn gọn, đi thẳng vào trọng tâm bằng tiếng Việt:
+                1. Nền kinh tế đang thuộc pha nào của chu kỳ vĩ mô thực tế? 
+                2. Phân tích dòng chảy của dòng tiền giữa Trái phiếu, Cổ phiếu và Vàng trong kịch bản này.
+                3. Đưa ra dự phóng chiến lược xu hướng cho Giá Vàng thế giới (XAUUSD).
+                Định dạng câu trả lời rõ ràng bằng bullet points với phong cách chuyên nghiệp của quỹ đầu tư.
+                """
+                
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt_text,
+                )
+                st.markdown(f"<div style='background-color: #eff6ff; border-left: 5px solid #2563eb; padding: 15px; border-radius: 6px;'>{response.text}</div>", unsafe_allow_html=True)
+            except Exception as e:
+                # Hệ thống phân tích thuật toán dự phòng nếu chưa nạp API Key
+                st.markdown(f"""
+                <div style='background-color: #fffbeb; border-left: 5px solid #d97706; padding: 15px; border-radius: 6px;'>
+                    <b>⚠️ Nhận định hệ thống (AI chưa nạp Key):</b> Với mức lãi suất thực giả lập là <b>{real_rate:.2f}%</b>, nếu chỉ số này liên tục giảm, áp lực lên chi phí cơ hội giữ vàng sẽ biến mất, tạo đà tăng giá vững chắc cho XAUUSD. Tuy nhiên, mức tăng trưởng GDP giả lập <b>{sim_gdp}%</b> vẫn đang hỗ trợ thị trường cổ phiếu giữ nhịp tốt, dòng tiền ngắn hạn sẽ phân bổ lưỡng tính thay vì dồn toàn bộ vào tài sản trú ẩn.
+                </div>
+                """, unsafe_allow_html=True)
