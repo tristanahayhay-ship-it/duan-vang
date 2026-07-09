@@ -922,7 +922,11 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
 # ===================================================================================================
 # 11. Mô phỏng: Ghế nóng FED
 # ===================================================================================================
-elif selected_tab == "Mô phỏng: Ghế nóng FED":
+# --- XÓA DÒNG ELIF CŨ VÀ THAY BẰNG KHỐI ĐỘC LẬP NÀY (Đẩy sát ra mép lề trái, không thụt lề dòng đầu) ---
+st.sidebar.markdown("---")
+hien_mo_phong = st.sidebar.checkbox("🏛️ Mô phỏng: Ghế nóng FED")
+
+if hien_mo_phong:
     st.title("🏛️ Phòng Mô Phỏng: Bạn Là Chủ Tịch FED")
     st.subheader("Đóng vai Jerome Powell và đưa ra quyết định chính sách kinh tế vĩ mô")
     st.markdown("---")
