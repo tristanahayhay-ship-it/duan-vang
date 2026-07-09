@@ -938,37 +938,37 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
         st.subheader("💱 Tin tức Thị trường Tiền tệ & Tỷ giá USD/VND")
         news_data = fetch_json_news_api("currency")
         for news in news_data:
-            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#60a5fa !important;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
 
     with news_tabs[1]: # Tab 1: Hàng hóa
         st.subheader("🛢️ Tin tức Thị trường Hàng hóa, Vàng & Dầu thô")
         news_data = fetch_json_news_api("gold")
         for news in news_data:
-            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#60a5fa !important;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
 
     with news_tabs[2]: # Tab 2: Chứng khoán
         st.subheader("📉 Tin tức Thị trường Chứng khoán VN-Index & Quốc tế")
         news_data = fetch_json_news_api("stocks")
         for news in news_data:
-            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#60a5fa !important;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
 
     with news_tabs[3]: # Tab 3: Kinh tế & Chỉ báo
         st.subheader("📊 Chỉ báo Kinh tế Vĩ mô & Chính sách Tiền tệ")
         news_data = fetch_json_news_api("macroeconomics")
         for news in news_data:
-            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#60a5fa !important;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
 
     with news_tabs[4]: # Tab 4: Thế giới
         st.subheader("🌍 Tin tức Kinh tế Thế giới & Địa chính trị")
         news_data = fetch_json_news_api("world")
         for news in news_data:
-            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#60a5fa !important;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
 
     with news_tabs[5]: # Tab 5: Tin Nóng Hồi
         st.subheader("🔥 Tin tức Tài chính Nóng hổi trong 24 giờ qua")
         news_data = fetch_json_news_api("hotnews")
         for news in news_data:
-            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#60a5fa !important;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
 
 # ===================================================================================================
 # 11. Mô phỏng: Ghế nóng FED
