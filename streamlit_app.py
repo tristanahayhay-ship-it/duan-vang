@@ -770,8 +770,13 @@ elif menu == "🤖 AI Giải Đáp & Phân Tích":
                 config=config
             )
             return response.text
-        except Exception as e:
-            return f"❌ Lỗi kết nối API Gemini thực tế: {str(e)}. Vui lòng kiểm tra lại cấu hình key."
+    except Exception as e:
+        # Bắt lỗi 429 quá tải hạn mức tài khoản miễn phí để xử lý riêng
+        if "429" in str(e) or "EXHAUSTED" in str(e):
+            return "⚠️ **Hệ thống AI hiện đang tạm thời quá tải do giới hạn hạn mức của tài khoản miễn phí (Tối đa 20 lần/phút).** Bạn vui lòng nghỉ tay khoảng 20-30 giây rồi nhấn gửi lại câu hỏi nhé!"
+        
+        # Nếu là các lỗi hệ thống khác thì trả về thông báo cũ của bạn
+        return f"❌ Lỗi kết nối API Gemini thực tế: {str(e)}. Vui lòng kiểm tra lại cấu hình key."
 
     # 7. XỬ LÝ KHI NGƯỜI DÙNG BẤM CÁC NÚT GỢI Ý NHANH
     chosen_prompt = None
@@ -785,19 +790,22 @@ elif menu == "🤖 AI Giải Đáp & Phân Tích":
         with st.spinner("AI đang đọc dữ liệu lịch kinh tế và phân tích..."):
             response = ask_gemini_with_context(chosen_prompt)
         st.session_state.chat_history.append({"role": "assistant", "content": response})
-        st.rerun()
+    # st.rerun()
 
     # 8. Ô NHẬP LIỆU CHAT TRỰC TIẾP TỪ NGƯỜI DÙNG (CHAT INPUT TỰ DO)
-    if user_query := st.chat_input("Nhập câu hỏi tự do vĩ mô tại đây (Ví dụ: Tuần này có tin CPI không?)..."):
+    if user_query := st.chat_input("Nhập câu hỏi tự do về vĩ mô tại đây (Ví dụ: tuần này có tin CPI không?)..."):
+        # 1. Lưu câu hỏi của user và hiển thị ngay lập tức
         st.session_state.chat_history.append({"role": "user", "content": user_query})
         with st.chat_message("user"):
             st.markdown(user_query)
-            
+
+        # 2. Gọi AI xử lý dữ liệu và bẫy lỗi an toàn
         with st.chat_message("assistant"):
-            with st.spinner("Gemini đang xử lý dữ liệu vĩ mô..."):
+            with st.spinner("Gemini đang xử lý dữ liệu và phân tích..."):
                 ai_response = ask_gemini_with_context(user_query)
-            st.markdown(ai_response)
-            
+                st.markdown(ai_response)
+                
+        # 3. Lưu câu trả lời của AI vào lịch sử chat
         st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
 # ===================================================================================================
 # 10. 📰 Tin Tức Tài Chính Đa Kênh
