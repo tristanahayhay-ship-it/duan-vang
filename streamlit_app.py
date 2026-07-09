@@ -1203,7 +1203,7 @@ elif menu == "Demo Trade":
 
     st.markdown("---")
 
-    # 3. LẤY GIÁ THỜI GIAN THỰC TỐI ƯU TỪ YAHOO FINANCE
+    # 3. LẤY GIÁ THỜI GIAN THỰC TỐI ƯU TỪ YAHOO FINANCE & TỰ ĐỘNG GIẢ LẬP NẾN
     symbol_trade = st.selectbox("Chọn sản phẩm giao dịch:", ["Vàng (XAU/USD)", "EUR/USD", "Bitcoin (BTC/USD)"])
     ticker_map = {
         "Vàng (XAU/USD)": "GC=F",
@@ -1212,19 +1212,33 @@ elif menu == "Demo Trade":
     }
     ticker_symbol = ticker_map[symbol_trade]
 
-    @st.cache_data(ttl=5)  # Cập nhật giá liên tục mỗi 5 giây
+    @st.cache_data(ttl=5)  # Cập nhật dữ liệu liên tục mỗi 5 giây
     def lay_gia_chuand_mt5(ticker):
         try:
-            data = yf.download(ticker, period="1d", interval="1m")
+            # Lấy khung thời gian rộng hơn (5 ngày, nến 60 phút) để đảm bảo luôn có dữ liệu lịch sử vẽ chart
+            data = yf.download(ticker, period="5d", interval="60m")
             if not data.empty:
                 current_price = data['Close'].iloc[-1]
                 df_chart = data.tail(30).reset_index()
+                # Xử lý chuẩn hóa tên cột nếu dính định dạng MultiIndex
                 df_chart.columns = [col[0] if isinstance(col, tuple) else col for col in df_chart.columns]
                 return round(float(current_price), 2), df_chart
         except:
             pass
+        
+        # BỘ GIẢ LẬP NẾN TỰ ĐỘNG: Đảm bảo biểu đồ luôn hiển thị mượt mà kể cả khi lỗi mạng hoặc cuối tuần
         backup_prices = {"GC=F": 2350.0, "EURUSD=X": 1.0850, "BTC-USD": 65000.0}
-        return backup_prices[ticker], pd.DataFrame()
+        p_goc = backup_prices[ticker]
+        
+        times = [datetime.now() - timedelta(hours=i) for i in range(30, 0, -1)]
+        df_fake = pd.DataFrame({
+            'Datetime': times,
+            'Open': [p_goc + (i * 0.4) for i in range(30)],
+            'High': [p_goc + (i * 0.4) + 1.5 for i in range(30)],
+            'Low': [p_goc + (i * 0.4) - 1.2 for i in range(30)],
+            'Close': [p_goc + (i * 0.4) + 0.3 for i in range(30)]
+        })
+        return p_goc, df_fake
 
     current_market_price, df_candles = lay_gia_chuand_mt5(ticker_symbol)
 
@@ -1273,10 +1287,11 @@ elif menu == "Demo Trade":
             st.toast(f"Đã mở lệnh SELL {lot_size} lot tại giá {current_market_price}")
             st.rerun()
 
-    # 5. BIỂU ĐỒ NẾN CHẠY REAL-TIME THEO THỊ TRƯỜNG
+    # 5. BIỂU ĐỒ NẾN CHẠY REAL-TIME VÀ HỖ TRỢ CHỈ BÁO KỸ THUẬT
     if not df_candles.empty:
-        st.markdown("### 📈 Biểu Đồ Kỹ Thuật (1 Phút)")
+        st.markdown("### 📈 Biểu Đồ Kỹ Thuật")
         
+        # Tính toán chỉ báo động
         if indicator_choice == "Đường MA 10":
             df_candles['MA10'] = df_candles['Close'].rolling(window=10).mean()
         elif indicator_choice == "Dải Bollinger Bands":
@@ -1288,23 +1303,31 @@ elif menu == "Demo Trade":
         import plotly.graph_objects as go
         fig_terminal = go.Figure()
         
+        # Vẽ cấu trúc Nến Nhật hình cột chuẩn MT5
         fig_terminal.add_trace(go.Candlestick(
             x=df_candles['Datetime'],
             open=df_candles['Open'], high=df_candles['High'],
             low=df_candles['Low'], close=df_candles['Close'],
-            name="Giá nến"
+            name="Giá nến",
+            increasing_line_color='#22c55e', decreasing_line_color='#ef4444'
         ))
         
-        if indicator_choice == "Đường MA 10" in df_candles:
-            fig_terminal.add_trace(go.Scatter(x=df_candles['Datetime'], y=df_candles['MA10'], mode='lines', name='MA(10)', line=dict(color='#3b82f6')))
-        elif indicator_choice == "Dải Bollinger Bands" in df_candles:
-            fig_terminal.add_trace(go.Scatter(x=df_candles['Datetime'], y=df_candles['Upper'], mode='lines', name='Dải Trên', line=dict(dash='dash', color='#cbd5e1')))
-            fig_terminal.add_trace(go.Scatter(x=df_candles['Datetime'], y=df_candles['Lower'], mode='lines', name='Dải Dưới', line=dict(dash='dash', color='#cbd5e1')))
+        # Hiển thị các đường chỉ báo kỹ thuật tùy chọn
+        if indicator_choice == "Đường MA 10" and 'MA10' in df_candles:
+            fig_terminal.add_trace(go.Scatter(x=df_candles['Datetime'], y=df_candles['MA10'], mode='lines', name='MA(10)', line=dict(color='#3b82f6', width=2)))
+        elif indicator_choice == "Dải Bollinger Bands" and 'Upper' in df_candles:
+            fig_terminal.add_trace(go.Scatter(x=df_candles['Datetime'], y=df_candles['Upper'], mode='lines', name='Dải Trên', line=dict(dash='dash', color='#94a3b8')))
+            fig_terminal.add_trace(go.Scatter(x=df_candles['Datetime'], y=df_candles['Lower'], mode='lines', name='Dải Dưới', line=dict(dash='dash', color='#94a3b8')))
 
-        fig_terminal.update_layout(xaxis_rangeslider_visible=False, height=300, margin=dict(l=10, r=10, t=10, b=10))
+        fig_terminal.update_layout(
+            xaxis_rangeslider_visible=False, 
+            height=340, 
+            margin=dict(l=5, r=5, t=5, b=5),
+            plot_bgcolor="#ffffff"
+        )
         st.plotly_chart(fig_terminal, use_container_width=True)
 
-    # 6. BANEL GIÁM SÁT LỆNH TRẠNG THÁI (NHẢY SỐ TỰ ĐỘNG)
+    # 6. BANEL GIÁM SÁT LỆNH TRẠNG THÁI (NHẢY SỐ TỰ ĐỘNG THEO NỀN TẢNG FRAGMENT)
     st.markdown("### 🖥️ Danh Sách Lệnh Đang Chạy (Terminal)")
     
     @st.fragment(run_every=2)
