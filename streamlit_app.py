@@ -1265,32 +1265,38 @@ elif menu == "Demo Trade":
             </div>
         """, unsafe_allow_html=True)
         
-        # Nhúng biểu đồ TradingView Live bằng mã Iframe HTML
+        # --- MÃ NGUỒN CHUẨN HIỂN THỊ BIỂU ĐỒ TRADINGVIEW GỐC ---
         import streamlit.components.v1 as components
-        tradingview_html = """
-        <div class="tradingview-widget-container" style="height:500px;width:100%;">
-          <div id="tradingview_chart"></div>
+
+        tradingview_widget_code = """
+        <div class="tradingview-widget-container" style="height:100%;width:100%;">
+          <div id="tradingview_xauusd"></div>
           <script type="text/javascript" src="https://tradingview.com"></script>
           <script type="text/javascript">
           new TradingView.widget({
-            "width": "100%",
-            "height": 500,
-            "symbol": "OANDA:XAUUSD",
+            "autosize": true,
+            "symbol": "FX_IDC:XAUUSD",
             "interval": "D",
             "timezone": "Asia/Ho_Chi_Minh",
-            "theme": "dark",
+            "theme": "light",
             "style": "1",
             "locale": "vi_VN",
             "toolbar_bg": "#f1f3f6",
             "enable_publishing": false,
+            "withgetproperties": true,
             "hide_side_toolbar": false,
             "allow_symbol_change": true,
-            "container_id": "tradingview_chart"
+            "watchlist": [
+              "FX_IDC:XAUUSD"
+            ],
+            "details": true,
+            "container_id": "tradingview_xauusd"
           });
           </script>
         </div>
         """
-        components.html(tradingview_html, height=510)
+        
+        components.html(tradingview_widget_code, height=550, scrolling=False)
 
     # --------------------------------------------------------------------------
     # CỘT PHẢI: KHỐI QUẢN LÝ QUỸ TÀI KHOẢN & ĐẶT LỆNH QUICK-TRADE
