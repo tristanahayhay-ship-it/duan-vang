@@ -741,41 +741,41 @@ elif menu == "🤖 AI Giải Đáp & Phân Tích":
             st.markdown(message["content"])
 
     # 6. HÀM GỌI API GEMINI THỰC TẾ ĐỂ TRẢ LỜI TỰ DO
-    def ask_gemini_with_context(user_prompt):
-        # Lấy ngữ cảnh lịch kinh tế thời gian thực
-        calendar_data = build_calendar_context()
-        
-        # Thiết lập System Instruction để ép AI làm chuyên gia tài chính vĩ mô
-        system_instruction = """
-        Bạn là một chuyên gia phân tích kinh tế vĩ mô đầu ngành và là cố vấn chiến lược thị trường vàng (XAU/USD).
-        Bạn có nhiệm vụ hỗ trợ người dùng giải đáp thắc mắc. 
-        ĐẶC BIỆT: Hãy đọc kỹ danh sách Lịch Kinh Tế được cung cấp trong ngữ cảnh dưới đây để trả lời chính xác ngày giờ, số liệu dự báo của các tin tức (như CPI, Unemployment Claims, FED...) khi người dùng hỏi về tin tức trong ngày/tuần.
-        Luôn trả lời bằng Tiếng Việt, luận điểm rõ ràng, chuyên nghiệp, sử dụng các ký hiệu emoji cảnh báo trực quan sinh động.
-        """
-        
-        full_content = f"{calendar_data}\n\nCÂU HỎI CỦA NGƯỜI DÙNG: {user_prompt}"
-        try:
-            # Ép cấu hình sử dụng phiên bản API ổn định để sửa lỗi 404
-            from google.genai import types
-            
-            config = types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                temperature=0.3,
-            )
-            
-            # Sử dụng mô hình thế hệ mới gemini-2.5-flash xử lý vĩ mô cực nhạy
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=full_content,
-                config=config
-            )
+def ask_gemini_with_context(user_prompt):
+    # Lấy ngữ cảnh lịch kinh tế thời gian thực
+    calendar_data = build_calendar_context()
+    
+    # Thiết lập System Instruction để ép AI làm chuyên gia tài chính vĩ mô
+    system_instruction = """
+Bạn là một chuyên gia phân tích kinh tế vĩ mô đầu ngành và là cố vấn chiến lược thị trường vàng (XAU/USD).
+Bạn có nhiệm vụ hỗ trợ người dùng giải đáp thắc mắc.
+ĐẶC BIỆT: Hãy đọc kỹ danh sách Lịch Kinh Tế được cung cấp trong ngữ cảnh dưới đây để trả lời chính xác ngày giờ, số liệu dự báo của các tin tức (như CPI, Unemployment Claims, FED...) khi người dùng hỏi về tin tức kinh tế tuần này.
+Luôn trả lời bằng Tiếng Việt, luận điểm rõ ràng, chuyên nghiệp, sử dụng các ký hiệu emoji cảnh báo trực quan sinh động.
+"""
+    
+    full_content = f"{calendar_data}\n\nCÂU HỎI CỦA NGƯỜI DÙNG: {user_prompt}"
+    try:
+        # Ép cấu hình sử dụng phiên bản API ổn định để sửa lỗi 404
+        from google.genai import types
+
+        config = types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            temperature=0.3,
+        )
+
+        # Sử dụng mô hình thế hệ mới gemini-2.5-flash xử lý vĩ mô cực nhạy
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=full_content,
+            config=config
+        )
         return response.text
-        except Exception as e:
-        # Bat loi 429 qua tai han muc tai khoan mien phi de xu ly rieng
+    except Exception as e:
+        # Bắt lỗi 429 quá tải hạn mức tài khoản miễn phí để xử lý riêng
         if "429" in str(e) or "EXHAUSTED" in str(e):
             return "⚠️ **Hệ thống AI hiện đang tạm thời quá tải do giới hạn hạn mức của tài khoản miễn phí (Tối đa 20 lần/phút).** Bạn vui lòng nghỉ tay khoảng 20-30 giây rồi nhấn gửi lại câu hỏi nhé!"
         
-        # Neu la cac loi he thong khac thi tra ve thong bao cu cua ban
+        # Nếu là các lỗi hệ thống khác thì trả về thông báo cũ của bạn
         return f"❌ Lỗi kết nối API Gemini thực tế: {str(e)}. Vui lòng kiểm tra lại cấu hình key."
 
     # 7. XỬ LÝ KHI NGƯỜI DÙNG BẤM CÁC NÚT GỢI Ý NHANH
