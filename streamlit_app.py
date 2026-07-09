@@ -18,30 +18,11 @@ st.set_page_config(
 # Thêm CSS tùy chỉnh để giao diện chuyên nghiệp hơn
 st.markdown("""
 <style>
-    /* Lam noi bat cac o thong so metric tren nen xam toi */
-    div[data-testid="stMetric"] { 
-        background-color: #1e293b !important; 
-        padding: 15px !important; 
-        border-radius: 10px !important; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
-        border: 1px solid #334155 !important;
-    }
-    /* Ep chu tieu de nho cua o metric thanh mau xam sang */
-    div[data-testid="stMetric"] label { 
-        color: #94a3b8 !important; 
-    }
-    /* Ep chu so gia tri cua o metric thanh mau trang */
-    div[data-testid="stMetricValue"] div { 
-        color: #ffffff !important; 
-    }
-    /* Giu mau chu tieu de chinh luon sang ro */
-    h1, h2, h3, h4, h5, h6 { 
-        color: #ffffff !important; 
-        font-family: 'Segoe UI', sans-serif; 
-    }
-    /* Hop tin tuc va hop AI phu hop nen toi */
-    .ai-box { background-color: #1e3a8a; border-left: 5px solid #3b82f6; padding: 15px; border-radius: 4px; margin-bottom: 20px; color: white; }
-    .news-card { background: #1e293b; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); margin-bottom: 15px; border: 1px solid #334155; }
+    .reportview-container { background: #f5f7f8; }
+    .stMetric { background-color: #ffffff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    h1, h2, h3 { color: #1e293b; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    .ai-box { background-color: #eff6ff; border-left: 5px solid #3b82f6; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+    .news-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; }
 </style>
 """, unsafe_allow_html=True)
 
