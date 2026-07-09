@@ -918,3 +918,83 @@ elif menu == "📰 Tin Tức Tài Chính Đa Kênh":
         news_data = fetch_json_news_api("hotnews")
         for news in news_data:
             st.markdown(f"""<div class="news-card"><h5>🔗 <a href="{news['link']}" target="_blank" style="text-decoration:none; color:#1e293b;">{news['title']}</a></h5><small>📅 Cập nhật: {news['date']}</small></div>""", unsafe_allow_html=True)
+
+# ===================================================================================================
+# 11. Mô phỏng: Ghế nóng FED
+# ===================================================================================================
+# DÁN VÀO HÀNG CUỐI CÙNG CỦA FILE (Nhớ đổi tên chữ "Tên Mục Mô Phỏng Của Bạn" đúng với tên bạn đã đặt ở Sidebar)
+elif chuyen_muc == "Tên Mục Mô Phỏng Của Bạn":
+    st.title("🏛️ Phòng Mô Phỏng: Bạn Là Chủ Tịch FED")
+    st.subheader("Đóng vai Jerome Powell và đưa ra quyết định chính sách kinh tế vĩ mô")
+    st.markdown("---")
+
+    # 1. THIẾT LẬP ĐIỂM DỮ LIỆU THỰC TẾ CƠ SỞ (Mốc tham chiếu thực tế)
+    BASE_FED_RATE = 5.25    # Lãi suất cơ sở hiện tại (%)
+    BASE_CPI = 3.1          # Lạm phát cơ sở (%)
+    BASE_UNRATE = 4.0       # Thất nghiệp cơ sở (%)
+    BASE_DXY = 104.2        # Chỉ số USD Index cơ sở
+    BASE_GOLD = 2350        # Giá vàng cơ sở ($/oz)
+
+    # 2. THANH TRƯỢT ĐIỀU CHỈNH CHÍNH SÁCH
+    st.markdown("### 🎛️ Quyết định lãi suất của bạn (Fed Funds Rate)")
+    new_fed_rate = st.slider(
+        "Điều chỉnh mức Lãi suất điều hành mới (%):",
+        min_value=0.0,
+        max_value=10.0,
+        value=BASE_FED_RATE,
+        step=0.25,
+        help="Mỗi bước tăng/giảm là 0.25% (25 điểm cơ bản) tương tự các kỳ họp FOMC thực tế."
+    )
+
+    # Tính toán độ lệch chính sách để làm tham số truyền dẫn kinh tế
+    rate_shock = new_fed_rate - BASE_FED_RATE
+
+    # 3. MÔ HÌNH TOÁN HỌC TƯƠNG QUAN THỰC TẾ (Hệ số co giãn vĩ mô)
+    new_cpi = max(0.5, BASE_CPI - (rate_shock * 0.4))
+    new_unrate = max(2.5, BASE_UNRATE + (rate_shock * 0.25))
+    new_dxy = BASE_DXY + (rate_shock * 2.1)
+    new_gold = max(1000, BASE_GOLD - (rate_shock * 120))
+
+    # 4. HIỂN THỊ KẾT QUẢ KỊCH BẢN MÔ PHỎNG (Các ô chỉ số nhảy tự động)
+    st.markdown("### 📊 Biến động cục diện Vĩ mô & Thị trường (Dự kiến)")
+
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric(
+            label="Lạm phát (CPI YoY)", 
+            value=f"{new_cpi:.2f}%", 
+            delta=f"{(new_cpi - BASE_CPI):+.2f}%", 
+            delta_color="inverse"
+        )
+    with col2:
+        st.metric(
+            label="Tỷ lệ Thất nghiệp", 
+            value=f"{new_unrate:.2f}%", 
+            delta=f"{(new_unrate - BASE_UNRATE):+.2f}%", 
+            delta_color="inverse"
+        )
+    with col3:
+        st.metric(
+            label="Chỉ số Đô la (DXY)", 
+            value=f"{new_dxy:.2f}", 
+            delta=f"{(new_dxy - BASE_DXY):+.2f}"
+        )
+    with col4:
+        st.metric(
+            label="Giá Vàng Thế Giới", 
+            value=f"${int(new_gold):,}/oz", 
+            delta=f"{int(new_gold - BASE_GOLD):+,} $"
+        )
+
+    st.markdown("---")
+    st.markdown("### 🤖 Trợ lý AI Phân tích Quyết định")
+
+    # 5. ĐOẠN TEXT PHÂN TÍCH TỰ ĐỘNG THEO KỊCH BẢN
+    if new_fed_rate > BASE_FED_RATE:
+        ket_qua_ai = f"🦅 **Đánh giá từ AI:** Quyết định tăng lãi suất lên {new_fed_rate}% mang tính **Diều hâu (Hawkish)** mạnh mẽ. Hành động này giúp bạn ưu tiên kiềm chế lạm phát về mức an toàn nhanh hơn, đồng thời đẩy sức mạnh đồng USD (DXY) lên mức cao {new_dxy:.2f} và trực tiếp ép giá Vàng đi xuống. Tuy nhiên, rủi ro lớn nhất là nền kinh tế bị thắt chặt quá mức, có thể đẩy tỷ lệ thất nghiệp tăng vọt lên {new_unrate:.2f}% và làm chậm đà tăng trưởng kinh tế."
+    elif new_fed_rate < BASE_FED_RATE:
+        ket_qua_ai = f"🕊️ **Đánh giá từ AI:** Quyết định giảm lãi suất xuống {new_fed_rate}% thể hiện lập trường **Bồ câu (Dovish)**. Bạn đang muốn bơm thanh khoản để kích thích kinh tế và hỗ trợ thị trường lao động. Tuy nhiên, nới lỏng tiền tệ khi lạm phát nền tảng vẫn ở mức {BASE_CPI}% có nguy cơ kích hoạt làn sóng lạm phát thứ hai bùng phát. Đồng thời, đồng USD suy yếu sẽ mở đường cho một siêu chu kỳ tăng giá mới của thị trường Vàng."
+    else:
+        ket_qua_ai = f"⚖️ **Đánh giá từ AI:** Bạn chọn **Giữ nguyên chính sách (Neutral)** ở mức {BASE_FED_RATE}%. Đây là bước đi thận trọng dựa trên dữ liệu (Data-dependent) để tiếp tục quan sát tác động thẩm thấu của các kỳ thắt chặt trước. Thị trường tài chính ngắn hạn sẽ phản ứng ổn định và không chịu các cú sốc tâm lý bất ngờ."
+
+    st.info(ket_qua_ai)
