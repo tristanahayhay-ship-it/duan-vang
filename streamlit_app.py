@@ -769,13 +769,13 @@ elif menu == "🤖 AI Giải Đáp & Phân Tích":
                 contents=full_content,
                 config=config
             )
-            return response.text
-    except Exception as e:
-        # Bắt lỗi 429 quá tải hạn mức tài khoản miễn phí để xử lý riêng
+        return response.text
+        except Exception as e:
+        # Bat loi 429 qua tai han muc tai khoan mien phi de xu ly rieng
         if "429" in str(e) or "EXHAUSTED" in str(e):
             return "⚠️ **Hệ thống AI hiện đang tạm thời quá tải do giới hạn hạn mức của tài khoản miễn phí (Tối đa 20 lần/phút).** Bạn vui lòng nghỉ tay khoảng 20-30 giây rồi nhấn gửi lại câu hỏi nhé!"
         
-        # Nếu là các lỗi hệ thống khác thì trả về thông báo cũ của bạn
+        # Neu la cac loi he thong khac thi tra ve thong bao cu cua ban
         return f"❌ Lỗi kết nối API Gemini thực tế: {str(e)}. Vui lòng kiểm tra lại cấu hình key."
 
     # 7. XỬ LÝ KHI NGƯỜI DÙNG BẤM CÁC NÚT GỢI Ý NHANH
