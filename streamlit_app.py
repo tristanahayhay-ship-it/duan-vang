@@ -1165,3 +1165,191 @@ elif menu == "Sơ đồ Kinh tế Mỹ & Vàng":
                     <b>⚠️ Nhận định hệ thống (AI chưa nạp Key):</b> Với mức lãi suất thực giả lập là <b>{real_rate:.2f}%</b>, nếu chỉ số này liên tục giảm, áp lực lên chi phí cơ hội giữ vàng sẽ biến mất, tạo đà tăng giá vững chắc cho XAUUSD. Tuy nhiên, mức tăng trưởng GDP giả lập <b>{sim_gdp}%</b> vẫn đang hỗ trợ thị trường cổ phiếu giữ nhịp tốt, dòng tiền ngắn hạn sẽ phân bổ lưỡng tính thay vì dồn toàn bộ vào tài sản trú ẩn.
                 </div>
                 """, unsafe_allow_html=True)
+# ===================================================================================================
+# 13. Demo Trade
+# ===================================================================================================
+elif menu == "Demo Trade":
+    st.title("💱 Hệ Thống Giao Dịch Mô Phỏng Chuyên Nghiệp (Demo)")
+    st.caption("Giao dịch tài sản với dữ liệu Real-time, khớp lệnh tức thì và quản lý vốn linh hoạt.")
+
+    # 1. KHỞI TẠO TÀI KHOẢN TRONG SESSION STATE
+    if "demo_balance" not in st.session_state:
+        st.session_state.demo_balance = 10000.0  # Vốn ban đầu mặc định $10,000
+    if "demo_positions" not in st.session_state:
+        st.session_state.demo_positions = []  # Lưu danh sách lệnh đang chạy
+    if "demo_history" not in st.session_state:
+        st.session_state.demo_history = []  # Lưu lịch sử lệnh đã đóng
+
+    # 2. BẢNG QUẢN LÝ VỐN CHỦ ĐỘNG (Nạp/Rút tiền tùy ý)
+    st.markdown("### 💳 Quản Lý Quỹ Tài Khoản")
+    col_bal1, col_bal2, col_bal3 = st.columns([2, 1, 1])
+    with col_bal1:
+        st.metric(label="Số dư Tài khoản (Balance)", value=f"${st.session_state.demo_balance:,.2f}")
+    with col_bal2:
+        amount_add = st.number_input("Số tiền thay đổi ($)", min_value=1.0, value=1000.0, step=500.0, key="adjust_amt")
+    with col_bal3:
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            if st.button("➕ Nạp", use_container_width=True):
+                st.session_state.demo_balance += amount_add
+                st.rerun()
+        with col_btn2:
+            if st.button("➖ Rút", use_container_width=True):
+                if st.session_state.demo_balance >= amount_add:
+                    st.session_state.demo_balance -= amount_add
+                else:
+                    st.error("Không đủ số dư!")
+                st.rerun()
+
+    st.markdown("---")
+
+    # 3. LẤY GIÁ THỜI GIAN THỰC TỐI ƯU TỪ YAHOO FINANCE
+    symbol_trade = st.selectbox("Chọn sản phẩm giao dịch:", ["Vàng (XAU/USD)", "EUR/USD", "Bitcoin (BTC/USD)"])
+    ticker_map = {
+        "Vàng (XAU/USD)": "GC=F",
+        "EUR/USD": "EURUSD=X",
+        "Bitcoin (BTC/USD)": "BTC-USD"
+    }
+    ticker_symbol = ticker_map[symbol_trade]
+
+    @st.cache_data(ttl=5)  # Cập nhật giá liên tục mỗi 5 giây
+    def lay_gia_chuand_mt5(ticker):
+        try:
+            data = yf.download(ticker, period="1d", interval="1m")
+            if not data.empty:
+                current_price = data['Close'].iloc[-1]
+                df_chart = data.tail(30).reset_index()
+                df_chart.columns = [col[0] if isinstance(col, tuple) else col for col in df_chart.columns]
+                return round(float(current_price), 2), df_chart
+        except:
+            pass
+        backup_prices = {"GC=F": 2350.0, "EURUSD=X": 1.0850, "BTC-USD": 65000.0}
+        return backup_prices[ticker], pd.DataFrame()
+
+    current_market_price, df_candles = lay_gia_chuand_mt5(ticker_symbol)
+
+    # Khung hiển thị giá nhảy số nổi bật
+    st.markdown(f"""
+    <div style='background-color: #0f172a; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px;'>
+        <span style='color: #94a3b8; font-size: 14px;'>GIÁ THỊ TRƯỜNG REAL-TIME ({symbol_trade})</span><br>
+        <span style='color: #eab308; font-size: 32px; font-weight: bold;'>${current_market_price:,.2f}</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 4. KHU VỰC VÀO LỆNH TỐC ĐỘ (Khớp ngay lập tức)
+    st.markdown("### 🛒 Khối Lệnh Giao Dịch Quick-Trade")
+    col_order1, col_order2 = st.columns(2)
+    with col_order1:
+        lot_size = st.number_input("Khối lượng (Lots):", min_value=0.01, max_value=100.0, value=0.1, step=0.1)
+    with col_order2:
+        indicator_choice = st.selectbox("Thêm chỉ báo nhanh lên Chart:", ["Không có", "Đường MA 10", "Dải Bollinger Bands"])
+
+    col_action1, col_action2 = st.columns(2)
+    with col_action1:
+        if st.button("🟢 BUY (KHỚP NGAY)", use_container_width=True):
+            new_pos = {
+                "id": len(st.session_state.demo_positions) + len(st.session_state.demo_history) + 1,
+                "symbol": symbol_trade,
+                "type": "BUY",
+                "entry_price": current_market_price,
+                "volume": lot_size,
+                "time": datetime.now().strftime("%H:%M:%S")
+            }
+            st.session_state.demo_positions.append(new_pos)
+            st.toast(f"Đã mở lệnh BUY {lot_size} lot tại giá {current_market_price}")
+            st.rerun()
+
+    with col_action2:
+        if st.button("🔴 SELL (KHỚP NGAY)", use_container_width=True):
+            new_pos = {
+                "id": len(st.session_state.demo_positions) + len(st.session_state.demo_history) + 1,
+                "symbol": symbol_trade,
+                "type": "SELL",
+                "entry_price": current_market_price,
+                "volume": lot_size,
+                "time": datetime.now().strftime("%H:%M:%S")
+            }
+            st.session_state.demo_positions.append(new_pos)
+            st.toast(f"Đã mở lệnh SELL {lot_size} lot tại giá {current_market_price}")
+            st.rerun()
+
+    # 5. BIỂU ĐỒ NẾN CHẠY REAL-TIME THEO THỊ TRƯỜNG
+    if not df_candles.empty:
+        st.markdown("### 📈 Biểu Đồ Kỹ Thuật (1 Phút)")
+        
+        if indicator_choice == "Đường MA 10":
+            df_candles['MA10'] = df_candles['Close'].rolling(window=10).mean()
+        elif indicator_choice == "Dải Bollinger Bands":
+            df_candles['MA20'] = df_candles['Close'].rolling(window=20).mean()
+            df_candles['STD'] = df_candles['Close'].rolling(window=20).std()
+            df_candles['Upper'] = df_candles['MA20'] + (df_candles['STD'] * 2)
+            df_candles['Lower'] = df_candles['MA20'] - (df_candles['STD'] * 2)
+
+        import plotly.graph_objects as go
+        fig_terminal = go.Figure()
+        
+        fig_terminal.add_trace(go.Candlestick(
+            x=df_candles['Datetime'],
+            open=df_candles['Open'], high=df_candles['High'],
+            low=df_candles['Low'], close=df_candles['Close'],
+            name="Giá nến"
+        ))
+        
+        if indicator_choice == "Đường MA 10" in df_candles:
+            fig_terminal.add_trace(go.Scatter(x=df_candles['Datetime'], y=df_candles['MA10'], mode='lines', name='MA(10)', line=dict(color='#3b82f6')))
+        elif indicator_choice == "Dải Bollinger Bands" in df_candles:
+            fig_terminal.add_trace(go.Scatter(x=df_candles['Datetime'], y=df_candles['Upper'], mode='lines', name='Dải Trên', line=dict(dash='dash', color='#cbd5e1')))
+            fig_terminal.add_trace(go.Scatter(x=df_candles['Datetime'], y=df_candles['Lower'], mode='lines', name='Dải Dưới', line=dict(dash='dash', color='#cbd5e1')))
+
+        fig_terminal.update_layout(xaxis_rangeslider_visible=False, height=300, margin=dict(l=10, r=10, t=10, b=10))
+        st.plotly_chart(fig_terminal, use_container_width=True)
+
+    # 6. BANEL GIÁM SÁT LỆNH TRẠNG THÁI (NHẢY SỐ TỰ ĐỘNG)
+    st.markdown("### 🖥️ Danh Sách Lệnh Đang Chạy (Terminal)")
+    
+    @st.fragment(run_every=2)
+    def render_vung_lenh_nhay_so(current_price_now):
+        if not st.session_state.demo_positions:
+            st.info("Hiện tại chưa có lệnh nào đang mở trạng thái.")
+            return
+
+        total_floating_pnl = 0.0
+        
+        for pos in st.session_state.demo_positions:
+            multiplier = 100.0 if "Vàng" in pos["symbol"] else 1.0
+            active_market_price = current_price_now if pos["symbol"] == symbol_trade else pos["entry_price"]
+
+            if pos["type"] == "BUY":
+                pnl = (active_market_price - pos["entry_price"]) * pos["volume"] * multiplier
+            else:
+                pnl = (pos["entry_price"] - active_market_price) * pos["volume"] * multiplier
+            
+            total_floating_pnl += pnl
+
+        st.markdown(f"**Tổng Lời/Lỗ Trạng thái (Floating PnL):** `{'💸 +' if total_floating_pnl >= 0 else '📉 '}{total_floating_pnl:,.2f}$`")
+        
+        for idx, pos in enumerate(st.session_state.demo_positions):
+            multiplier = 100.0 if "Vàng" in pos["symbol"] else 1.0
+            active_market_price = current_price_now if pos["symbol"] == symbol_trade else pos["entry_price"]
+            
+            if pos["type"] == "BUY":
+                pnl_val = (active_market_price - pos["entry_price"]) * pos["volume"] * multiplier
+            else:
+                pnl_val = (pos["entry_price"] - active_market_price) * pos["volume"] * multiplier
+
+            col_r1, col_r2, col_r3, col_r4 = st.columns([1, 2, 2, 1])
+            with col_r1:
+                st.markdown(f"**#{pos['id']}** <br> `{pos['type']}`", unsafe_allow_html=True)
+            with col_r2:
+                st.markdown(f"Vol: {pos['volume']} <br> Entry: ${pos['entry_price']:,}", unsafe_allow_html=True)
+            with col_r3:
+                color_text = "green" if pnl_val >= 0 else "red"
+                st.markdown(f"Giá: ${active_market_price:,} <br> <span style='color:{color_text}; font-weight:bold;'>PnL: {pnl_val:,.2f}$</span>", unsafe_allow_html=True)
+            with col_r4:
+                if st.button("❌ Đóng", key=f"close_{pos['id']}"):
+                    st.session_state.demo_balance += pnl_val
+                    st.session_state.demo_history.append({**pos, "close_price": active_market_price, "pnl": pnl_val})
+                    st.session_state.demo_positions.pop(idx)
+                    st.rerun()
+
+    render_vung_lenh_nhay_so(current_market_price)
