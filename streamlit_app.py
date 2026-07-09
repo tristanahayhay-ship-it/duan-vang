@@ -997,25 +997,29 @@ elif menu == "Mô phỏng: Ghế nóng FED":
         ket_qua_ai = f"⚖️ **Đánh giá từ AI:** Bạn chọn **Giữ nguyên chính sách (Neutral)** ở mức {BASE_FED_RATE}%. Đây là bước đi thận trọng dựa trên dữ liệu (Data-dependent) để tiếp tục quan sát tác động thẩm thấu của các kỳ thắt chặt trước. Thị trường tài chính ngắn hạn sẽ phản ứng ổn định và không chịu các cú sốc tâm lý bất ngờ."
 
     st.info(ket_qua_ai)
-    # --- ĐOẠN NÂNG CẤP: VẼ BIỂU ĐỒ ĐƯỜNG XU HƯỚNG MÔ PHỎNG ---
+    # --- ĐOẠN CẬP NHẬT: BIẾU ĐỒ ĐỘNG CHẠY THEO THANH TRƯỢT ---
     st.markdown("---")
-    st.markdown("### 📈 Biểu đồ Tương quan Lạm phát & Thất nghiệp")
+    st.markdown("### 📈 Biểu đồ Xu hướng Vĩ mô theo Lãi suất lựa chọn")
     
-    # Tạo dải dữ liệu mô phỏng từ mức lãi suất 0% đến 10% để vẽ đồ thị nền
-    rate_axis = np.arange(0.0, 10.25, 0.25)
-    
-    # Tính toán mảng dữ liệu lạm phát và thất nghiệp tương ứng theo công thức kinh tế của bạn
+    # Tạo dải dữ liệu động chạy từ mức Lãi suất cơ sở (5.25%) cho đến mức Lãi suất mới do bạn chọn
+    if new_fed_rate >= BASE_FED_RATE:
+        rate_axis = np.arange(BASE_FED_RATE, new_fed_rate + 0.25, 0.25)
+    else:
+        rate_axis = np.arange(new_fed_rate, BASE_FED_RATE + 0.25, 0.25)
+        rate_axis = rate_axis[::-1] # Đảo ngược chuỗi nếu kéo giảm lãi suất
+        
+    # Tính toán biến động động thực tế theo điểm kéo
     cpi_trend = np.maximum(0.5, BASE_CPI - ((rate_axis - BASE_FED_RATE) * 0.4))
     unrate_trend = np.maximum(2.5, BASE_UNRATE + ((rate_axis - BASE_FED_RATE) * 0.25))
     
-    # Gộp dữ liệu vào một bảng DataFrame để Streamlit đọc
+    # Tạo bảng dữ liệu động ngắn hạn
     chart_data = pd.DataFrame({
-        'Lãi suất FED (%)': rate_axis,
+        'Mức Lãi suất (%)': rate_axis,
         'Lạm phát (CPI)': cpi_trend,
         'Tỷ lệ Thất nghiệp': unrate_trend
     })
-    chart_data = chart_data.set_index('Lãi suất FED (%)')
+    chart_data = chart_data.set_index('Mức Lãi suất (%)')
     
-    # Vẽ biểu đồ đường đa biến lên màn hình
-    st.line_chart(chart_data)
-    st.caption("💡 *Ghi chú đồ thị: Khi bạn tăng lãi suất (trục X tiến về bên phải), đường Lạm phát sẽ đi xuống và đường Thất nghiệp sẽ đi lên.*")
+    # Vẽ biểu đồ động dạng vùng/đường thẳng phản hồi lập tức
+    st.area_chart(chart_data)
+    st.caption(f"💡 *Trạng thái hiện tại: Đồ thị đang hiển thị hành trình tác động từ mốc gốc {BASE_FED_RATE}% đến mốc quyết định {new_fed_rate}% của bạn.*")
