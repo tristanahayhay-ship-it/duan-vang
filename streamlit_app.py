@@ -15,16 +15,67 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Thêm CSS tùy chỉnh để giao diện chuyên nghiệp hơn
+# Thêm CSS tùy chỉnh nâng cao để giao diện chuyên nghiệp và đồng bộ với Dark Theme
 st.markdown("""
 <style>
-    .reportview-container { background: #f5f7f8; }
-    .stMetric { background-color: #ffffff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    h1, h2, h3 { color: #1e293b; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-    .ai-box { background-color: #eff6ff; border-left: 5px solid #3b82f6; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
-    .news-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; }
+    /* 1. Làm mịn và thu gọn thanh cuộn (Scrollbar) chuẩn TradingView */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0); }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+    /* 2. Nâng cấp thiết kế các thẻ hiển thị chỉ số Metric vĩ mô */
+    div[data-testid="stMetric"] {
+        background: linear-gradient(145deg, #1f2937, #111827) !important;
+        border: 1px solid #374151 !important;
+        border-radius: 14px !important;
+        padding: 16px 20px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.14) !important;
+        transition: transform 0.2s ease, border-color 0.2s ease !important;
+    }
+    div[data-testid="stMetric"]:hover {
+        transform: translateY(-2px) !important;
+        border-color: #eab308 !important; /* Đổi viền sang màu Gold khi di chuột */
+    }
+    
+    /* 3. Nâng cấp hộp phân tích AI (Hộp AI nhận định) sang trọng */
+    .ai-box {
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        border-left: 5px solid #3b82f6;
+        border-right: 1px solid #1e293b;
+        border-top: 1px solid #1e293b;
+        border-bottom: 1px solid #1e293b;
+        padding: 18px;
+        border-radius: 12px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+        color: #e2e8f0;
+        margin-bottom: 20px;
+        font-size: 14.5px;
+        line-height: 1.6;
+    }
+    
+    /* 4. Nâng cấp thẻ bài báo tài chính tinh tế có hiệu ứng chuyển động */
+    .news-card {
+        background: linear-gradient(145deg, #111827, #1f2937);
+        border: 1px solid #374151;
+        padding: 18px;
+        border-radius: 14px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        margin-bottom: 16px;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .news-card:hover {
+        transform: translateY(-4px);
+        border-color: #3b82f6; /* Đổi viền sang màu xanh Neon khi di chuột */
+        box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.5);
+    }
+    .news-card h4, .news-card h5 {
+        margin-top: 0px !important;
+        color: #f3f4f6 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
+
 
 # Hàm giả lập dữ liệu nến (Thay thế bằng API thực tế như yfinance khi deploy)
 def get_real_market_data(symbol, days=90):
