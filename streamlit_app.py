@@ -1142,13 +1142,13 @@ elif menu == "Sơ đồ Kinh tế Mỹ & Vàng":
         chu_ky_kinh_te = "Phục hồi ổn định / Tăng trưởng bền vững (Goldilocks)"
         tac_dong_vang = "Tiêu cực đến Trung tính (Tâm lý thị trường lạc quan, dòng tiền ưu tiên các tài sản rủi ro sinh lời cao như Cổ phiếu)"
 
-    # Khung hiển thị trực quan trạng thái đồng bộ
+    # Khung hiển thị trực quan trạng thái đồng bộ (Đã sửa lỗi trắng nền và mờ chữ)
     st.markdown(f"""
-    <div style='background-color: #f8fafc; border-left: 5px solid #0f172a; padding: 15px; border-radius: 6px; margin: 15px 0;'>
-        📌 <b>Pha Chu kỳ Kinh tế Giả lập:</b> {chu_ky_kinh_te} <br>
-        💵 <b>Lãi suất thực tế (Real Rate):</b> {real_rate:.2f}% (Lãi suất {sim_fed_rate}% - Lạm phát {sim_cpi}%) <br>
-        📊 <b>DXY thị trường gốc:</b> {BASE_DXY} | 📈 <b>Giá Vàng thị trường gốc:</b> ${BASE_GOLD:,} <br>
-        ⭐ <b>Xu hướng & Tương quan Vàng:</b> {tac_dong_vang}
+    <div style='background: linear-gradient(145deg, #111827, #1f2937); border-left: 5px solid #eab308; border-top: 1px solid #374151; border-right: 1px solid #374151; border-bottom: 1px solid #374151; padding: 18px; border-radius: 12px; margin: 15px 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);'>
+        <p style='margin: 0 0 8px 0; font-size: 14.5px; color: #f3f4f6;'>📌 <b>Pha Chu kỳ Kinh tế Giả lập:</b> <span style='color: #60a5fa; font-weight: 600;'>{chu_ky_kinh_te}</span></p>
+        <p style='margin: 0 0 8px 0; font-size: 14.5px; color: #f3f4f6;'>💵 <b>Lãi suất thực tế (Real Rate):</b> <span style='color: #ef4444; font-weight: 600;'>{real_rate:.2f}%</span> (Lãi suất {sim_fed_rate}% - Lạm phát {sim_cpi}%)</p>
+        <p style='margin: 0 0 8px 0; font-size: 14.5px; color: #f3f4f6;'>📊 <b>DXY thị trường gốc:</b> <span style='color: #94a3b8;'>{BASE_DXY}</span> | 📈 <b>Giá Vàng thị trường gốc:</b> <span style='color: #eab308; font-weight: 600;'>${BASE_GOLD:,}</span></p>
+        <p style='margin: 0; font-size: 14.5px; color: #f3f4f6;'>⭐ <b>Xu hướng & Tương quan Vàng:</b> <span style='color: #10b981;'>{tac_dong_vang}</span></p>
     </div>
     """, unsafe_allow_html=True)
 
