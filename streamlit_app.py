@@ -403,7 +403,7 @@ if menu == "Dashboard Tổng Quan":
                         "<td class='custom-td' style='font-style: italic;'>tác động đến vàng</td></tr>"
                     )
             for _ in range(3):
-                html_table += "<tr><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td></tr>"
+                html_table += "<tr><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td><td class='custom-td'>&nbsp;</td></tr>"
             html_table += "</tbody></table></div>"
             st.markdown(html_table, unsafe_allow_html=True)
 
