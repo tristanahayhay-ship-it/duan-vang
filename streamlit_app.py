@@ -292,23 +292,40 @@ if menu == "Dashboard Tổng Quan":
     components.html(macro_tradingview_html, height=530, scrolling=False)
     # ===============================================================================================
 
+    # ===============================================================================================
+    # CODE MỚI THAY THẾ TOÀN BỘ KHỐI LỊCH GIẢ LẬP CŨ ĐỂ CẬP NHẬT REAL-TIME CHUẨN XỊN
+    # ===============================================================================================
     # Lịch kinh tế và Nhận định AI
     st.markdown("---")
     c_left, c_right = st.columns([2, 1])
     
     with c_left:
-        st.subheader("📅 Lịch Kinh Tế Hôm Nay (Nguồn: ForexFactory thực tế)")
-        # Tạo bảng lịch kinh tế giả lập
-        cal_data = {
-            "Thời gian": ["19:30", "19:30", "21:00", "21:30"],
-            "Tiền tệ": ["USD", "USD", "USD", "USD"],
-            "Sự kiện": ["CPI m/m (Chỉ số giá tiêu dùng)", "Core CPI y/y", "Doanh số bán lẻ m/m", "Dự trữ dầu thô"],
-            "Tác động": ["Cao (Đỏ)", "Cao (Đỏ)", "Trung bình (Cam)", "Thấp (Vàng)"],
-            "Dự báo": ["0.3%", "3.4%", "0.2%", "-1.2M"],
-            "Thực tế": ["0.2%", "3.3%", "--", "--"]
-        }
-        st.table(pd.DataFrame(cal_data))
+        st.subheader("📅 Lịch Kinh Tế Thời Gian Thực")
+        st.caption("Dữ liệu vĩ mô toàn cầu tự động cập nhật số liệu chuẩn xác liên tục")
         
+        import streamlit.components.v1 as components
+        
+        # Nhúng mã nguồn Widget Lịch kinh tế trực tuyến chuẩn của TradingView
+        economic_calendar_html = """
+        <div class="tradingview-widget-container" style="width:100%; height:450px;">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+            {
+                "colorTheme": "dark",
+                "isWidescreen": true,
+                "width": "100%",
+                "height": "450",
+                "locale": "vi_VN",
+                "importanceFilter": "-1,0,1", /* Hiện đủ mức độ tin mạnh/vừa/yếu */
+                "currencyFilter": "USD,EUR,GBP,JPY" /* Quét các đồng tiền vĩ mô chính ảnh hưởng đến Vàng */
+            }
+            </script>
+        </div>
+        """
+        # Đưa lên giao diện với độ cao vừa vặn không lỗi cuộn trên điện thoại
+        components.html(economic_calendar_html, height=460, scrolling=False)
+    # ===============================================================================================
+     
     with c_right:
         st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
         st.markdown("""
