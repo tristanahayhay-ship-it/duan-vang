@@ -495,16 +495,17 @@ if menu == "Dashboard Tổng Quan":
                             <td class='ff-td' style='text-align:center;'><a href='{ev["DetailUrl"]}' target='_blank' class='icon-btn' title='Xem chi tiết sự kiện'>📁</a></td>
                             <td class='ff-td' style='text-align:center;' {color_class}>{ev["Actual"]}</td>
     
-    with c_right:
-        st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
-        st.markdown("""
-        <div class="ai-box">
-            <b>Kết luận xu hướng từ AI:</b><br>
-            CPI thực tế thấp hơn dự báo (0.2% so với 0.3%) cho thấy lạm phát Mỹ đang hạ nhiệt nhanh hơn kỳ vọng. 
-            Điều này làm tăng xác suất FED hạ lãi suất vào cuộc họp tới. 
-            <br><b>👉 Xu hướng Vàng:</b> Tác động <b>Tích cực (Bullish) mạnh mẽ</b>, giá vàng có xu hướng bứt phá vùng kháng cự ngắn hạn do đồng DXY bị bán tháo.
-        </div>
-        """, unsafe_allow_html=True)
+with c_right:
+    st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
+    st.markdown("""
+    <div class="ai-box">
+        <b>Kết luận xu hướng từ AI:</b><br><br>
+        CPI thực tế thấp hơn dự báo (0.2% so với 0.3%) cho thấy lạm phát Mỹ đang hạ nhiệt nhanh hơn kỳ vọng. 
+        Điều này làm tăng xác suất FED hạ lãi suất vào cuộc họp tới. 
+        <br><br><b>[*] Xu hướng Vàng:</b> Tác động <b>Tích cực (Bullish) mạnh mẽ</b>, giá vàng có xu hướng bứt phá vùng kháng cự ngắn hạn do đồng DXY bị bán tháo.
+    </div>
+    """, unsafe_allow_html=True)
+
 
     # Bài báo phân tích vĩ mô lớn
     st.subheader("📰 Bài báo phân tích vĩ mô chuyên sâu")
