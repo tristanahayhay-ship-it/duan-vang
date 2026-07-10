@@ -1233,18 +1233,29 @@ elif menu == "Demo Trade":
     # 1. KÍCH HOẠT TỰ ĐỘNG LÀM MỚI (AUTO-REFRESH) MỖI 3 GIÂY ĐỂ TIỀN TỰ NHẢY ĐỘNG
     st.fragment(run_every=3)
 
-    # 2. LẤY GIÁ VÀNG XAU/USD THỰC TẾ (Sử dụng API Binance lấy cặp PAXGUSDT khớp chuẩn vùng giá thế giới)
+    # 2. LẤY GIÁ VÀNG XAU/USD THỰC TẾ (Gọi thẳng API Yahoo Finance không lo chặn IP)
     import requests
     try:
-        # Tốc độ phản hồi cực nhanh, không cần key, cập nhật theo giây
-        url_binance = "https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT"
-        res_binance = requests.get(url_binance, timeout=2)
-        if res_binance.status_code == 200:
-            CURRENT_GOLD = round(float(res_binance.json()["price"]), 2)
+        # Endpoint công khai của Yahoo Finance lấy cặp Vàng giao ngay (GC=F hoặc XAUUSD=X)
+        url_yahoo = "https://query1.financeapp.yahoo.com/v8/finance/chart/GC=F?interval=1m&range=1d"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+        }
+        res_yahoo = requests.get(url_yahoo, headers=headers, timeout=3)
+        
+        if res_yahoo.status_code == 200:
+            data = res_yahoo.json()
+            # Trích xuất mức giá khớp lệnh mới nhất (Last Price) trên thị trường
+            CURRENT_GOLD = round(float(data["chart"]["result"][0]["meta"]["regularMarketPrice"]), 2)
         else:
-            CURRENT_GOLD = 2350.00  # Giá phòng hờ thực tế nếu API sàn gặp sự cố
+            CURRENT_GOLD = 4120.00
     except:
-         CURRENT_GOLD = 2350.00
+        # Nếu có sự cố dòng mạng, lấy tạm giá cuối cùng được lưu trong session để không bị nhảy về số chết
+        CURRENT_GOLD = st.session_state.get("last_valid_gold", 4120.00)
+
+    # Lưu lại giá hợp lệ vào session để làm cơ sở cho chu kỳ refresh sau
+    if CURRENT_GOLD != 4120.00 or "last_valid_gold" not in st.session_state:
+        st.session_state["last_valid_gold"] = CURRENT_GOLD
 
     # 3. KHỞI TẠO STATE LƯU TRỮ TÀI KHOẢN (Chạy ngầm trong Session)
     if "demo_balance" not in st.session_state:
