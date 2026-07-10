@@ -1243,7 +1243,7 @@ elif menu == "Demo Trade":
         else:
             CURRENT_GOLD = 4119.25
             CURRENT_GOLD = 4119.25  # Số này chỉ dùng để phòng hờ nếu mất mạng internet
-     except:
+        except:
             CURRENT_GOLD = 4119.25
 
     # 3. KHỞI TẠO STATE LƯU TRỮ TÀI KHOẢN (Chạy ngầm trong Session)
