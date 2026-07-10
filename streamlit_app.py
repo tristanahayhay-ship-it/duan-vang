@@ -1231,13 +1231,13 @@ elif menu == "Demo Trade":
     st.caption("Giá thị trường Real-time từ sàn quốc tế. Khớp lệnh giả lập an toàn bảo mật và quản lý vốn tự động.")
     st.fragment(run_every=2)
 
-    # 1. THIẾT LẬP ĐIỂM DỮ LIỆU THỰC TẾ CƠ SỞ CHUẨN XÁC
-    # Tận dụng hàm get_live_market_data() sẵn có của bạn để lấy giá vàng hiện tại
-    try:
-    # 🟢 DÁN ĐOẠN NÀY VÀO (GIÁ SẼ TỰ ĐỘNG CẬP NHẬT THEO GIÂY):
+    # 1. KÍCH HOẠT TỰ ĐỘNG LÀM MỚI (AUTO-REFRESH) MỖI 3 GIÂY ĐỂ TIỀN TỰ NHẢY ĐỘNG
+    st.fragment(run_every=3)
+
+    # 2. THIẾT LẬP ĐIỂM DỮ LIỆU THỰC TẾ CƠ SỞ CHUẨN XÁC
     import yfinance as yf
     try:
-        # Tải dữ liệu khung thời gian 1 phút (1m) mới nhất của Vàng thế giới (GC=F)
+        # Toàn bộ khối nằm trong try bắt buộc phải lùi vào sâu (8 khoảng cách)
         ticker = yf.Ticker("GC=F")
         gold_data = ticker.history(period="1d", interval="1m")
         if not gold_data.empty:
@@ -1247,26 +1247,27 @@ elif menu == "Demo Trade":
     except:
         CURRENT_GOLD = 4119.25
 
-    # 2. KHỞI TẠO STATE LƯU TRỮ TÀI KHOẢN (Chạy ngầm trong Session)
+    # 3. KHỞI TẠO STATE LƯU TRỮ TÀI KHOẢN (Chạy ngầm trong Session)
     if "demo_balance" not in st.session_state:
         st.session_state.demo_balance = 10000.00  # Số dư vốn ban đầu
     if "demo_positions" not in st.session_state:
         st.session_state.demo_positions = []      # Danh sách trạng thái lệnh
 
-    # 3. BỐ CỤC GIAO DIỆN CHÍNH (2 CỘT: BIỂU ĐỒ & BẢNG ĐIỀU KHIỂN)
-            # TỰ ĐỘNG TÍNH TOÁN LỜI/LỖ ĐỘNG (P&L) CHO CÁC LỆNH ĐANG CHẠY MỖI KHI GIÁ VÀNG NHẢY
-        total_floating_pnl = 0.0
-        for pos in st.session_state.demo_positions:
-            pos["Giá hiện tại"] = CURRENT_GOLD
-            # Công thức chuẩn Forex: Số Lots * Quy mô hợp đồng (100 Ounces) * Độ chênh lệch giá
-            if pos["Loại"] == "BUY":
-                pos["Lợi nhuận ($)"] = round(pos["Khối lượng"] * 100 * (CURRENT_GOLD - pos["Giá vào"]), 2)
-            elif pos["Loại"] == "SELL":
-                pos["Lợi nhuận ($)"] = round(pos["Khối lượng"] * 100 * (pos["Giá vào"] - CURRENT_GOLD), 2)
-            total_floating_pnl += pos["Lợi nhuận ($)"]
-    
-        # Tài sản thực tế biến động (Equity) = Số dư gốc (Balance) + Lợi nhuận trạng thái ròng
-        demo_equity = st.session_state.demo_balance + total_floating_pnl
+    # 4. TỰ ĐỘNG TÍNH TOÁN LỜI/LỖ ĐỘNG (P&L) CHO CÁC LỆNH ĐANG CHẠY MỖI KHI GIÁ VÀNG NHẢY
+    total_floating_pnl = 0.0
+    for pos in st.session_state.demo_positions:
+        pos["Giá hiện tại"] = CURRENT_GOLD
+        # Công thức chuẩn Forex: Số Lots * Quy mô hợp đồng (100 Ounces) * Độ chênh lệch giá
+        if pos["Loại"] == "BUY":
+            pos["Lợi nhuận ($)"] = round(pos["Khối lượng"] * 100 * (CURRENT_GOLD - pos["Giá vào"]), 2)
+        elif pos["Loại"] == "SELL":
+            pos["Lợi nhuận ($)"] = round(pos["Khối lượng"] * 100 * (pos["Giá vào"] - CURRENT_GOLD), 2)
+        total_floating_pnl += pos["Lợi nhuận ($)"]
+
+    # Tài sản thực tế biến động (Equity) = Số dư gốc (Balance) + Lợi nhuận trạng thái ròng
+    demo_equity = st.session_state.demo_balance + total_floating_pnl
+
+    # 5. BỐ CỤC GIAO DIỆN CHÍNH (2 CỘT: BIỂU ĐỒ & BẢNG ĐIỀU KHIỂN)
     col_left, col_right = st.columns([1.2, 1.0], gap="medium")
 
     # --------------------------------------------------------------------------
