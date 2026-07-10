@@ -1248,9 +1248,30 @@ elif menu == "Demo Trade":
 
     # 3. KHỞI TẠO STATE LƯU TRỮ TÀI KHOẢN (Chạy ngầm trong Session)
     if "demo_balance" not in st.session_state:
-        st.session_state.demo_balance = 10000.00  # Số dư vốn ban đầu
+        st.session_state.demo_balance = 10000.00  # Vốn mặc định ban đầu
     if "demo_positions" not in st.session_state:
         st.session_state.demo_positions = []      # Danh sách trạng thái lệnh
+
+    # TÍNH NĂNG THÊM/BỚT SỐ DƯ THỰC TẾ (Ví như việc Nạp/Rút tiền tại sàn)
+    with st.expander("💳 Quản lý Ví & Cấu hình vốn Demo (Nạp/Rút)"):
+        adjust_col1, adjust_col2 = st.columns(2)
+        with adjust_col1:
+            amount_input = st.number_input("Nhập số tiền ($)", min_value=1.0, value=1000.0, step=500.0)
+        with adjust_col2:
+            st.write("") # Tạo khoảng trống căn lề
+            action_fund = st.radio("Chọn thao tác", ["Nạp tiền ảo", "Rút tiền ảo"], horizontal=True)
+        
+        if st.button("Xác nhận thay đổi số dư", use_container_width=True):
+            if action_fund == "Nạp tiền ảo":
+                st.session_state.demo_balance += amount_input
+                st.toast(f"Đã nạp thêm ${amount_input:,.2f} vào tài khoản Demo!", icon="💰")
+            elif action_fund == "Rút tiền ảo":
+                if amount_input <= st.session_state.demo_balance:
+                    st.session_state.demo_balance -= amount_input
+                    st.toast(f"Đã rút ${amount_input:,.2f} khỏi tài khoản Demo!", icon="💸")
+                else:
+                    st.error("Số dư tài khoản không đủ để thực hiện lệnh rút này!")
+            st.rerun()
 
     # 4. TỰ ĐỘNG TÍNH TOÁN LỜI/LỖ ĐỘNG (P&L) CHO CÁC LỆNH ĐANG CHẠY MỖI KHI GIÁ VÀNG NHẢY
     total_floating_pnl = 0.0
