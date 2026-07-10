@@ -6,56 +6,6 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
 from datetime import datetime, timedelta
-def get_forexfactory_style_data():
-    import requests
-    from datetime import datetime
-    try:
-        # Gọi nguồn dữ liệu lịch kinh tế thực tế vĩ mô toàn cầu
-        url = "https://financialmodelingprep.com/api/v3/economic_calendar?apikey=demo"
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            raw_data = response.json()
-            # Lọc các đồng tiền lõi tác động mạnh đến thị trường Vàng như hình mẫu
-            filtered = [item for item in raw_data if item.get("currency") in ["USD", "EUR", "GBP", "JPY"]]
-            
-            processed_events = []
-            for item in filtered[:12]:
-                date_str = item.get("date", "")
-                try:
-                    dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-                    # Định dạng tiêu đề ngày y đúc hình mẫu: "Thu Jul 9", "Fri Jul 10"
-                    day_header = dt.strftime("%a %b %d")
-                    time_str = dt.strftime("%I:%M%p").lower() # Định dạng dạng 07:30pm
-                except:
-                    day_header = "Upcoming"
-                    time_str = "--:--"
-                
-                # Ánh xạ icon hộp màu tác động (nhà máy) giống ForexFactory
-                impact = item.get("impact", "Low").upper()
-                if impact == "HIGH":
-                    icon_color = "#ff4b4b" # Đỏ
-                elif impact == "MEDIUM":
-                    icon_color = "#ffa500" # Cam
-                else:
-                    icon_color = "#f1c40f" # Vàng
-                
-                # Xử lý hiển thị thông số Actual (Nếu chưa có tin thì để trống)
-                actual_val = str(item.get("actual")) if item.get("actual") is not None else ""
-                if actual_val == "None" or actual_val == "null":
-                    actual_val = ""
-                    
-                processed_events.append({
-                    "day_header": day_header,
-                    "time": time_str,
-                    "currency": item.get("currency", "USD"),
-                    "icon_color": icon_color,
-                    "name": item.get("event", ""),
-                    "actual": actual_val
-                })
-            return processed_events
-    except:
-        pass
-    return []
 
 # Cấu hình trang Streamlit
 st.set_page_config(
