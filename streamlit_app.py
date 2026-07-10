@@ -324,14 +324,8 @@ if menu == "Dashboard Tổng Quan":
             from datetime import datetime
             filtered_events = []
             try:
-                        url = "https://coincarp.com"
-                        # Mở rộng quét dữ liệu tin tức trong vòng 7 ngày gần nhất để luôn có dữ liệu hiển thị vào cuối tuần
-                        params = {
-                            "currency": "USD", 
-                            "lang": "vi",
-                            "date_from": (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d"),
-                            "date_to": datetime.now().strftime("%Y-%m-%d")
-                        }
+                url = "https://coincarp.com"
+                params = {"currency": "USD", "lang": "vi"}
                 response = requests.get(url, params=params, timeout=0.8)
                 if response.status_code == 200:
                     raw_data = response.json().get("data", {}).get("list", [])
