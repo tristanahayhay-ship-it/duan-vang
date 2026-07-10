@@ -1226,9 +1226,6 @@ elif menu == "Sơ đồ Kinh tế Mỹ & Vàng":
 # ===================================================================================================
 # 13. Demo Trade
 # ===================================================================================================
-# ==============================================================================
-# # 13. Demo Trade
-# ==============================================================================
 elif menu == "Demo Trade":
     st.title("🖥️ Hệ Thống Giao Dịch Mô Phỏng Chuyên Nghiệp (Demo)")
     st.caption("Giá thị trường Real-time từ sàn quốc tế. Khớp lệnh giả lập an toàn bảo mật và quản lý vốn tự động.")
@@ -1265,16 +1262,36 @@ elif menu == "Demo Trade":
             </div>
         """, unsafe_allow_html=True)
         
-        # --- MÃ NGUỒN CHUẨN HIỂN THỊ BIỂU ĐỒ TRADINGVIEW GỐC ---
+        # --- MÃ NGUỒN CHUẨN HIỂN THỊ BIỂU ĐỒ TRADINGVIEW GỐC KHÔNG LỖI CLOUD ---
         import streamlit.components.v1 as components
 
-        # --- PHƯƠNG ÁN NHÚNG BIỂU ĐỒ TRADINGVIEW AN TOÀN TRÊN CLOUD ---
-        import streamlit.components.v1 as components
+        tradingview_html_secure = """
+        <div class="tradingview-widget-container" style="height:100%; width:100%;">
+            <div id="tradingview_advanced_chart" style="height:550px;"></div>
+            <!-- ĐÂY LÀ DÒNG CHÍNH XÁC BẮT BUỘC PHẢI CÓ S3 VÀ TV.JS -->
+            <script type="text/javascript" src="https://tradingview.com"></script>
+            <script type="text/javascript">
+            new TradingView.widget({
+                "width": "100%",
+                "height": 550,
+                "symbol": "OANDA:XAUUSD",
+                "interval": "D",
+                "timezone": "Asia/Ho_Chi_Minh",
+                "theme": "light",
+                "style": "1",
+                "locale": "vi_VN",
+                "toolbar_bg": "#f1f3f6",
+                "enable_publishing": false,
+                "hide_side_toolbar": false,
+                "allow_symbol_change": true,
+                "save_image": true,
+                "container_id": "tradingview_advanced_chart"
+            });
+            </script>
+        </div>
+        """
         
-        # Gọi trực tiếp widget đồ thị nâng cao thông qua URL chính thức của TradingView
-        chart_url = "https://tradingview.com"
-        
-        components.iframe(chart_url, height=520, scrolling=False)
+        components.html(tradingview_html_secure, height=560, scrolling=False)
 
     # --------------------------------------------------------------------------
     # CỘT PHẢI: KHỐI QUẢN LÝ QUỸ TÀI KHOẢN & ĐẶT LỆNH QUICK-TRADE
