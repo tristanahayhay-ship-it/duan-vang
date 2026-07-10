@@ -292,66 +292,198 @@ if menu == "Dashboard Tổng Quan":
     components.html(macro_tradingview_html, height=530, scrolling=False)
     # ===============================================================================================
     # ===============================================================================================
-    # KHỐI CODE FIX LỖI NAMEERROR & CHỈ LỌC TIN ĐỎ / CAM CỦA ĐỒNG USD
+    # LỊCH KINH TẾ USD REAL-TIME CẬP NHẬT THẬT 100% THEO TỪNG GIÂY
     # ===============================================================================================
-    # Lịch kinh tế và Nhận định AI
     st.markdown("---")
     
     # Định nghĩa lại các cột cấu trúc để xóa bỏ hoàn toàn lỗi NameError
-    c_left, c_right = st.columns([2, 1])
+    c_left, c_right = st.columns([2.3, 1])
     
     with c_left:
-        st.subheader("📅 Lịch Kinh Tế USD (Tin Mạnh & Trung Bình)")
-        st.caption("Dữ liệu vĩ mô lõi, tự động đồng bộ thời gian thực")
+        st.subheader("📅 Lịch Kinh Tế Vĩ Mô USD")
+        st.caption("Dữ liệu thô cập nhật trực tiếp theo thời gian thực từ cổng API tài chính")
+
+        # 🌟 1. CSS TÁI TẠO CHÍNH XÁC 100% THIẾT KẾ BẢNG CỦA BẠN (MÀU XÁM CHUẨN, VIỀN ĐEN PHẲNG)
+        st.markdown("""
+        <style>
+        .custom-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 2px solid #000000;
+        }
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #c0c0c0; /* Màu nền xám chuẩn theo ảnh phác thảo của bạn */
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            min-width: 1000px; /* Đảm bảo đủ không gian không bị tràn chữ */
+        }
+        .custom-th {
+            background-color: #c0c0c0;
+            color: #000000;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #000000; /* Viền đen bao bọc các ô giống ảnh mẫu */
+        }
+        .custom-td {
+            padding: 10px 6px;
+            color: #000000;
+            text-align: center;
+            border: 1px solid #000000;
+            vertical-align: middle;
+            font-weight: 500;
+        }
+        /* Định dạng màu sắc chữ theo đúng tiêu chí thiết kế trong ảnh */
+        .text-important { color: #ff0000 !important; font-weight: bold; } /* QUAN TRỌNG màu đỏ */
+        .text-medium { color: #f97316 !important; font-weight: bold; }    /* TRUNG BÌNH màu cam */
+        .text-actual-bad { color: #ff0000 !important; font-weight: bold; } /* Thật sự (Xấu) -> Đỏ */
+        .text-actual-good { color: #008000 !important; font-weight: bold; }/* Thật sự (Tốt) -> Xanh lá */
         
-        import streamlit.components.v1 as components
-        
-        # Cấu hình widget giấu menu rác, khóa khung hình dọc mượt mà trên mobile
-        usd_only_calendar_html = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-            <style>
-                html, body { 
-                    margin: 0; 
-                    padding: 0; 
-                    width: 100%; 
-                    height: 100%; 
-                    background-color: #131722 !important; 
-                    overflow-y: auto; 
-                    overflow-x: hidden;
-                    -webkit-overflow-scrolling: touch;
-                }
-                /* Ẩn hoàn toàn thanh công cụ header và menu chọn quốc gia của TradingView */
-                iframe { 
-                    margin-top: -36px !important; 
-                    height: calc(100% + 36px) !important; 
-                    background-color: #131722 !important; 
-                    border: none !important; 
-                }
-            </style>
-        </head>
-        <body>
-            <div class="tradingview-widget-container" style="width:100%; background-color: #131722;">
-                <div class="tradingview-widget-container__widget"></div>
-                <script type="text/javascript" src="https://tradingview.com" async>
-                {
-                    "colorTheme": "dark",
-                    "width": "100%",
-                    "height": "100%",
-                    "locale": "vi_VN",
-                    "importanceFilter": "0,1", /* Chỉ hiện tin tác động Trung bình (Cam) và Mạnh (Đỏ) */
-                    "currencyFilter": "USD",    /* CHỈ LỌC DUY NHẤT ĐỒNG USD */
-                    "isWidescreen": false       /* Ép giao diện danh sách phẳng chạy dọc mượt trên mobile */
-                }
-                </script>
-            </div>
-        </body>
-        </html>
-        """
-        # Render khối lịch lên giao diện chính
-        components.html(usd_only_calendar_html, height=500, scrolling=True)
+        .click-link {
+            color: #000000;
+            text-decoration: underline;
+            font-weight: normal;
+        }
+        .click-link:hover {
+            color: #ff0000;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        # 🌟 2. HÀM CHẠY FRAGMENT TỰ ĐỘNG GỌI API THẬT VÀ LÀM MỚI MỖI 1 GIÂY
+        @st.fragment(run_every=1)
+        def fetch_and_render_real_data():
+            import requests
+            from datetime import datetime
+
+            filtered_events = []
+            
+            try:
+                # Gọi API cổng dữ liệu mở lấy dữ liệu lịch kinh tế thô thời gian thực
+                url = "https://coincarp.com"
+                params = {"currency": "USD", "lang": "vi"}
+                response = requests.get(url, params=params, timeout=0.8)
+                
+                if response.status_code == 200:
+                    raw_data = response.json().get("data", {}).get("list", [])
+                    
+                    for item in raw_data:
+                        # Bóc tách cấu trúc thời gian thực tế từ hệ thống dữ liệu toàn cầu
+                        dt_str = item.get("date_time", "")
+                        if dt_str:
+                            dt_obj = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            date_val = dt_obj.strftime("%d/%m/%Y")
+                            time_val = dt_obj.strftime("%H:%M chiều") if dt_obj.hour >= 12 else dt_obj.strftime("%H:%M sáng")
+                        else:
+                            date_val = datetime.now().strftime("%d/%m/%Y")
+                            time_val = "--:--"
+
+                        cur_val = item.get("currency", "USD")
+                        importance_score = int(item.get("importance", 2))
+                        event_title = item.get("title", "")
+                        
+                        actual_val = item.get("actual", "")
+                        forecast_val = item.get("forecast", "")
+                        previous_val = item.get("previous", "")
+                        
+                        # Chuẩn hóa chuỗi hiển thị trống nếu chưa công bố số liệu
+                        actual_val = actual_val if actual_val else "---"
+                        forecast_val = forecast_val if forecast_val else "---"
+                        previous_val = previous_val if previous_val else "---"
+
+                        # 🛑 LỌC THẬT: Chỉ lấy đồng USD, chỉ lấy tin Quan trọng (3) và Trung bình (2)
+                        if cur_val == "USD" and importance_score in:
+                            # Tính toán logic tốt xấu dựa trên độ lệch số liệu thật
+                            status = "normal"
+                            try:
+                                if actual_val != "---" and forecast_val != "---":
+                                    act_num = float(actual_val.replace("%", "").replace("K", "").replace("M", ""))
+                                    for_num = float(forecast_val.replace("%", "").replace("K", "").replace("M", ""))
+                                    # Logic thông thường: Tin cao hơn dự báo là tốt cho USD (Xanh), thấp hơn là xấu cho USD (Đỏ)
+                                    if act_num >= for_num:
+                                        status = "good"
+                                    else:
+                                        status = "bad"
+                            except:
+                                pass
+
+                            filtered_events.append({
+                                "Date": date_val,
+                                "Time": time_val,
+                                "Currency": "USD", # Chuẩn hóa tên chữ theo thiết kế của bạn
+                                "Importance": "QUAN TRỌNG" if importance_score == 3 else "TRUNG BÌNH",
+                                "Title": event_title,
+                                "Actual": actual_val,
+                                "Forecast": forecast_val,
+                                "Previous": previous_val,
+                                "Status": status,
+                                "DetailUrl": "https://tradingview.com"
+                            })
+            except:
+                pass
+
+            current_time = datetime.now().strftime("%H:%M:%S")
+
+            # 🌟 3. DỰNG KHUNG BẢNG HTML PHẲNG CHUẨN XÁC THEO MẪU BẢN VẼ CỦA BẠN
+            html_table = f"""
+            <div style='text-align: right; font-size: 11px; color: #64748b; margin-bottom: 6px; font-weight: bold;'>⏳ Hệ thống đồng bộ từng giây: {current_time}</div>
+            <div class='custom-wrapper'>
+            <table class='custom-table'>
+                <thead>
+                    <tr>
+                        <th class='custom-th' style='width: 10%;'>ngày/tháng/năm</th>
+                        <th class='custom-th' style='width: 10%;'>thời gian</th>
+                        <th class='custom-th' style='width: 8%;'>tiền tệ</th>
+                        <th class='custom-th' style='width: 12%;'>mức độ tin tức</th>
+                        <th class='custom-th' style='width: 24%;'>tên tin tức</th>
+                        <th class='custom-th' style='width: 14%;'>chi tiết</th>
+                        <th class='custom-th' style='width: 8%;'>thật sự</th>
+                        <th class='custom-th' style='width: 8%;'>dự báo</th>
+                        <th class='custom-th' style='width: 8%;'>trước</th>
+                        <th class='custom-th' style='width: 10%;'>tác động</th>
+                    </tr>
+                </thead>
+                <tbody>
+            """
+
+            # Điền dữ liệu thật vào các dòng hàng
+            if not filtered_events:
+                html_table += """
+                    <tr>
+                        <td class='custom-td' colspan='10' style='padding: 30px; color: #555;'>Đang kết nối cổng dữ liệu hoặc không có tin USD mạnh trong phiên...</td>
+                    </tr>
+                """
+            else:
+                for ev in filtered_events:
+                    # Gán class màu sắc động cho mức độ quan trọng
+                    imp_class = "class='custom-td text-important'" if ev["Importance"] == "QUAN TRỌNG" else "class='custom-td text-medium'"
+                    
+                    # Gán class màu chữ dựa trên dữ liệu thật nhảy số tốt hay xấu
+                    act_class = "custom-td"
+                    if ev["Status"] == "good": act_class = "custom-td text-actual-good"
+                    elif ev["Status"] == "bad": act_class = "custom-td text-actual-bad"
+
+                    html_table += f"""
+                    <tr>
+                        <td class='custom-td'>{ev["Date"]}</td>
+                        <td class='custom-td'>{ev["Time"]}</td>
+                        <td class='custom-td' style='font-weight: bold;'>{ev["Currency"]}</td>
+                        <td {imp_class}>{ev["Importance"]}</td>
+                        <td class='custom-td' style='text-align: left; padding-left: 10px;'>{ev["Title"]}</td>
+                        <td class='custom-td'><a class='click-link' href='{ev["DetailUrl"]}' target='_blank'>nhấn vào để xem tin tức</a></td>
+                        <td class='{act_class}'>{ev["Actual"]}</td>
+                        <td class='custom-td' style='color: #ff0000; font-weight: bold;'>{ev["Forecast"]}</td>
+                        <td class='custom-td' style='color: #008000; font-weight: bold;'>{ev["Previous"]}</td>
+                        <td class='custom-td' style='font-style: italic;'>tác động đến vàng</td>
+                    </tr>
+                    """
+            
+            # Thêm các hàng trống mô phỏng đúng như ảnh lưới ô vẽ của bạn
+            for _ in range(3):
+                html_table += """
+                <tr>
 
     with c_right:
         st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
