@@ -1229,23 +1229,22 @@ elif menu == "Sơ đồ Kinh tế Mỹ & Vàng":
 elif menu == "Demo Trade":
     st.title("🖥️ Hệ Thống Giao Dịch Mô Phỏng Chuyên Nghiệp (Demo)")
     st.caption("Giá thị trường Real-time từ sàn quốc tế. Khớp lệnh giả lập an toàn bảo mật và quản lý vốn tự động.")
-    st.fragment(run_every=2)
 
     # 1. KÍCH HOẠT TỰ ĐỘNG LÀM MỚI (AUTO-REFRESH) MỖI 3 GIÂY ĐỂ TIỀN TỰ NHẢY ĐỘNG
     st.fragment(run_every=3)
 
     # 2. THIẾT LẬP ĐIỂM DỮ LIỆU THỰC TẾ CƠ SỞ CHUẨN XÁC
-    import yfinance as yf
+    import requests
     try:
-        # Toàn bộ khối nằm trong try bắt buộc phải lùi vào sâu (8 khoảng cách)
-        ticker = yf.Ticker("GC=F")
-        gold_data = ticker.history(period="1d", interval="1m")
-        if not gold_data.empty:
-            CURRENT_GOLD = float(gold_data['Close'].iloc[-1])
+        url_cnbc = "https://cnbc.com"
+        res_cnbc = requests.get(url_cnbc, timeout=2)
+        if res_cnbc.status_code == 200:
+            CURRENT_GOLD = float(res_cnbc.json()["FinancialNewsQuotesResult"]["QuoteData"]["RealtimeQuote"]["last"])
         else:
+            CURRENT_GOLD = 4119.25
             CURRENT_GOLD = 4119.25  # Số này chỉ dùng để phòng hờ nếu mất mạng internet
-    except:
-        CURRENT_GOLD = 4119.25
+     except:
+            CURRENT_GOLD = 4119.25
 
     # 3. KHỞI TẠO STATE LƯU TRỮ TÀI KHOẢN (Chạy ngầm trong Session)
     if "demo_balance" not in st.session_state:
