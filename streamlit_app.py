@@ -1236,10 +1236,10 @@ elif menu == "Demo Trade":
     # 2. THIẾT LẬP ĐIỂM DỮ LIỆU THỰC TẾ CƠ SỞ CHUẨN XÁC
     import requests
     try:
-        url_cnbc = "https://cnbc.com"
+        url_cnbc = "https://coingecko.com"
         res_cnbc = requests.get(url_cnbc, timeout=2)
         if res_cnbc.status_code == 200:
-            CURRENT_GOLD = float(res_cnbc.json()["FinancialNewsQuotesResult"]["QuoteData"]["RealtimeQuote"]["last"])
+            CURRENT_GOLD = float(res_cnbc.json()["pax-gold"]["usd"])
         else:
             CURRENT_GOLD = 4119.25
             CURRENT_GOLD = 4119.25  # Số này chỉ dùng để phòng hờ nếu mất mạng internet
