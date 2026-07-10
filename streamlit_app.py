@@ -1229,14 +1229,23 @@ elif menu == "Sơ đồ Kinh tế Mỹ & Vàng":
 elif menu == "Demo Trade":
     st.title("🖥️ Hệ Thống Giao Dịch Mô Phỏng Chuyên Nghiệp (Demo)")
     st.caption("Giá thị trường Real-time từ sàn quốc tế. Khớp lệnh giả lập an toàn bảo mật và quản lý vốn tự động.")
+    st.fragment(run_every=2)
 
     # 1. THIẾT LẬP ĐIỂM DỮ LIỆU THỰC TẾ CƠ SỞ CHUẨN XÁC
     # Tận dụng hàm get_live_market_data() sẵn có của bạn để lấy giá vàng hiện tại
     try:
-        live_data = get_live_market_data()
-        CURRENT_GOLD = live_data.get("Vàng (XAU/USD)", 2350.0)
+    # 🟢 DÁN ĐOẠN NÀY VÀO (GIÁ SẼ TỰ ĐỘNG CẬP NHẬT THEO GIÂY):
+    import yfinance as yf
+    try:
+        # Tải dữ liệu khung thời gian 1 phút (1m) mới nhất của Vàng thế giới (GC=F)
+        ticker = yf.Ticker("GC=F")
+        gold_data = ticker.history(period="1d", interval="1m")
+        if not gold_data.empty:
+            CURRENT_GOLD = float(gold_data['Close'].iloc[-1])
+        else:
+            CURRENT_GOLD = 4119.25  # Số này chỉ dùng để phòng hờ nếu mất mạng internet
     except:
-        CURRENT_GOLD = 2350.0  # Giá vàng cơ sở dự phòng nếu lỗi API
+        CURRENT_GOLD = 4119.25
 
     # 2. KHỞI TẠO STATE LƯU TRỮ TÀI KHOẢN (Chạy ngầm trong Session)
     if "demo_balance" not in st.session_state:
@@ -1245,6 +1254,19 @@ elif menu == "Demo Trade":
         st.session_state.demo_positions = []      # Danh sách trạng thái lệnh
 
     # 3. BỐ CỤC GIAO DIỆN CHÍNH (2 CỘT: BIỂU ĐỒ & BẢNG ĐIỀU KHIỂN)
+        # TỰ ĐỘNG TÍNH TOÁN LỜI/LỖ ĐỘNG (P&L) CHO CÁC LỆNH ĐANG CHẠY MỖI KHI GIÁ VÀNG NHẢY
+    total_floating_pnl = 0.0
+    for pos in st.session_state.demo_positions:
+        pos["Giá hiện tại"] = CURRENT_GOLD
+        # Công thức chuẩn Forex: Số Lots * Quy mô hợp đồng (100 Ounces) * Độ chênh lệch giá
+        if pos["Loại"] == "BUY":
+            pos["Lợi nhuận ($)"] = round(pos["Khối lượng"] * 100 * (CURRENT_GOLD - pos["Giá vào"]), 2)
+        elif pos["Loại"] == "SELL":
+            pos["Lợi nhuận ($)"] = round(pos["Khối lượng"] * 100 * (pos["Giá vào"] - CURRENT_GOLD), 2)
+        total_floating_pnl += pos["Lợi nhuận ($)"]
+
+    # Tài sản thực tế biến động (Equity) = Số dư gốc (Balance) + Lợi nhuận trạng thái ròng
+    demo_equity = st.session_state.demo_balance + total_floating_pnl
     col_left, col_right = st.columns([1.2, 1.0], gap="medium")
 
     # --------------------------------------------------------------------------
