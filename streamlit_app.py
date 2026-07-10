@@ -347,7 +347,7 @@ if menu == "Dashboard Tổng Quan":
                         if not actual_val: actual_val = "---"
                         if not forecast_val: forecast_val = "---"
                         if not previous_val: previous_val = "---"
-                        if cur_val == "USD" and importance_score in:
+                        if cur_val == "USD" and importance_score in [2, 3]:
                             status = "normal"
                             try:
                                 if actual_val != "---" and forecast_val != "---":
