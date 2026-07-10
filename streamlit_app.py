@@ -390,45 +390,72 @@ if menu == "Dashboard Tổng Quan":
 # 2. DỮ LIỆU KINH TẾ MỸ
 # ===================================================================================================
 elif menu == "Dữ Liệu Kinh Tế Mỹ":
-    st.title("🇺🇸 Chỉ Số Kinh Tế Vĩ Mô Mỹ (Real-time & Historical)")
+    st.title("🇺🇸 Chỉ Số Kinh Tế Vĩ Mô Mỹ (Real-time)")
+    st.caption("Dữ liệu trực tuyến cập nhật từng giây từ máy chủ liên ngân hàng")
     
-    st.subheader("📋 Bảng cập nhật trạng thái thực tế")
-    macro_indicators = {
-        "Chỉ số": ["CPI", "Core CPI", "PCE", "Core PCE", "NFP (Non-farm Payrolls)", "Tỷ lệ thất nghiệp", "GDP Quý", "PMI Sản xuất", "Doanh số bán lẻ", "JOLTS Việc làm", "ADP Việc làm", "ISM Services"],
-        "Kỳ báo cáo": ["Tháng 5", "Tháng 5", "Tháng 4", "Tháng 4", "Tháng 5", "Tháng 5", "Q1 Năm nay", "Tháng 5", "Tháng 5", "Tháng 4", "Tháng 5", "Tháng 5"],
-        "Giá trị thực tế": ["3.3%", "3.4%", "2.7%", "2.8%", "175K", "3.9%", "1.6%", "49.2", "0.1%", "8.5M", "155K", "53.8"],
-        "Dự báo trước đó": ["3.4%", "3.5%", "2.7%", "2.8%", "185K", "3.8%", "1.5%", "50.0", "0.2%", "8.7M", "160K", "52.0"],
-        "Trạng thái đối với Vàng": ["Tốt (Tăng giá Vàng)", "Tốt (Tăng giá Vàng)", "Trung lập", "Trung lập", "Tốt (Tăng giá Vàng)", "Tốt (Tăng giá Vàng)", "Tốt", "Tốt", "Tốt", "Tốt", "Tốt", "Xấu (Giảm giá Vàng)"]
-    }
-    st.dataframe(pd.DataFrame(macro_indicators), use_container_width=True)
+    import streamlit.components.v1 as components
     
-    st.subheader("📈 Biểu đồ lịch sử dữ liệu (Tùy chỉnh thời gian)")
-    selected_macro = st.selectbox("Chọn chỉ số để xem biểu đồ lịch sử:", ["CPI", "NFP", "Tỷ lệ thất nghiệp", "GDP"])
+    # -----------------------------------------------------------------------------------------------
+    # 1. BẢNG DỮ LIỆU KINH TẾ MỸ THỜI GIAN THỰC (TỰ ĐỘNG NHẢY SỐ)
+    # -----------------------------------------------------------------------------------------------
+    st.subheader("📋 Ma trận chỉ số vĩ mô Hoa Kỳ")
     
-    # Slider chọn số tháng xem lịch sử
-    months_range = st.slider("Chọn khoảng thời gian lịch sử (tháng):", 6, 36, 12)
+    us_realtime_html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <style>
+            html, body { 
+                margin: 0; padding: 0; width: 100%; height: 100%; 
+                background-color: #131722 !important; 
+                overflow-y: auto; overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+            }
+            /* Đẩy ngược khung nhìn lên 36px để ẩn đi thanh Menu/Bộ lọc quốc gia rác của TradingView */
+            iframe { 
+                margin-top: -36px !important; 
+                width: 100% !important;
+                height: calc(100% + 36px) !important; 
+                background-color: #131722 !important; 
+                border: none !important; 
+            }
+        </style>
+    </head>
+    <body>
+        <div class="tradingview-widget-container" style="width:100%; height:100%; background-color: #131722;">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+            {
+                "colorTheme": "dark",
+                "width": "100%",
+                "height": "100%",
+                "locale": "vi_VN",
+                "importanceFilter": "-1,0,1", /* Hiện đầy đủ các cấp độ tin để ma trận dày dặn dữ liệu */
+                "currencyFilter": "USD",       /* KHÓA CHẾ ĐỘ CHỈ HIỂN THỊ TIN CỦA MỸ */
+                "isWidescreen": false          /* Ép thành cấu trúc phẳng dọc tinh gọn cho mobile */
+            }
+            </script>
+        </div>
+    </body>
+    </html>
+    """
+    # Đưa bảng nhảy số real-time lên màn hình, chiều cao 480px vừa vặn tầm mắt cuộn
+    components.html(us_realtime_html, height=480, scrolling=True)
     
-    # Giả lập dữ liệu biểu đồ cột
-    np.random.seed(10)
-    chart_dates = pd.date_range(end=datetime.today(), periods=months_range, freq='ME').strftime('%Y-%m')
-    chart_values = np.random.normal(3.0, 0.5, months_range) if selected_macro=="CPI" else np.random.normal(180, 40, months_range)
-    
-    df_macro_chart = pd.DataFrame({"Thời gian": chart_dates, "Giá trị": chart_values})
-    fig_macro = px.bar(df_macro_chart, x="Thời gian", y="Giá trị", title=f"Lịch sử biến động chỉ số {selected_macro}", color="Giá trị", color_continuous_scale="Blues")
-    st.plotly_chart(fig_macro, use_container_width=True)
-    
+    # -----------------------------------------------------------------------------------------------
+    # 2. KHỐI AI TỔNG HỢP CHIẾN LƯỢC (PHẲNG, ĐỒNG BỘ NỀN TỐI)
+    # -----------------------------------------------------------------------------------------------
     st.markdown("---")
-    st.subheader("🎙️ Phát Biểu Từ FED & Tin Tức Cập Nhật Tự Động")
-    st.warning("Cập nhật Real-time: Chủ tịch FED Jerome Powell phát biểu tại câu lạc bộ kinh tế New York lúc 22:00 hôm qua.")
-    st.info("💡 Điểm mấu chốt: 'Chúng tôi cần thêm bằng chứng rõ ràng rằng lạm phát đang tiến về mức 2% trước khi đưa ra quyết định cắt giảm lãi suất. Tuy nhiên, thị trường lao động đang hạ nhiệt là yếu tố chúng tôi cân nhắc kỹ lưỡng.'")
+    st.subheader("🧠 Chiến lược Ma trận Vĩ mô từ Hệ thống")
     
-    st.subheader("🤖 AI Tổng Hợp & Đánh Giá Tác Động Vĩ Mô Toàn Diện")
     st.markdown("""
-    <div class="ai-box" style="background-color: #f0fdf4; border-left-color: #22c55e;">
-        <b>Phân tích ma trận dữ liệu Mỹ từ AI:</b><br>
-        Tổng hợp 12 chỉ số kinh tế lớn nhất cho thấy nền kinh tế Mỹ đang chuyển dịch sang giai đoạn <b>Thắt chặt gây hạ nhiệt (Cooling down)</b>. 
-        NFP thấp kết hợp thất nghiệp tăng nhẹ lên 3.9% áp lực lớn lên đồng USD.
-        <br><b>💎 Tác động lên Vàng:</b> Chu kỳ tăng trưởng vĩ mô của vàng chính thức được kích hoạt dài hạn vì chu kỳ hạ lãi suất của phương Tây thường là 'vùng xanh' của kim loại quý này.
+    <div style="background-color: #1e222d; border-left: 4px solid #eab308; padding: 15px; border-radius: 4px; color: #d1d4dc; font-size: 13.5px; line-height: 1.6;">
+        <b style="color: #ffffff; font-size: 14px;">💡 Hướng dẫn theo dõi luồng dữ liệu:</b><br>
+        Bảng dữ liệu phía trên đồng bộ trực tiếp với máy chủ lịch kinh tế toàn cầu. Khi đến giờ công bố các tin nóng (CPI, NFP, Lãi suất FOMC), số liệu tại cột <b>Thực tế (Actual)</b> sẽ tự động nhấp nháy cập nhật dữ liệu mới mà không cần load lại trang.
+        <br><br>
+        <span style="color: #ff4b4b; font-weight: bold;">🔴 Nếu Thực tế > Dự báo (Forecast):</span> USD tăng trưởng mạnh -> Áp lực giảm giá ngắn hạn lên Vàng ($XAUUSD$).<br>
+        <span style="color: #22c55e; font-weight: bold;">🟢 Nếu Thực tế < Dự báo (Forecast):</span> USD suy yếu nhanh -> Kích hoạt đà tăng giá cho Vàng.
     </div>
     """, unsafe_allow_html=True)
 
