@@ -1254,19 +1254,19 @@ elif menu == "Demo Trade":
         st.session_state.demo_positions = []      # Danh sách trạng thái lệnh
 
     # 3. BỐ CỤC GIAO DIỆN CHÍNH (2 CỘT: BIỂU ĐỒ & BẢNG ĐIỀU KHIỂN)
-        # TỰ ĐỘNG TÍNH TOÁN LỜI/LỖ ĐỘNG (P&L) CHO CÁC LỆNH ĐANG CHẠY MỖI KHI GIÁ VÀNG NHẢY
-    total_floating_pnl = 0.0
-    for pos in st.session_state.demo_positions:
-        pos["Giá hiện tại"] = CURRENT_GOLD
-        # Công thức chuẩn Forex: Số Lots * Quy mô hợp đồng (100 Ounces) * Độ chênh lệch giá
-        if pos["Loại"] == "BUY":
-            pos["Lợi nhuận ($)"] = round(pos["Khối lượng"] * 100 * (CURRENT_GOLD - pos["Giá vào"]), 2)
-        elif pos["Loại"] == "SELL":
-            pos["Lợi nhuận ($)"] = round(pos["Khối lượng"] * 100 * (pos["Giá vào"] - CURRENT_GOLD), 2)
-        total_floating_pnl += pos["Lợi nhuận ($)"]
-
-    # Tài sản thực tế biến động (Equity) = Số dư gốc (Balance) + Lợi nhuận trạng thái ròng
-    demo_equity = st.session_state.demo_balance + total_floating_pnl
+            # TỰ ĐỘNG TÍNH TOÁN LỜI/LỖ ĐỘNG (P&L) CHO CÁC LỆNH ĐANG CHẠY MỖI KHI GIÁ VÀNG NHẢY
+        total_floating_pnl = 0.0
+        for pos in st.session_state.demo_positions:
+            pos["Giá hiện tại"] = CURRENT_GOLD
+            # Công thức chuẩn Forex: Số Lots * Quy mô hợp đồng (100 Ounces) * Độ chênh lệch giá
+            if pos["Loại"] == "BUY":
+                pos["Lợi nhuận ($)"] = round(pos["Khối lượng"] * 100 * (CURRENT_GOLD - pos["Giá vào"]), 2)
+            elif pos["Loại"] == "SELL":
+                pos["Lợi nhuận ($)"] = round(pos["Khối lượng"] * 100 * (pos["Giá vào"] - CURRENT_GOLD), 2)
+            total_floating_pnl += pos["Lợi nhuận ($)"]
+    
+        # Tài sản thực tế biến động (Equity) = Số dư gốc (Balance) + Lợi nhuận trạng thái ròng
+        demo_equity = st.session_state.demo_balance + total_floating_pnl
     col_left, col_right = st.columns([1.2, 1.0], gap="medium")
 
     # --------------------------------------------------------------------------
