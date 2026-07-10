@@ -342,53 +342,69 @@ if menu == "Dashboard Tổng Quan":
     components.html(macro_tradingview_html, height=530, scrolling=False)
     # ===============================================================================================
 
+    # ===============================================================================================
+    # KHỐI CODE HOÀN CHỈNH SỬA LỖI NAMEERROR & HIỂN THỊ Y ĐÚC FOREXFACTORY (TỪ DÒNG 295)
+    # ===============================================================================================
+    # Lịch kinh tế và Nhận định AI
+    st.markdown("---")
+    
+    # ĐỊNH NGHĨA LẠI HAI CỘT ĐỂ KHÔNG BỊ LỖI NAMEERROR
+    c_left, c_right = st.columns([2, 1])
+    
     with c_left:
-        st.subheader("📅 Lịch Kinh Tế Thời Gian Thực")
+        st.subheader("📅 Lịch Kinh Tế Trực Tuyến")
         st.caption("Dữ liệu tự động đồng bộ theo cấu trúc ForexFactory")
         
-        # Lấy dữ liệu thật
-        events = get_forexfactory_style_data()
+        import streamlit.components.v1 as components
         
-        if not events:
-            st.info("Đang kết nối máy chủ dữ liệu vĩ mô...")
-        else:
-            # Render khung giao diện phẳng giống y hệt hình mẫu
-            current_day = ""
-            
-            # CSS tổng thể cho bảng phẳng
-            st.markdown("""
+        # Sử dụng widget TradingView chế độ dọc phẳng lỳ, ép màu tối và giấu toàn bộ thanh lọc rác
+        perfect_ff_html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
             <style>
-                .ff-table { width: 100%; border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: #1e222d; border-radius: 4px; overflow: hidden; }
-                .ff-day-row { background-color: #2a2e39; color: #ffffff; font-weight: bold; font-size: 14px; padding: 6px 10px; text-align: left; border-bottom: 1px solid #131722; }
-                .ff-event-row { border-bottom: 1px solid #2a2e39; font-size: 13.5px; color: #e1e3e6; display: flex; align-items: center; padding: 10px; }
-                .ff-time { width: 70px; color: #848e9c; }
-                .ff-currency { width: 50px; font-weight: bold; color: #ffffff; }
-                .ff-icon { width: 30px; display: flex; align-items: center; }
-                .ff-factory-box { width: 14px; height: 12px; border-radius: 2px; display: inline-block; }
-                .ff-name { flex-grow: 1; padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #d1d4dc; }
-                .ff-actual { width: 60px; text-align: right; font-weight: 600; color: #ffffff; }
+                html, body { 
+                    margin: 0; 
+                    padding: 0; 
+                    width: 100%; 
+                    height: 100%; 
+                    background-color: #131722; 
+                    overflow-y: auto; 
+                    overflow-x: hidden;
+                    -webkit-overflow-scrolling: touch;
+                }
+                /* Giấu thanh header công cụ phía trên của TradingView để lộ danh sách phẳng */
+                iframe { 
+                    margin-top: -36px !important; 
+                    height: calc(100% + 36px) !important; 
+                    background-color: #131722 !important; 
+                    border: none !important; 
+                }
             </style>
-            <div class="ff-table">
-            """, unsafe_allow_html=True)
-            
-            for ev in events:
-                # Nếu sang ngày mới, chèn một dòng tiêu đề ngày (Ví dụ: Thu Jul 9)
-                if ev["day_header"] != current_day:
-                    current_day = ev["day_header"]
-                    st.markdown(f'<div class="ff-day-row">{current_day}</div>', unsafe_allow_html=True)
-                
-                # Chèn hàng tin tức xếp lớp ngang hoàn hảo không nút bấm thừa
-                st.markdown(f"""
-                <div class="ff-event-row">
-                    <div class="ff-time">{ev['time']}</div>
-                    <div class="ff-currency">{ev['currency']}</div>
-                    <div class="ff-icon"><span class="ff-factory-box" style="background-color: {ev['icon_color']};"></span></div>
-                    <div class="ff-name">{ev['name']}</div>
-                    <div class="ff-actual">{ev['actual']}</div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-            st.markdown("</div>", unsafe_allow_html=True)
+        </head>
+        <body>
+            <div class="tradingview-widget-container" style="width:100%; background-color: #131722;">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                {
+                    "colorTheme": "dark",
+                    "width": "100%",
+                    "height": "500",
+                    "locale": "vi_VN",
+                    "importanceFilter": "0,1", /* Hiện các tin trung bình và mạnh cho sạch bố cục */
+                    "currencyFilter": "USD,EUR,GBP,JPY",
+                    "isWidescreen": false  /* Khóa giao diện danh sách phẳng chia theo ngày */
+                }
+                </script>
+            </div>
+        </body>
+        </html>
+        """
+        # Render lên cột bên trái, bật cuộn nội bộ
+        components.html(perfect_ff_html, height=510, scrolling=True)
+        
+    # Phần with c_right bên dưới của bạn giữ nguyên vẹn không đổi...
 
     with c_right:
         st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
