@@ -291,24 +291,14 @@ if menu == "Dashboard Tổng Quan":
     # Kết xuất mã HTML lên giao diện Streamlit, thiết lập chiều cao vừa vặn không bị lỗi cuộn
     components.html(macro_tradingview_html, height=530, scrolling=False)
     # ===============================================================================================
-
-    # ===============================================================================================
-    # KHỐI CODE HOÀN CHỈNH SỬA LỖI NAMEERROR & HIỂN THỊ Y ĐÚC FOREXFACTORY (TỪ DÒNG 295)
-    # ===============================================================================================
-    # Lịch kinh tế và Nhận định AI
-    st.markdown("---")
-    
-    # ĐỊNH NGHĨA LẠI HAI CỘT ĐỂ KHÔNG BỊ LỖI NAMEERROR
-    c_left, c_right = st.columns([2, 1])
-    
     with c_left:
-        st.subheader("📅 Lịch Kinh Tế Trực Tuyến")
-        st.caption("Dữ liệu tự động đồng bộ theo cấu trúc ForexFactory")
+        st.subheader("📅 Lịch Kinh Tế USD (Tin Mạnh & Trung Bình)")
+        st.caption("Dữ liệu cập nhật trực tuyến tự động từ TradingView")
         
         import streamlit.components.v1 as components
         
-        # Sử dụng widget TradingView chế độ dọc phẳng lỳ, ép màu tối và giấu toàn bộ thanh lọc rác
-        perfect_ff_html = """
+        # Mã nhúng chuẩn hóa khung hình, ẩn menu rác và lọc chuẩn USD (Đỏ/Cam)
+        fixed_usd_calendar_html = """
         <!DOCTYPE html>
         <html>
         <head>
@@ -319,12 +309,12 @@ if menu == "Dashboard Tổng Quan":
                     padding: 0; 
                     width: 100%; 
                     height: 100%; 
-                    background-color: #131722; 
+                    background-color: #131722 !important; 
                     overflow-y: auto; 
                     overflow-x: hidden;
                     -webkit-overflow-scrolling: touch;
                 }
-                /* Giấu thanh header công cụ phía trên của TradingView để lộ danh sách phẳng */
+                /* Đẩy ngược iframe lên để ẩn hoàn toàn thanh chọn quốc gia bị lỗi trên mobile */
                 iframe { 
                     margin-top: -36px !important; 
                     height: calc(100% + 36px) !important; 
@@ -340,21 +330,19 @@ if menu == "Dashboard Tổng Quan":
                 {
                     "colorTheme": "dark",
                     "width": "100%",
-                    "height": "500",
+                    "height": "100%",
                     "locale": "vi_VN",
-                    "importanceFilter": "0,1", /* Hiện các tin trung bình và mạnh cho sạch bố cục */
-                    "currencyFilter": "USD,EUR,GBP,JPY",
-                    "isWidescreen": false  /* Khóa giao diện danh sách phẳng chia theo ngày */
+                    "importanceFilter": "0,1", /* Chỉ giữ lại tin quan trọng Cam và Đỏ */
+                    "currencyFilter": "USD",    /* CHỈ LỌC DUY NHẤT TIN ĐỒNG USD */
+                    "isWidescreen": false       /* Ép về giao diện danh sách dọc mượt mà cho mobile */
                 }
                 </script>
             </div>
         </body>
         </html>
         """
-        # Render lên cột bên trái, bật cuộn nội bộ
-        components.html(perfect_ff_html, height=510, scrolling=True)
-        
-    # Phần with c_right bên dưới của bạn giữ nguyên vẹn không đổi...
+        # Đưa lên giao diện với chiều cao vừa vặn cho điện thoại vuốt xem
+        components.html(fixed_usd_calendar_html, height=500, scrolling=True)
 
     with c_right:
         st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
