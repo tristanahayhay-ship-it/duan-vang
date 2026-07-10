@@ -1268,35 +1268,13 @@ elif menu == "Demo Trade":
         # --- MÃ NGUỒN CHUẨN HIỂN THỊ BIỂU ĐỒ TRADINGVIEW GỐC ---
         import streamlit.components.v1 as components
 
-        tradingview_widget_code = """
-        <div class="tradingview-widget-container" style="height:100%;width:100%;">
-          <div id="tradingview_xauusd"></div>
-          <script type="text/javascript" src="https://tradingview.com"></script>
-          <script type="text/javascript">
-          new TradingView.widget({
-            "autosize": true,
-            "symbol": "FX_IDC:XAUUSD",
-            "interval": "D",
-            "timezone": "Asia/Ho_Chi_Minh",
-            "theme": "light",
-            "style": "1",
-            "locale": "vi_VN",
-            "toolbar_bg": "#f1f3f6",
-            "enable_publishing": false,
-            "withgetproperties": true,
-            "hide_side_toolbar": false,
-            "allow_symbol_change": true,
-            "watchlist": [
-              "FX_IDC:XAUUSD"
-            ],
-            "details": true,
-            "container_id": "tradingview_xauusd"
-          });
-          </script>
-        </div>
-        """
+        # --- PHƯƠNG ÁN NHÚNG BIỂU ĐỒ TRADINGVIEW AN TOÀN TRÊN CLOUD ---
+        import streamlit.components.v1 as components
         
-        components.html(tradingview_widget_code, height=550, scrolling=False)
+        # Gọi trực tiếp widget đồ thị nâng cao thông qua URL chính thức của TradingView
+        chart_url = "https://tradingview.com"
+        
+        components.iframe(chart_url, height=520, scrolling=False)
 
     # --------------------------------------------------------------------------
     # CỘT PHẢI: KHỐI QUẢN LÝ QUỸ TÀI KHOẢN & ĐẶT LỆNH QUICK-TRADE
