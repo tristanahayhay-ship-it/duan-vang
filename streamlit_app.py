@@ -292,40 +292,50 @@ if menu == "Dashboard Tổng Quan":
     components.html(macro_tradingview_html, height=530, scrolling=False)
     # ===============================================================================================
 
-    # ===============================================================================================
-    # CODE MỚI THAY THẾ TOÀN BỘ KHỐI LỊCH GIẢ LẬP CŨ ĐỂ CẬP NHẬT REAL-TIME CHUẨN XỊN
-    # ===============================================================================================
     # Lịch kinh tế và Nhận định AI
     st.markdown("---")
     c_left, c_right = st.columns([2, 1])
     
     with c_left:
         st.subheader("📅 Lịch Kinh Tế Thời Gian Thực")
-        st.caption("Dữ liệu vĩ mô toàn cầu tự động cập nhật số liệu chuẩn xác liên tục")
+        st.caption("Dữ liệu sự kiện vĩ mô lõi cập nhật trực tuyến tự động")
         
         import streamlit.components.v1 as components
         
-        # Nhúng mã nguồn Widget Lịch kinh tế trực tuyến chuẩn của TradingView
-        economic_calendar_html = """
-        <div class="tradingview-widget-container" style="width:100%; height:450px;">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-            {
-                "colorTheme": "dark",
-                "isWidescreen": true,
-                "width": "100%",
-                "height": "450",
-                "locale": "vi_VN",
-                "importanceFilter": "-1,0,1", /* Hiện đủ mức độ tin mạnh/vừa/yếu */
-                "currencyFilter": "USD,EUR,GBP,JPY" /* Quét các đồng tiền vĩ mô chính ảnh hưởng đến Vàng */
-            }
-            </script>
-        </div>
+        # Cấu hình ẩn hoàn toàn thanh công cụ (Header) để giao diện phẳng lỳ như ForexFactory
+        perfect_calendar_html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+            <style>
+                html, body { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #131722; overflow: hidden; }
+                /* Thủ thuật CSS can thiệp để giấu sạch thanh header và thanh lọc quốc gia của TradingView */
+                iframe { margin-top: -36px !important; height: calc(100% + 36px) !important; }
+                .tv-embed-widget-wrapper__header { display: none !important; }
+            </style>
+        </head>
+        <body>
+            <div class="tradingview-widget-container" style="width:100%; height:450px;">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                {
+                    "colorTheme": "dark",
+                    "width": "100%",
+                    "height": "486",
+                    "locale": "vi_VN",
+                    "importanceFilter": "0,1", /* Giữ lại tin trung bình và mạnh cho sạch máy */
+                    "currencyFilter": "USD,EUR,GBP,JPY",
+                    "isWidescreen": false
+                }
+                </script>
+            </div>
+        </body>
+        </html>
         """
-        # Đưa lên giao diện với độ cao vừa vặn không lỗi cuộn trên điện thoại
-        components.html(economic_calendar_html, height=460, scrolling=False)
-    # ===============================================================================================
-     
+        # Đưa lên giao diện Streamlit
+        components.html(perfect_calendar_html, height=450, scrolling=False)
+
     with c_right:
         st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
         st.markdown("""
