@@ -1233,18 +1233,18 @@ elif menu == "Demo Trade":
     # 1. KÍCH HOẠT TỰ ĐỘNG LÀM MỚI (AUTO-REFRESH) MỖI 3 GIÂY ĐỂ TIỀN TỰ NHẢY ĐỘNG
     st.fragment(run_every=3)
 
-    # 2. THIẾT LẬP ĐIỂM DỮ LIỆU THỰC TẾ CƠ SỞ CHUẨN XÁC
+    # 2. LẤY GIÁ VÀNG XAU/USD THỰC TẾ (Sử dụng API Binance lấy cặp PAXGUSDT khớp chuẩn vùng giá thế giới)
     import requests
     try:
-        url_cnbc = "https://coingecko.com"
-        res_cnbc = requests.get(url_cnbc, timeout=2)
-        if res_cnbc.status_code == 200:
-            CURRENT_GOLD = float(res_cnbc.json()["pax-gold"]["usd"])
+        # Tốc độ phản hồi cực nhanh, không cần key, cập nhật theo giây
+        url_binance = "https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT"
+        res_binance = requests.get(url_binance, timeout=2)
+        if res_binance.status_code == 200:
+            CURRENT_GOLD = round(float(res_binance.json()["price"]), 2)
         else:
-            CURRENT_GOLD = 4119.25
-            CURRENT_GOLD = 4119.25  # Số này chỉ dùng để phòng hờ nếu mất mạng internet
+            CURRENT_GOLD = 2350.00  # Giá phòng hờ thực tế nếu API sàn gặp sự cố
     except:
-         CURRENT_GOLD = 4119.25
+         CURRENT_GOLD = 2350.00
 
     # 3. KHỞI TẠO STATE LƯU TRỮ TÀI KHOẢN (Chạy ngầm trong Session)
     if "demo_balance" not in st.session_state:
