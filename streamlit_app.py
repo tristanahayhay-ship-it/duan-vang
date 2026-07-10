@@ -291,14 +291,23 @@ if menu == "Dashboard Tổng Quan":
     # Kết xuất mã HTML lên giao diện Streamlit, thiết lập chiều cao vừa vặn không bị lỗi cuộn
     components.html(macro_tradingview_html, height=530, scrolling=False)
     # ===============================================================================================
+    # ===============================================================================================
+    # KHỐI CODE FIX LỖI NAMEERROR & CHỈ LỌC TIN ĐỎ / CAM CỦA ĐỒNG USD
+    # ===============================================================================================
+    # Lịch kinh tế và Nhận định AI
+    st.markdown("---")
+    
+    # Định nghĩa lại các cột cấu trúc để xóa bỏ hoàn toàn lỗi NameError
+    c_left, c_right = st.columns([2, 1])
+    
     with c_left:
         st.subheader("📅 Lịch Kinh Tế USD (Tin Mạnh & Trung Bình)")
-        st.caption("Dữ liệu cập nhật trực tuyến tự động từ TradingView")
+        st.caption("Dữ liệu vĩ mô lõi, tự động đồng bộ thời gian thực")
         
         import streamlit.components.v1 as components
         
-        # Mã nhúng chuẩn hóa khung hình, ẩn menu rác và lọc chuẩn USD (Đỏ/Cam)
-        fixed_usd_calendar_html = """
+        # Cấu hình widget giấu menu rác, khóa khung hình dọc mượt mà trên mobile
+        usd_only_calendar_html = """
         <!DOCTYPE html>
         <html>
         <head>
@@ -314,7 +323,7 @@ if menu == "Dashboard Tổng Quan":
                     overflow-x: hidden;
                     -webkit-overflow-scrolling: touch;
                 }
-                /* Đẩy ngược iframe lên để ẩn hoàn toàn thanh chọn quốc gia bị lỗi trên mobile */
+                /* Ẩn hoàn toàn thanh công cụ header và menu chọn quốc gia của TradingView */
                 iframe { 
                     margin-top: -36px !important; 
                     height: calc(100% + 36px) !important; 
@@ -332,17 +341,19 @@ if menu == "Dashboard Tổng Quan":
                     "width": "100%",
                     "height": "100%",
                     "locale": "vi_VN",
-                    "importanceFilter": "0,1", /* Chỉ giữ lại tin quan trọng Cam và Đỏ */
-                    "currencyFilter": "USD",    /* CHỈ LỌC DUY NHẤT TIN ĐỒNG USD */
-                    "isWidescreen": false       /* Ép về giao diện danh sách dọc mượt mà cho mobile */
+                    "importanceFilter": "0,1", /* Chỉ hiện tin tác động Trung bình (Cam) và Mạnh (Đỏ) */
+                    "currencyFilter": "USD",    /* CHỈ LỌC DUY NHẤT ĐỒNG USD */
+                    "isWidescreen": false       /* Ép giao diện danh sách phẳng chạy dọc mượt trên mobile */
                 }
                 </script>
             </div>
         </body>
         </html>
         """
-        # Đưa lên giao diện với chiều cao vừa vặn cho điện thoại vuốt xem
-        components.html(fixed_usd_calendar_html, height=500, scrolling=True)
+        # Render khối lịch lên giao diện chính
+        components.html(usd_only_calendar_html, height=500, scrolling=True)
+        
+    # Phần with c_right bên dưới của bạn giữ nguyên vẹn không đổi...
 
     with c_right:
         st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
