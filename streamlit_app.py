@@ -495,8 +495,6 @@ if menu == "Dashboard Tổng Quan":
                             <td class='ff-td' style='text-align:center;'><a href='{ev["DetailUrl"]}' target='_blank' class='icon-btn' title='Xem chi tiết sự kiện'>📁</a></td>
                             <td class='ff-td' style='text-align:center;' {color_class}>{ev["Actual"]}</td>
     
-    # Phần with c_right bên dưới của bạn giữ nguyên vẹn không đổi...
-
     with c_right:
         st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
         st.markdown("""
