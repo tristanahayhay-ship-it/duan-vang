@@ -249,8 +249,48 @@ if menu == "Dashboard Tổng Quan":
     # Biểu đồ kỹ thuật tương tác
     st.subheader("📊 Biểu đồ Kỹ thuật Liên thông Vĩ mô")
     asset_option = st.selectbox("Chọn tài sản để xem biểu đồ chi tiết:", ["XAU/USD", "DXY", "US10Y", "VIX", "WTI Oil"])
-    df_asset = get_real_market_data(asset_option)
-    st.plotly_chart(plot_tradingview_chart(df_asset, f"Xu hướng thị trường thực tế: {asset_option}"), use_container_width=True)
+    # ===============================================================================================
+    # CODE MỚI: NHÚNG WIDGET TRADINGVIEW ADVANCED CHUẨN ĐẸP NHƯ APP GỐC (THAY THẾ PLOTLY)
+    # ===============================================================================================
+    # Ánh xạ từ ô selectbox của bạn sang mã ID chuẩn trên hệ thống TradingView
+    asset_mapping = {
+        "XAU/USD": "OANDA:XAUUSD",
+        "DXY": "CAPITALCOM:DXY",
+        "US10Y": "TVC:US10Y",
+        "VIX": "TVC:VIX",
+        "WTI Oil": "TVC:USOIL"
+    }
+    chosen_tv_symbol = asset_mapping.get(asset_option, "OANDA:XAUUSD")
+
+    import streamlit.components.v1 as components
+
+    macro_tradingview_html = f"""
+    <div class="tradingview-widget-container" style="height:100%; width:100%;">
+        <div id="macro_chart_widget" style="height:520px;"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+        <script type="text/javascript">
+        new TradingView.widget({{
+            "width": "100%",
+            "height": 520,
+            "symbol": "{chosen_tv_symbol}",
+            "interval": "60", /* Khung thời gian mặc định (H1) */
+            "timezone": "Asia/Ho_Chi_Minh",
+            "theme": "dark",   /* Ép nền đen huyền bí chuẩn như ảnh bạn chụp */
+            "style": "1",
+            "locale": "vi_VN",
+            "toolbar_bg": "#131722",
+            "enable_publishing": false,
+            "hide_side_toolbar": false,   /* HIỆN THANH CÔNG CỤ VẼ BÊN TRÁI ĐỂ PHÂN TÍCH */
+            "allow_symbol_change": false, /* Khóa gõ đổi mã trên chart để nó chạy đồng bộ theo selectbox */
+            "container_id": "macro_chart_widget"
+        }});
+        </script>
+    </div>
+    """
+    
+    # Kết xuất mã HTML lên giao diện Streamlit, thiết lập chiều cao vừa vặn không bị lỗi cuộn
+    components.html(macro_tradingview_html, height=530, scrolling=False)
+    # ===============================================================================================
 
     # Lịch kinh tế và Nhận định AI
     st.markdown("---")
