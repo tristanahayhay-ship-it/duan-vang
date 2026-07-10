@@ -6,6 +6,56 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
 from datetime import datetime, timedelta
+def get_forexfactory_style_data():
+    import requests
+    from datetime import datetime
+    try:
+        # Gọi nguồn dữ liệu lịch kinh tế thực tế vĩ mô toàn cầu
+        url = "https://financialmodelingprep.com/api/v3/economic_calendar?apikey=demo"
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            raw_data = response.json()
+            # Lọc các đồng tiền lõi tác động mạnh đến thị trường Vàng như hình mẫu
+            filtered = [item for item in raw_data if item.get("currency") in ["USD", "EUR", "GBP", "JPY"]]
+            
+            processed_events = []
+            for item in filtered[:12]:
+                date_str = item.get("date", "")
+                try:
+                    dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+                    # Định dạng tiêu đề ngày y đúc hình mẫu: "Thu Jul 9", "Fri Jul 10"
+                    day_header = dt.strftime("%a %b %d")
+                    time_str = dt.strftime("%I:%M%p").lower() # Định dạng dạng 07:30pm
+                except:
+                    day_header = "Upcoming"
+                    time_str = "--:--"
+                
+                # Ánh xạ icon hộp màu tác động (nhà máy) giống ForexFactory
+                impact = item.get("impact", "Low").upper()
+                if impact == "HIGH":
+                    icon_color = "#ff4b4b" # Đỏ
+                elif impact == "MEDIUM":
+                    icon_color = "#ffa500" # Cam
+                else:
+                    icon_color = "#f1c40f" # Vàng
+                
+                # Xử lý hiển thị thông số Actual (Nếu chưa có tin thì để trống)
+                actual_val = str(item.get("actual")) if item.get("actual") is not None else ""
+                if actual_val == "None" or actual_val == "null":
+                    actual_val = ""
+                    
+                processed_events.append({
+                    "day_header": day_header,
+                    "time": time_str,
+                    "currency": item.get("currency", "USD"),
+                    "icon_color": icon_color,
+                    "name": item.get("event", ""),
+                    "actual": actual_val
+                })
+            return processed_events
+    except:
+        pass
+    return []
 
 # Cấu hình trang Streamlit
 st.set_page_config(
@@ -292,49 +342,53 @@ if menu == "Dashboard Tổng Quan":
     components.html(macro_tradingview_html, height=530, scrolling=False)
     # ===============================================================================================
 
-    # Lịch kinh tế và Nhận định AI
-    st.markdown("---")
-    c_left, c_right = st.columns([2, 1])
-    
     with c_left:
         st.subheader("📅 Lịch Kinh Tế Thời Gian Thực")
-        st.caption("Dữ liệu sự kiện vĩ mô lõi cập nhật trực tuyến tự động")
+        st.caption("Dữ liệu tự động đồng bộ theo cấu trúc ForexFactory")
         
-        import streamlit.components.v1 as components
+        # Lấy dữ liệu thật
+        events = get_forexfactory_style_data()
         
-        # Cấu hình ẩn hoàn toàn thanh công cụ (Header) để giao diện phẳng lỳ như ForexFactory
-        perfect_calendar_html = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        if not events:
+            st.info("Đang kết nối máy chủ dữ liệu vĩ mô...")
+        else:
+            # Render khung giao diện phẳng giống y hệt hình mẫu
+            current_day = ""
+            
+            # CSS tổng thể cho bảng phẳng
+            st.markdown("""
             <style>
-                html, body { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #131722; overflow: hidden; }
-                /* Thủ thuật CSS can thiệp để giấu sạch thanh header và thanh lọc quốc gia của TradingView */
-                iframe { margin-top: -36px !important; height: calc(100% + 36px) !important; }
-                .tv-embed-widget-wrapper__header { display: none !important; }
+                .ff-table { width: 100%; border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: #1e222d; border-radius: 4px; overflow: hidden; }
+                .ff-day-row { background-color: #2a2e39; color: #ffffff; font-weight: bold; font-size: 14px; padding: 6px 10px; text-align: left; border-bottom: 1px solid #131722; }
+                .ff-event-row { border-bottom: 1px solid #2a2e39; font-size: 13.5px; color: #e1e3e6; display: flex; align-items: center; padding: 10px; }
+                .ff-time { width: 70px; color: #848e9c; }
+                .ff-currency { width: 50px; font-weight: bold; color: #ffffff; }
+                .ff-icon { width: 30px; display: flex; align-items: center; }
+                .ff-factory-box { width: 14px; height: 12px; border-radius: 2px; display: inline-block; }
+                .ff-name { flex-grow: 1; padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #d1d4dc; }
+                .ff-actual { width: 60px; text-align: right; font-weight: 600; color: #ffffff; }
             </style>
-        </head>
-        <body>
-            <div class="tradingview-widget-container" style="width:100%; height:450px;">
-                <div class="tradingview-widget-container__widget"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-                {
-                    "colorTheme": "dark",
-                    "width": "100%",
-                    "height": "486",
-                    "locale": "vi_VN",
-                    "importanceFilter": "0,1", /* Giữ lại tin trung bình và mạnh cho sạch máy */
-                    "currencyFilter": "USD,EUR,GBP,JPY",
-                    "isWidescreen": false
-                }
-                </script>
-            </div>
-        </body>
-        </html>
-        """
-        # Đưa lên giao diện Streamlit
-        components.html(perfect_calendar_html, height=450, scrolling=False)
+            <div class="ff-table">
+            """, unsafe_allow_html=True)
+            
+            for ev in events:
+                # Nếu sang ngày mới, chèn một dòng tiêu đề ngày (Ví dụ: Thu Jul 9)
+                if ev["day_header"] != current_day:
+                    current_day = ev["day_header"]
+                    st.markdown(f'<div class="ff-day-row">{current_day}</div>', unsafe_allow_html=True)
+                
+                # Chèn hàng tin tức xếp lớp ngang hoàn hảo không nút bấm thừa
+                st.markdown(f"""
+                <div class="ff-event-row">
+                    <div class="ff-time">{ev['time']}</div>
+                    <div class="ff-currency">{ev['currency']}</div>
+                    <div class="ff-icon"><span class="ff-factory-box" style="background-color: {ev['icon_color']};"></span></div>
+                    <div class="ff-name">{ev['name']}</div>
+                    <div class="ff-actual">{ev['actual']}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            st.markdown("</div>", unsafe_allow_html=True)
 
     with c_right:
         st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
