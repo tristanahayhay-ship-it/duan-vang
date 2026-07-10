@@ -292,220 +292,77 @@ if menu == "Dashboard Tổng Quan":
     components.html(macro_tradingview_html, height=530, scrolling=False)
     # ===============================================================================================
     # ===============================================================================================
-    # LỊCH KINH TẾ CHUẨN CẤU TRÚC FOREX FACTORY - CẬP NHẬT TỪNG GIÂY (REAL-TIME)
+    # KHỐI CODE FIX LỖI NAMEERROR & CHỈ LỌC TIN ĐỎ / CAM CỦA ĐỒNG USD
     # ===============================================================================================
+    # Lịch kinh tế và Nhận định AI
     st.markdown("---")
     
     # Định nghĩa lại các cột cấu trúc để xóa bỏ hoàn toàn lỗi NameError
     c_left, c_right = st.columns([2, 1])
     
     with c_left:
-        st.subheader("📅 Lịch Kinh Tế USD Chuyên Sâu (Real-Time)")
-        st.caption("Bố cục chuẩn hóa Forex Factory, tự động quét và làm mới từng giây")
+        st.subheader("📅 Lịch Kinh Tế USD (Tin Mạnh & Trung Bình)")
+        st.caption("Dữ liệu vĩ mô lõi, tự động đồng bộ thời gian thực")
+        
+        import streamlit.components.v1 as components
+        
+        # Cấu hình widget giấu menu rác, khóa khung hình dọc mượt mà trên mobile
+        usd_only_calendar_html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+            <style>
+                html, body { 
+                    margin: 0; 
+                    padding: 0; 
+                    width: 100%; 
+                    height: 100%; 
+                    background-color: #131722 !important; 
+                    overflow-y: auto; 
+                    overflow-x: hidden;
+                    -webkit-overflow-scrolling: touch;
+                }
+                /* Ẩn hoàn toàn thanh công cụ header và menu chọn quốc gia của TradingView */
+                iframe { 
+                    margin-top: -36px !important; 
+                    height: calc(100% + 36px) !important; 
+                    background-color: #131722 !important; 
+                    border: none !important; 
+                }
+            </style>
+        </head>
+        <body>
+            <div class="tradingview-widget-container" style="width:100%; background-color: #131722;">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript" src="https://tradingview.com" async>
+                {
+                    "colorTheme": "dark",
+                    "width": "100%",
+                    "height": "100%",
+                    "locale": "vi_VN",
+                    "importanceFilter": "0,1", /* Chỉ hiện tin tác động Trung bình (Cam) và Mạnh (Đỏ) */
+                    "currencyFilter": "USD",    /* CHỈ LỌC DUY NHẤT ĐỒNG USD */
+                    "isWidescreen": false       /* Ép giao diện danh sách phẳng chạy dọc mượt trên mobile */
+                }
+                </script>
+            </div>
+        </body>
+        </html>
+        """
+        # Render khối lịch lên giao diện chính
+        components.html(usd_only_calendar_html, height=500, scrolling=True)
 
-        # 🌟 1. CSS TÁI TẠO BỐ CỤC BẢNG FOREX FACTORY TRÊN NỀN TỐI (DARK THEME)
+    with c_right:
+        st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
         st.markdown("""
-        <style>
-        .ff-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid #2a2e39;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .ff-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #1e222d;
-            font-size: 13px;
-            min-width: 850px;
-        }
-        .ff-th {
-            background-color: #131722;
-            color: #94a3b8;
-            padding: 10px 8px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid #2a2e39;
-        }
-        .ff-tr-date {
-            background-color: #1a1e26;
-            font-weight: bold;
-            color: #ffd700;
-            border-bottom: 1px solid #2a2e39;
-        }
-        .ff-td-date {
-            padding: 8px 10px;
-            font-size: 12.5px;
-        }
-        .ff-tr {
-            border-bottom: 1px solid #2a2e39;
-            background-color: #1e222d;
-        }
-        .ff-tr:hover {
-            background-color: #262b36;
-        }
-        .ff-td {
-            padding: 10px 8px;
-            color: #e2e8f0;
-            vertical-align: middle;
-        }
-        .icon-btn {
-            color: #38bdf8;
-            text-decoration: none;
-            font-size: 15px;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .icon-btn:hover {
-            color: #ffd700;
-        }
-        .badge-red {
-            background-color: #ef4444;
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-            display: inline-block;
-        }
-        .badge-orange {
-            background-color: #f97316;
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-            display: inline-block;
-        }
-        .text-green { color: #10b981 !important; font-weight: bold; }
-        .text-red { color: #ef4444 !important; font-weight: bold; }
-        </style>
+        <div class="ai-box">
+            <b>Kết luận xu hướng từ AI:</b><br>
+            CPI thực tế thấp hơn dự báo (0.2% so với 0.3%) cho thấy lạm phát Mỹ đang hạ nhiệt nhanh hơn kỳ vọng. 
+            Điều này làm tăng xác suất FED hạ lãi suất vào cuộc họp tới. 
+            <br><br><b>[*] Xu hướng Vàng:</b> Tác động <b>Tích cực (Bullish) mạnh mẽ</b>, giá vàng có xu hướng bứt phá vùng kháng cự ngắn hạn do đồng DXY bị bán tháo.
+        </div>
         """, unsafe_allow_html=True)
-
-        # 🌟 2. HÀM CẬP NHẬT DỮ LIỆU CỤC BỘ TỪNG GIÂY BẰNG FRAGMENT
-        @st.fragment(run_every=1)
-        def render_forex_factory_layout():
-            import requests
-            from bs4 import BeautifulSoup
-            from datetime import datetime
-
-            events_by_date = {}
-            
-            try:
-                headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-                url = "https://investing.com"
-                
-                response = requests.get(url, headers=headers, timeout=0.8)
-                if response.status_code == 200:
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    table_rows = soup.find_all('tr', class_='js-event-item')
-                    
-                    current_date_section = "Hôm nay"
-                    
-                    for row in table_rows:
-                        prev_sibling = row.find_previous_sibling('tr')
-                        if prev_sibling and 'theDay' in prev_sibling.get('class', []):
-                            current_date_section = prev_sibling.text.strip()
-
-                        time_val = row.find('td', class_='time').text.strip() if row.find('td', class_='time') else ""
-                        cur_val = row.find('td', class_='left').text.strip() if row.find('td', class_='left') else ""
-                        
-                        importance_td = row.find('td', class_='sentiment')
-                        stars = len(importance_td.find_all('i', class_='grayFullBullishIcon')) if importance_td else 0
-                        
-                        event_td = row.find('td', class_='event')
-                        event_name = event_td.text.strip() if event_td else ""
-                        
-                        event_id = row.get('id', '').replace('eventRowId_', '')
-                        detail_url = f"https://investing.com{event_id}" if event_id else "#"
-                        
-                        actual_td = row.find('td', id=lambda x: x and x.startswith('act'))
-                        actual_val = actual_td.text.strip() if actual_td else "---"
-                        forecast_val = row.find('td', id=lambda x: x and x.startswith('fore')).text.strip() if row.find('td', id=lambda x: x and x.startswith('fore')) else "---"
-                        previous_val = row.find('td', id=lambda x: x and x.startswith('prev')).text.strip() if row.find('td', id=lambda x: x and x.startswith('prev')) else "---"
-                        
-                        if actual_val == "": actual_val = "---"
-                        if forecast_val == "": forecast_val = "---"
-                        if previous_val == "": previous_val = "---"
-
-                        if cur_val == "USD" and stars in:
-                            if current_date_section not in events_by_date:
-                                events_by_date[current_date_section] = []
-                            
-                            events_by_date[current_date_section].append({
-                                "Time": time_val,
-                                "Currency": cur_val,
-                                "Impact": "red" if stars == 3 else "orange",
-                                "Event": event_name,
-                                "DetailUrl": detail_url,
-                                "Actual": actual_val,
-                                "Forecast": forecast_val,
-                                "Previous": previous_val,
-                                "ActualClass": " ".join(actual_td.get('class', [])) if actual_td else ""
-                            })
-            except:
-                pass
-
-            current_time = datetime.now().strftime("%H:%M:%S")
-            
-            html_table = f"""
-            <div style='text-align: right; font-size: 11px; color: #64748b; margin-bottom: 6px; font-weight: 500;'>⚡ Đồng bộ dữ liệu lõi: {current_time} (Real-time 1s)</div>
-            <div class='ff-wrapper'>
-            <table class='ff-table'>
-                <thead>
-                    <tr>
-                        <th class='ff-th' style='width: 8%; text-align:center;'>Giờ</th>
-                        <th class='ff-th' style='width: 8%; text-align:center;'>Tiền tệ</th>
-                        <th class='ff-th' style='width: 6%; text-align:center;'>Mức độ</th>
-                        <th class='ff-th' style='width: 38%;'>Sự kiện kinh tế</th>
-                        <th class='ff-th' style='width: 6%; text-align:center;'>Chi tiết</th>
-                        <th class='ff-th' style='width: 10%; text-align:center;'>Thực tế</th>
-                        <th class='ff-th' style='width: 10%; text-align:center;'>Dự báo</th>
-                        <th class='ff-th' style='width: 10%; text-align:center;'>Kỳ trước</th>
-                        <th class='ff-th' style='width: 6%; text-align:center;'>Đồ thị</th>
-                    </tr>
-                </thead>
-                <tbody>
-            """
-            
-            if not events_by_date:
-                html_table += """
-                    <tr class='ff-tr'>
-                        <td class='ff-td' colspan='9' style='text-align: center; color: #64748b; padding: 40px;'>Không có dữ liệu sự kiện USD trọng điểm nào trong phiên hôm nay.</td>
-                    </tr>
-                """
-            else:
-                for date_str, events in events_by_date.items():
-                    html_table += f"""
-                    <tr class='ff-tr-date'>
-                        <td class='ff-td-date' colspan='9'>📅 {date_str}</td>
-                    </tr>
-                    """
-                    for ev in events:
-                        badge_class = "badge-red" if ev["Impact"] == "red" else "badge-orange"
-                        
-                        color_class = ""
-                        if "greenFont" in ev["ActualClass"]: color_class = "class='text-green'"
-                        elif "redFont" in ev["ActualClass"]: color_class = "class='text-red'"
-                        elif ev["Actual"] != "---": color_class = "style='color: #ffd700; font-weight:700;'"
-                        
-                        html_table += f"""
-                        <tr class='ff-tr'>
-                            <td class='ff-td' style='text-align:center; color: #94a3b8;'>{ev["Time"]}</td>
-                            <td class='ff-td' style='text-align:center; font-weight: 600; color: #f8fafc;'>{ev["Currency"]}</td>
-                            <td class='ff-td' style='text-align:center;'><span class='{badge_class}'></span></td>
-                            <td class='ff-td' style='font-weight: 500;'>{ev["Event"]}</td>
-                            <td class='ff-td' style='text-align:center;'><a href='{ev["DetailUrl"]}' target='_blank' class='icon-btn' title='Xem chi tiết sự kiện'>📁</a></td>
-                            <td class='ff-td' style='text-align:center;' {color_class}>{ev["Actual"]}</td>
-    
-with c_right:
-    st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
-    st.markdown("""
-    <div class="ai-box">
-        <b>Kết luận xu hướng từ AI:</b><br><br>
-        CPI thực tế thấp hơn dự báo (0.2% so với 0.3%) cho thấy lạm phát Mỹ đang hạ nhiệt nhanh hơn kỳ vọng. 
-        Điều này làm tăng xác suất FED hạ lãi suất vào cuộc họp tới. 
-        <br><br><b>[*] Xu hướng Vàng:</b> Tác động <b>Tích cực (Bullish) mạnh mẽ</b>, giá vàng có xu hướng bứt phá vùng kháng cự ngắn hạn do đồng DXY bị bán tháo.
-    </div>
-    """, unsafe_allow_html=True)
-
 
     # Bài báo phân tích vĩ mô lớn
     st.subheader("📰 Bài báo phân tích vĩ mô chuyên sâu")
