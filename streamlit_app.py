@@ -1269,7 +1269,7 @@ elif menu == "Demo Trade":
         <div class="tradingview-widget-container" style="height:100%; width:100%;">
             <div id="tradingview_advanced_chart" style="height:550px;"></div>
             <!-- ĐÂY LÀ DÒNG CHÍNH XÁC BẮT BUỘC PHẢI CÓ S3 VÀ TV.JS -->
-            <script type="text/javascript" src="https://tradingview.com"></script>
+            <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
             <script type="text/javascript">
             new TradingView.widget({
                 "width": "100%",
