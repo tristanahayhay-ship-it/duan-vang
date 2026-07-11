@@ -745,8 +745,8 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
                 prompt_ai = f"""Bạn là Giám đốc phân tích vĩ mô của một quỹ đầu tư tài chính toàn cầu. Hãy viết một bài luận nhận định thật sắc sảo từ 3-4 câu dựa trên các thông số thị trường chính xác 100% sau đây: Chỉ số: {macro_choice} | DXY: {dxy_val} | US10Y: {yield_val}% | Giá Vàng: ${gold_val}. Giải thích mối quan hệ đa biến liên thông và ép hướng đi dòng tiền bứt phá hay sụt giảm của giá Vàng thế giới như thế nào. Viết bằng Tiếng Việt dạng HTML."""
                 response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt_ai)
                 return response.text if response and response.text else "Hệ thống AI đang kiểm toán luồng dữ liệu liên thông..."
-            except Exception:
-                return "Hệ thống AI đang phân tích dữ liệu dòng tiền vĩ mô..."
+            except Exception as e:
+                return f"Lỗi AI thực tế: {str(e)}"
 
         ai_live_cache_key = f"ai_live_indicators_{selected_macro}"
         # Kiểm tra và lưu cấu trúc bộ nhớ cache nhận định AI động trong Session State
