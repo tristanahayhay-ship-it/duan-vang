@@ -436,7 +436,7 @@ Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụn
         st.markdown(
             f"""
             <div class="ai-box">
-                <strong style="color: #3b82f6;">HỆ THỐNG AI PHÂN TÍCH ĐA BIẾN THẬT</strong><br><br>
+                <strong style="color: #3b82f6;">AI PHÂN TÍCH</strong><br><br>
                 {ai_response_text}
             </div>
             """, 
