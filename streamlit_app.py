@@ -248,7 +248,7 @@ if menu == "Dashboard Tổng Quan":
 
 
     # Biểu đồ kỹ thuật tương tác
-    st.subheader("📊 Biểu đồ Kỹ thuật Liên thông Vĩ mô")
+    st.subheader("📊 Biểu đồ Kỹ thuật ")
     asset_option = st.selectbox("Chọn tài sản để xem biểu đồ chi tiết:", ["XAU/USD", "DXY", "US10Y", "VIX", "WTI Oil"])
     # ===============================================================================================
     # CODE MỚI: NHÚNG WIDGET TRADINGVIEW ADVANCED CHUẨN ĐẸP NHƯ APP GỐC (THAY THẾ PLOTLY)
