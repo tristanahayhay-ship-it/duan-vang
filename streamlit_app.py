@@ -416,6 +416,7 @@ if menu == "Dashboard Tổng Quan":
         # Hàm gọi API Gemini v2.5 THỰC TẾ bóc tách dữ liệu lịch kinh tế
         def process_real_ai_analysis(gold_p, dxy_p, us10y_p, data_list):
             try:
+                import os
                 api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY", ""))
                 if not api_key:
                     return "⚠️ Vui lòng cấu hình GEMINI_API_KEY trong file secrets."
