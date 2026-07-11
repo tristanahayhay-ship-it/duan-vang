@@ -948,15 +948,7 @@ elif menu == "Dòng Tiền (Flow of Funds)":
         st.write("🏛️ Hoạt động mua gom của Ngân hàng trung ương (PBoC Trung Quốc, Ngân hàng Trung ương Nga, Ấn Độ...)")
         # SỬA DỮ LIỆU CHUẨN XÁC 100% CẬP NHẬT 30 PHÚT MỘT LẦN (ttl=1800)
         st.success("Dữ liệu thực tế cập nhật từ Hội đồng Vàng Thế giới (WGC): Ngân hàng Nhân dân Trung Quốc (PBoC) giữ vững trữ lượng chiến lược ở mốc 72.80 triệu Ounces sau chuỗi 18 tháng liên tục gom mạnh vật chất; song song đó, Ngân hàng Dự trữ Ấn Độ (RBI) tiếp tục đẩy mạnh đa dạng hóa tài sản phòng thủ quốc gia, gia tăng mua ròng thêm 9.3 Tấn vàng trong kỳ báo cáo hiện tại.")
-        
-    # GIỮ NGUYÊN TOÀN BỘ CẤU TRÚC HIỂN THỊ HTML HỘP AI BOX GỐC CỦA BẠN
-    st.subheader("🤖 Nhận Định Nước Đi Dòng Tiền Từ AI")
-    st.markdown("""
-    <div class="ai-box">
-        <b>Phân tích hành vi cá mập:</b> Dòng tiền không nằm ở tài sản rủi ro cao mà đang có xu hướng dịch chuyển dòng vốn (Capital rotation) từ thị trường trái phiếu ngắn hạn Mỹ trực tiếp sang thị trường vàng vật chất và quỹ tín thác. Đây là hành vi tích lũy tài sản dài hạn (Smart Money Accumulation).
-    </div>
-    """, unsafe_allow_html=True)
-   
+
     st.subheader("🤖 Nhận Định Nước Đi Dòng Tiền Từ AI")
     st.markdown("""
     <div class="ai-box">
