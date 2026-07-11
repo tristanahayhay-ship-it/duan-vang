@@ -409,7 +409,6 @@ if menu == "Dashboard Tổng Quan":
             st.markdown(html_table, unsafe_allow_html=True)
 
         fetch_and_render_real_data()
-
     with c_right:
         st.subheader("🤖 AI Nhận Định Đa Biến")
         st.caption("Khai phá logic dòng tiền vĩ mô từ dữ liệu thời gian thực")
@@ -421,12 +420,18 @@ if menu == "Dashboard Tổng Quan":
                 if not api_key:
                     return "⚠️ Vui lòng cấu hình GEMINI_API_KEY trong file secrets."
                 
+                # Khởi tạo client theo chuẩn thư viện google-genai
                 client = genai.Client(api_key=api_key)
 
                 events_context = ""
                 if data_list:
                     for ev in data_list[:3]:
-                        events_context += f"- Chỉ số {ev.get('Title','N/A')}: Thật sự là {ev.get('Actual','---')} (Dự báo: {ev.get('Forecast','---')}, Kỳ trước: {ev.get('Previous','---')})\n"
+                        # Sử dụng phương thức .get() an toàn tránh lỗi khuyết trường dữ liệu
+                        title_val = ev.get('Title', ev.get('title', 'N/A'))
+                        actual_val = ev.get('Actual', ev.get('actual', '---'))
+                        forecast_val = ev.get('Forecast', ev.get('forecast', '---'))
+                        previous_val = ev.get('Previous', ev.get('previous', '---'))
+                        events_context += f"- Chỉ số {title_val}: Thật sự là {actual_val} (Dự báo: {forecast_val}, Kỳ trước: {previous_val})\n"
                 else:
                     events_context = "- Hệ thống đang đồng bộ chỉ số vĩ mô mới trong phiên.\n"
 
@@ -446,10 +451,19 @@ Hãy phân tích logic dòng tiền chạy: Các chỉ số lạm phát/việc l
 
 Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụng các thẻ HTML cơ bản (như <b>, <br>) để định dạng văn bản hiển thị trên web. Không dùng các từ sáo rỗng."""
 
-                response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
-                return response.text
-            except Exception:
-                return "🤖 AI đang kết nối luồng dữ liệu liên thông..."
+                # Cấu hình gọi model bọc chặt chẽ hơn
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt
+                )
+                
+                if response and response.text:
+                    return response.text
+                return "⚠️ Không nhận được phản hồi văn bản từ AI."
+                
+            except Exception as e:
+                # SỬA LỖI: In hẳn thông báo lỗi kỹ thuật ra màn hình để kiểm tra nguyên nhân thay vì ẩn đi
+                return f"🤖 AI đang kết nối luồng dữ liệu liên thông... (Chi tiết lỗi: {str(e)})"
 
         # Điều hướng gọi hàm AI thực tế tránh vòng lặp quá tải
         if st.button("🔄 Kích hoạt AI phân tích", use_container_width=True) or "ai_cached_response" not in st.session_state:
