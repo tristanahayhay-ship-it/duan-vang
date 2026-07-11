@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
 from datetime import datetime, timedelta
+from google import genai
 
 # Cấu hình trang Streamlit
 st.set_page_config(
