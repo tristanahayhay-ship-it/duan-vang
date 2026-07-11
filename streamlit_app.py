@@ -8,7 +8,6 @@ import plotly.io as pio
 from datetime import datetime, timedelta
 from google import genai
 
-# Cấu hình trang Streamlit
 st.set_page_config(
     page_title="Kinh tế Vĩ mô & Nhận định Giá Vàng",
     page_icon="🪙",
