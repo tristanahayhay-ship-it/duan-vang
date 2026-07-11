@@ -15,7 +15,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Thêm CSS tùy chỉnh nâng cao để giao diện chuyên nghiệp và đồng bộ với Dark Theme
 st.markdown("""
 <style>
     /* 1. Làm mịn và thu gọn thanh cuộn (Scrollbar) chuẩn TradingView */
