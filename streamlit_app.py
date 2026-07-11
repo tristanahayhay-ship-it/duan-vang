@@ -410,7 +410,7 @@ if menu == "Dashboard Tổng Quan":
 
         fetch_and_render_real_data()
     with c_right:
-        st.subheader("🤖 AI Nhận Định Đa Biến")
+        st.subheader("🤖 AI Phân Tích Chỉ Số Vĩ Mô ")
         st.caption("Khai phá logic dòng tiền vĩ mô từ dữ liệu thời gian thực")
 
         # Hàm gọi API Gemini v2.5 THỰC TẾ bóc tách dữ liệu lịch kinh tế
