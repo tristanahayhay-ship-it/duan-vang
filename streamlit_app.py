@@ -22,7 +22,6 @@ st.markdown("""
     ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
 
-    /* 2. Nâng cấp thiết kế các thẻ hiển thị chỉ số Metric vĩ mô */
     div[data-testid="stMetric"] {
         background: linear-gradient(145deg, #1f2937, #111827) !important;
         border: 1px solid #374151 !important;
@@ -33,10 +32,9 @@ st.markdown("""
     }
     div[data-testid="stMetric"]:hover {
         transform: translateY(-2px) !important;
-        border-color: #eab308 !important; /* Đổi viền sang màu Gold khi di chuột */
+        border-color: #eab308 !important;
     }
-    
-    /* 3. Nâng cấp hộp phân tích AI (Hộp AI nhận định) sang trọng */
+
     .ai-box {
         background: linear-gradient(135deg, #1e293b, #0f172a);
         border-left: 5px solid #3b82f6;
@@ -51,8 +49,7 @@ st.markdown("""
         font-size: 14.5px;
         line-height: 1.6;
     }
-    
-    /* 4. Nâng cấp thẻ bài báo tài chính tinh tế có hiệu ứng chuyển động */
+
     .news-card {
         background: linear-gradient(145deg, #111827, #1f2937);
         border: 1px solid #374151;
@@ -75,7 +72,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# Hàm giả lập dữ liệu nến (Thay thế bằng API thực tế như yfinance khi deploy)
 def get_real_market_data(symbol, days=90):
     ticker_mapping = {
         "XAU/USD": "GC=F",
@@ -95,20 +91,13 @@ def get_real_market_data(symbol, days=90):
         st.error(f"Lỗi kết nối dữ liệu {symbol}: {str(e)}")
         return pd.DataFrame()
 
-# ===================================================================================================
-# ⚙️ BẢNG ĐIỀU KHIỂN HỆ THỐNG (GÓC TRÊN TRÁI)
-# ===================================================================================================
 with st.sidebar.expander("⚙️ Cài đặt Hệ thống (Múi giờ / Ngôn ngữ / Theme)", expanded=False):
-    # 1. Chọn ngôn ngữ
     lang_option = st.selectbox("🌐 Ngôn ngữ (Language):", ["Tiếng Việt (VN)", "English (US)"])
-    
-    # 2. Chọn múi giờ
+
     timezone_option = st.selectbox("🕒 Múi giờ (Timezone):", ["Việt Nam (GMT+7)", "New York (EST/GMT-5)", "London (GMT+0)"])
-    
-    # 3. Chế độ hiển thị (Streamlit sẽ tự động đồng bộ theo cấu hình config.toml của bạn)
+
     st.info("🌗 Hệ thống tự động tối ưu giao diện Dark Mode Bloomberg.")
 
-# Khai báo cấu trúc đồng hồ động nhảy giây thực tế độc lập qua Fragment (Chạy ngầm mỗi 1 giây an toàn)
 @st.fragment(run_every=1)
 def hien_thi_dong_ho_sidebar_live(tz_option, lang_opt):
     from datetime import timezone
