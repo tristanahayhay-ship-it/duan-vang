@@ -98,47 +98,6 @@ def get_real_market_data(symbol, days=90):
         st.error(f"Lỗi kết nối dữ liệu {symbol}: {str(e)}")
         return pd.DataFrame()
 
-def plot_tradingview_chart(df, title):
-    if df.empty:
-        return go.Figure()
-        
-    from plotly.subplots import make_subplots
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, 
-                        vertical_spacing=0.05, row_width=[0.2, 0.8])
-                        
-    # Ép kiểu dữ liệu ngày tháng của Yahoo Finance về chuỗi Ngày/Tháng ngắn gọn
-    short_dates = df.index.strftime('%d/%m')
-                        
-    fig.add_trace(go.Candlestick(
-        x=short_dates, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'],
-        name="Giá",
-        increasing_line_color='#22c55e', decreasing_line_color='#ef4444',
-        increasing_fillcolor='#22c55e', decreasing_fillcolor='#ef4444'
-    ), row=1, col=1)
-    
-    if 'Volume' in df.columns and df['Volume'].sum() > 0:
-        colors = ['#22c55e' if row['Close'] >= row['Open'] else '#ef4444' for _, row in df.iterrows()]
-        fig.add_trace(go.Bar(
-            x=short_dates, y=df['Volume'], name="Volume", showlegend=False, marker_color=colors
-        ), row=2, col=1)
-        
-    fig.update_xaxes(type='category', gridcolor='#e2e8f0', row=1, col=1)
-    fig.update_xaxes(type='category', gridcolor='#e2e8f0', row=2, col=1)
-    fig.update_yaxes(gridcolor='#e2e8f0', row=1, col=1)
-    fig.update_yaxes(gridcolor='#e2e8f0', showticklabels=False, row=2, col=1)
-
-    fig.update_layout(
-        title=dict(text=title, font=dict(size=16, color='#1e293b')),
-        xaxis_rangeslider_visible=False, height=450,
-        margin=dict(l=10, r=10, t=40, b=10), hovermode='x unified',
-        plot_bgcolor='white', paper_bgcolor='rgba(0,0,0,0)'
-    )
-    return fig
-
-# SIDEBAR: Điều hướng chính
-# SIDEBAR: Điều hướng chính và Cài đặt hệ thống
-st.sidebar.title("🧭 Điều Hướng Hệ Thống")
-
 # ===================================================================================================
 # ⚙️ BẢNG ĐIỀU KHIỂN HỆ THỐNG (GÓC TRÊN TRÁI)
 # ===================================================================================================
