@@ -17,7 +17,6 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    /* 1. Làm mịn và thu gọn thanh cuộn (Scrollbar) chuẩn TradingView */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: rgba(0,0,0,0); }
     ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
