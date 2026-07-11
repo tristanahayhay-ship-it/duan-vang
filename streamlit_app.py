@@ -757,7 +757,7 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
 
         # Hiển thị khối AI Box với màu nền xanh lá và viền xanh đặc trưng theo đúng hình dáng gốc của bạn
         st.markdown(f"""
-        <div class="ai-box" style="background-color: #f0fdf4; border-left-color: #22c55e; color: #1e293b; padding: 18px; border-radius: 12px; line-height: 1.6;">
+        <div class="ai-box" style="background-color: #f0fdf4; border-left-color: #22c55e; color: #ffffff; padding: 18px; border-radius: 12px; line-height: 1.6;">
             <b>Phân tích ma trận dữ liệu Mỹ từ AI:</b><br><br>
             {ai_real_text}
         </div>
