@@ -410,15 +410,63 @@ if menu == "Dashboard Tổng Quan":
         fetch_and_render_real_data()
 
     with c_right:
-        st.subheader("🤖 AI Nhận Định Lịch Kinh Tế")
-        st.markdown("""
-        <div class="ai-box">
-            <b>Kết luận xu hướng từ AI:</b><br>
-            CPI thực tế thấp hơn dự báo (0.2% so với 0.3%) cho thấy lạm phát Mỹ đang hạ nhiệt nhanh hơn kỳ vọng. 
-            Điều này làm tăng xác suất FED hạ lãi suất vào cuộc họp tới. 
-            <br><br><b>[*] Xu hướng Vàng:</b> Tác động <b>Tích cực (Bullish) mạnh mẽ</b>, giá vàng có xu hướng bứt phá vùng kháng cự ngắn hạn do đồng DXY bị bán tháo.
-        </div>
-        """, unsafe_allow_html=True)
+        st.subheader("🤖 AI Nhận Định Đa Biến")
+        st.caption("Khai phá logic dòng tiền vĩ mô từ dữ liệu thời gian thực")
+
+        # Hàm gọi API Gemini v2.5 THỰC TẾ bóc tách dữ liệu lịch kinh tế
+        def process_real_ai_analysis(gold_p, dxy_p, us10y_p, data_list):
+            try:
+                api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY", ""))
+                if not api_key:
+                    return "⚠️ Vui lòng cấu hình GEMINI_API_KEY trong file secrets."
+                
+                client = genai.Client(api_key=api_key)
+
+                events_context = ""
+                if data_list:
+                    for ev in data_list[:3]:
+                        events_context += f"- Chỉ số {ev.get('Title','N/A')}: Thật sự là {ev.get('Actual','---')} (Dự báo: {ev.get('Forecast','---')}, Kỳ trước: {ev.get('Previous','---')})\n"
+                else:
+                    events_context = "- Hệ thống đang đồng bộ chỉ số vĩ mô mới trong phiên.\n"
+
+                prompt = f"""Bạn là một chuyên gia phân tích kinh tế vĩ mô cấp cao độc lập.
+Hãy phân tích các số liệu thực tế vừa được cập nhật trên bảng chỉ số kinh tế Mỹ dưới đây:
+
+[DỮ LIỆU THỊ TRƯỜNG THỜI GIAN THỰC]
+- Giá Vàng (XAU/USD): ${gold_p}
+- Sức mạnh Đô la (DXY): {dxy_p}
+- Lợi suất 10 năm (US10Y): {us10y_p}%
+
+[DỮ LIỆU LỊCH KINH TẾ THỰC TẾ TRONG BẢNG]
+{events_context}
+
+[Nhiệm vụ phân tích liên thông đa biến]
+Hãy phân tích logic dòng tiền chạy: Các chỉ số lạm phát/việc làm thực tế ở trên tác động thế nào đến tâm lý FED -> Từ đó ép chỉ số DXY tăng hay giảm -> DXY ép ngược hành vi giá Vàng (XAU/USD) bứt phá hay sụt giảm ra sao.
+
+Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụng các thẻ HTML cơ bản (như <b>, <br>) để định dạng văn bản hiển thị trên web. Không dùng các từ sáo rỗng."""
+
+                response = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
+                return response.text
+            except Exception:
+                return "🤖 AI đang kết nối luồng dữ liệu liên thông..."
+
+        # Điều hướng gọi hàm AI thực tế tránh vòng lặp quá tải
+        if st.button("🔄 Kích hoạt AI phân tích", use_container_width=True) or "ai_cached_response" not in st.session_state:
+            with st.spinner("AI phân tích chuyên sâu..."):
+                news_input = st.session_state.get("current_live_events", [])
+                st.session_state.ai_cached_response = process_real_ai_analysis(g_price, dxy_price, us10y_price, news_input)
+
+        ai_response_text = st.session_state.get("ai_cached_response", "Đang phân tích...")
+
+        st.markdown(
+            f"""
+            <div class="ai-box">
+                <strong style="color: #3b82f6;">HỆ THỐNG AI PHÂN TÍCH ĐA BIẾN THẬT</strong><br><br>
+                {ai_response_text}
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
 
     # Bài báo phân tích vĩ mô lớn
     st.subheader("📰 Bài báo phân tích vĩ mô chuyên sâu")
