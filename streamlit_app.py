@@ -120,7 +120,6 @@ def hien_thi_dong_ho_sidebar_live(tz_option, lang_opt):
 
 hien_thi_dong_ho_sidebar_live(timezone_option, lang_option)
 st.sidebar.markdown("---")
-# ===================================================================================================
 
 menu = st.sidebar.radio(
     "Chọn chuyên mục:",
@@ -431,19 +430,18 @@ Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụn
     st.subheader("📰 Bài báo phân tích vĩ mô chuyên sâu")
     st.caption("Luồng tin tức vĩ mô liên thông bóc tách từ cổng truyền thông quốc tế - Tự động dịch bởi Gemini AI")
 
-    @st.cache_data(ttl=300)  # Lưu bộ nhớ đệm 5 phút để tránh quá tải API và tối ưu tốc độ app
+    @st.cache_data(ttl=300)
     def fetch_live_macro_news_vietnamese():
         live_news_list = []
         try:
             import xml.etree.ElementTree as ET
             import requests
             import os
-            
-            # 1. Quét dữ liệu RSS từ Google News Finance Mỹ
+
             url = "https://google.com"
             headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
             response = requests.get(url, headers=headers, timeout=5.0)
-            
+
             raw_articles = []
             if response.status_code == 200:
                 root = ET.fromstring(response.content)
@@ -459,14 +457,12 @@ Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụn
                         publisher = "Tin tức Quốc tế"
                         
                     raw_articles.append({"title": title.strip(), "publisher": publisher.strip(), "time": pub_date[:16], "link": link})
-            
-            # 2. Khởi tạo Gemini AI để dịch toàn bộ tiêu đề sang thuật ngữ tài chính Tiếng Việt
+
             api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY", ""))
             
             if api_key and raw_articles:
                 client = genai.Client(api_key=api_key)
-                
-                # Gom toàn bộ tiêu đề thành một văn bản để dịch một lần duy nhất (Tiết kiệm lượt gọi API)
+
                 translation_prompt = "Bạn là một dịch giả tài chính vĩ mô cao cấp. Hãy dịch chính xác các tiêu đề báo kinh tế sau sang Tiếng Việt chuẩn văn phong đầu tư, ngắn gọn, trực diện, giữ nguyên tên thương hiệu nhà xuất bản nếu cần. Xuất ra dạng danh sách cách nhau bởi dấu xuống dòng, không kèm số thứ tự:\n"
                 for a in raw_articles:
                     translation_prompt += f"- {a['title']}\n"
@@ -478,20 +474,17 @@ Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụn
                 
                 if ai_response and ai_response.text:
                     translated_titles = [line.strip().lstrip("- ").strip() for line in ai_response.text.strip().split("\n") if line.strip()]
-                    
-                    # Khớp tiêu đề đã dịch vào danh sách bài báo ban đầu
+
                     for i, article in enumerate(raw_articles):
                         if i < len(translated_titles):
                             article["title"] = translated_titles[i]
                         live_news_list.append(article)
             else:
-                # Nếu không có API Key, nạp thẳng danh sách thô để ứng dụng không bị dừng hình
                 live_news_list = raw_articles
                 
         except Exception:
             pass
-            
-        # Luồng Fallback Tiếng Việt (Nếu mất hoàn toàn kết nối Internet hoặc lỗi API)
+
         if not live_news_list:
             live_news_list = [
                 {"title": "Giá vàng tăng vọt áp sát đỉnh lịch sử do áp lực dữ liệu lạm phát Mỹ", "publisher": "Bloomberg", "time": "Mới cập nhật", "link": "https://bloomberg.com"},
@@ -501,10 +494,8 @@ Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụn
             ]
         return live_news_list
 
-    # Gọi hàm nạp dữ liệu tin tức thực tế Tiếng Việt
     macro_news = fetch_live_macro_news_vietnamese()
 
-    # Phân bổ lưới hiển thị 2 cột song song chuẩn thiết kế CSS của bạn
     col_news1, col_news2 = st.columns(2)
 
     with col_news1:
@@ -555,13 +546,9 @@ Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụn
             </div>
             """, unsafe_allow_html=True)
 
-# ===================================================================================================
-# 2. DỮ LIỆU KINH TẾ MỸ (BẢN KHỐI LIỀN DUY NHẤT - ĐÃ SỬA SẠCH LỖI CÚ PHÁP CẬP NHẬT TỪNG GIÂY)
-# ===================================================================================================
 elif menu == "Dữ Liệu Kinh Tế Mỹ":
     st.title("🇺🇸 Chỉ Số Kinh Tế Vĩ Mô Mỹ (Real-time & Historical)")
-    
-    # Khởi tạo hàm Fragment bao bọc (Lùi vào đúng 4 dấu cách)
+
     @st.fragment(run_every=1)
     def render_macro_section_pure_realtime():
         import xml.etree.ElementTree as ET
@@ -569,7 +556,6 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
         import os
         import numpy as np
 
-        # --- TẦNG LUỒNG DỮ LIỆU NỀN TẢNG REAL-TIME TỪ SÀN GIAO DỊCH (Lùi vào đúng 8 dấu cách) ---
         @st.cache_data(ttl=5)
         def get_macro_live_feed():
             feeds = {"DXY": "DX-Y.NYB", "US10Y": "^TNX", "XAU": "GC=F"}
@@ -594,8 +580,7 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
         us10y_tick = round(us10y_live + np.random.uniform(-0.001, 0.001), 3)
 
         current_timestamp_str = datetime.now().strftime("%d/%m/%Y — %H:%M:%S")
-        
-        # 1️⃣ BẢNG TRẠNG THÁI CHỈ SỐ VĨ MÔ MỸ
+
         st.subheader("📋 Bảng cập nhật trạng thái thực tế")
         st.markdown(f"<div style='text-align: right; font-size: 12px; color: #3b82f6; font-weight: bold; margin-top: -35px;'>⏳ Hệ thống kiểm toán Live-Feed: `{current_timestamp_str}`</div>", unsafe_allow_html=True)
         
@@ -607,12 +592,11 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
             "Trạng thái đối với Vàng": ["⚠️ Nghịch đảo (DXY tăng ép Vàng giảm)", "⚠️ Chi sách thắt chặt (Yield tăng áp lực Vàng)", "Nghịch đảo mạnh", "Nghịch đảo mạnh", "📈 Thuận chiều (Việc làm yếu đẩy Vàng tăng)", "📈 Thuận chiều (Thất nghiệp tăng đẩy Vàng tăng)", "⚠️ Đối nghịch chu kỳ", "📉 Nghịch đảo"]
         }
         st.dataframe(pd.DataFrame(macro_indicators), use_container_width=True)
-        
-        # 2️⃣ BIỂU ĐỒ LỊCH SỬ CHUỖI THỜI GIAN THẬT
+
         st.subheader("📈 Biểu đồ lịch sử dữ liệu (Tùy chỉnh thời gian)")
         selected_macro = st.selectbox("Chọn chỉ số để xem biểu đồ lịch sử:", ["DXY Index (Real-time)", "US10Y Yield (Real-time)", "CPI Lạm phát (Tháng)"], key="section2_sb")
         months_range = st.slider("Chọn khoảng thời gian lịch sử (tháng):", 6, 36, 12, key="section2_sl")
-        
+
         @st.cache_data(ttl=10)
         def fetch_pure_chart_history(macro_name, months):
             ticker_symbol = "DX-Y.NYB" if "DXY" in macro_name else ("^TNX" if "US10Y" in macro_name else "FREG=F")
@@ -631,7 +615,6 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
             except Exception:
                 pass
             dates = pd.date_range(end=datetime.today(), periods=months, freq='ME').strftime('%Y-%m').tolist()
-            # ĐÃ SỬA LỖI: Gán mốc mảng số liệu mặc định chuẩn xác không dùng ký tự tự do
             fallback_vals = [104.0] * months
             return dates, fallback_vals
 
@@ -642,39 +625,32 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
             elif "US10Y" in selected_macro: c_values[-1] = us10y_tick
 
         df_macro_chart = pd.DataFrame({"Thời gian": c_dates, "Giá trị": c_values})
-        # ===============================================================================================
-        # MẪU 1 NÂNG CẤP: HIỂN THỊ THỜI GIAN TRÊN ĐƯỜNG DÂY XU HƯỚNG & ẨN TRỤC DƯỚI
-        # ===============================================================================================
+
         import plotly.graph_objects as go
 
         fig_macro = go.Figure()
 
-        # Cấu hình đường dây tích hợp nhãn văn bản chữ đè lên nút tọa độ
         fig_macro.add_trace(
             go.Scatter(
                 x=df_macro_chart["Thời gian"],
                 y=df_macro_chart["Giá trị"],
-                
-                # ÉP CHẾ ĐỘ HIỂN THỊ: Hiện cả đường kẻ, chấm tròn và nhãn chữ (text)
+
                 mode="lines+markers+text",                 
-                
-                # Gán nội dung chữ chính là mảng mốc thời gian (ví dụ: '2026-07')
+
                 text=df_macro_chart["Thời gian"],          
-                
-                # VỊ TRÍ CHỮ: Đẩy chữ nằm lên phía trên bên trái của điểm nút để không bị đè vào đường dây
+
                 textposition="top left",                   
-                
-                # Định dạng phông chữ hiển thị trên đường dây nhỏ nhắn, tinh tế
+
                 textfont=dict(
                     family="Arial",
                     size=10,
-                    color="#64748b"                        # Màu chữ xám dịu mắt
+                    color="#64748b"                        
                 ),
-                
-                line=dict(color="#3b82f6", width=2.5),     # Đường xu hướng xanh Neon
-                marker=dict(size=4, color="#3b82f6"),      # Chấm tròn nhỏ găm tâm chữ
-                fill="tozeroy",                            
-                fillcolor="rgba(59, 130, 246, 0.04)",      # Vòng phủ bóng mờ nhẹ
+
+                line=dict(color="#3b82f6", width=2.5),
+                marker=dict(size=4, color="#3b82f6"),
+                fill="tozeroy",
+                fillcolor="rgba(59, 130, 246, 0.04)",
                 hoverinfo="none"
             )
         )
@@ -686,37 +662,31 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
             margin=dict(l=10, r=10, t=30, b=10), 
             height=340, 
             showlegend=False,
-            
-            # CẤU HÌNH TRỤC HOÀNH (X-AXIS): Ẩn hoàn toàn vì chữ đã đưa lên trên đường dây
+
             xaxis=dict(
                 type="category", 
                 showgrid=False, 
-                showticklabels=False,                      # ẨN DÒNG CHỮ THỜI GIAN Ở ĐÁY BIỂU ĐỒ
-                linecolor='rgba(0,0,0,0)',                 # Ẩn luôn đường thẳng trục đáy
+                showticklabels=False,
+                linecolor='rgba(0,0,0,0)',
                 fixedrange=True
             ),
-            
-            # Cấu hình trục tung (Y-Axis) đẩy sang phải chuẩn Bloomberg Terminal
+
             yaxis=dict(
                 showgrid=True, 
                 gridcolor='#1e293b', 
                 linecolor='rgba(0,0,0,0)',
                 side='right', 
                 fixedrange=True, 
-                # Nới rộng khoảng đệm trần thêm một chút để các dòng chữ không bị chạm mép trên
                 range=[min(c_values) - 0.5, max(c_values) + 1.2]
             )
         )
 
-        # Kết xuất biểu đồ tĩnh hoàn toàn ra màn hình ứng dụng
         st.plotly_chart(
             fig_macro, 
             use_container_width=True, 
             config={'displayModeBar': False}
         )
-        # ===============================================================================================
-     
-        # 3️⃣ PHÁT BIỂU ĐIỀU HÀNH TỪ SÀN CHÍNH SÁCH FED THẬT
+
         st.markdown("---")
         st.subheader("🎙️ Phát Biểu Từ FED & Tin Tức Cập Nhật Tự Động")
         
@@ -749,8 +719,7 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
         fed_warn_text, fed_info_text = fetch_pure_live_fed_news()
         st.warning(fed_warn_text)
         st.info(f"💡 {fed_info_text}")
-        
-        # 4️⃣ HỘP KẾT LUẬN AI BOX ĐA BIẾN (SỬ DỤNG AI GOOGLE GEMINI THẬT)
+
         st.subheader("🤖 AI Tổng Hợp & Đánh Giá Tác Động Vĩ Mô Toàn Diện")
         
         def process_pure_real_gemini_analysis(macro_choice, dxy_val, yield_val, gold_val):
@@ -767,13 +736,11 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
                 return f"Lỗi AI thực tế: {str(e)}"
 
         ai_live_cache_key = f"ai_live_indicators_{selected_macro}"
-        # Kiểm tra và lưu cấu trúc bộ nhớ cache nhận định AI động trong Session State
         if ai_live_cache_key not in st.session_state:
             st.session_state[ai_live_cache_key] = process_pure_real_gemini_analysis(selected_macro, dxy_tick, us10y_tick, xau_live)
             
         ai_real_text = st.session_state.get(ai_live_cache_key)
 
-        # Hiển thị khối AI Box với màu nền xanh lá và viền xanh đặc trưng theo đúng hình dáng gốc của bạn
         st.markdown(f"""
         <div class="ai-box" style="background-color: #f0fdf4; border-left-color: #22c55e; color: #ffffff; padding: 18px; border-radius: 12px; line-height: 1.6;">
             <b>Phân tích ma trận dữ liệu Mỹ từ AI:</b><br><br>
@@ -781,7 +748,6 @@ elif menu == "Dữ Liệu Kinh Tế Mỹ":
         </div>
         """, unsafe_allow_html=True)
 
-    # Kích hoạt gọi hàm chạy ngầm nhảy giây (Lùi về đúng mốc móng 4 dấu cách)
     render_macro_section_pure_realtime()
 
 # ===================================================================================================
