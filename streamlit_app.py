@@ -103,7 +103,6 @@ def hien_thi_dong_ho_sidebar_live(tz_option, lang_opt):
     from datetime import timezone
     now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
 
-    # Xử lý múi giờ thực tế
     if tz_option == "Việt Nam (GMT+7)":
         now_selected = now_utc + timedelta(hours=7)
         tz_suffix = "Giờ Việt Nam" if lang_opt == "Tiếng Việt (VN)" else "Vietnam Time"
@@ -115,12 +114,10 @@ def hien_thi_dong_ho_sidebar_live(tz_option, lang_opt):
         tz_suffix = "Giờ Quốc tế GMT" if lang_opt == "Tiếng Việt (VN)" else "GMT International Time"
 
     current_time_str = now_selected.strftime("%d/%m/%Y — %H:%M:%S")
-    
-    # Xử lý ngôn ngữ hiển thị
+
     label_text = "Thời gian:" if lang_opt == "Tiếng Việt (VN)" else "Current Time:"
     st.markdown(f"📅 **{label_text}** `{current_time_str}` *({tz_suffix})*")
 
-# Kích hoạt gọi hàm đồng hồ động kết hợp đa biến đầu vào
 hien_thi_dong_ho_sidebar_live(timezone_option, lang_option)
 st.sidebar.markdown("---")
 # ===================================================================================================
@@ -135,18 +132,11 @@ st.sidebar.subheader("🤖 Trạng thái AI Kết Luận")
 st.sidebar.success("Hệ thống AI: Sẵn sàng")
 st.sidebar.info("Khuyến nghị hôm nay: **BULLISH GOLD** (Ưu tiên Mua) do căng thẳng địa chính trị và Real Yield giảm.")
 
-# ===================================================================================================
-# 1. DASHBOARD TỔNG QUAN
-# ===================================================================================================
 if menu == "Dashboard Tổng Quan":
     st.title("🪙 Kinh Tế Vĩ Mô & Nhận Định Giá Vàng")
     st.caption("Hệ thống tự động cập nhật dữ liệu liên tục kết hợp trí tuệ nhân tạo AI phân tích xu hướng")
-    # ===============================================================================================
-    # HÀNG CHỈ SỐ LIÊN THÔNG VĨ MÔ CẬP NHẬT TỰ ĐỘNG CHUẨN TỪNG GIÂY (GIỮ NGUYÊN CẤU TRÚC 5 CỘT)
-    # ===============================================================================================
-    @st.fragment(run_every=1) # Kích hoạt luồng chạy ngầm nhảy giây tự động cho riêng 5 thẻ Metric
+    @st.fragment(run_every=1)
     def hien_thi_metrics_realtime_tung_giay():
-        # 1. Lấy dữ liệu nền móng từ bộ nhớ đệm (Chạy ngầm 30 giây một lần để chống khóa IP)
         @st.cache_data(ttl=30)
         def get_base_market_data():
             tickers = {
@@ -160,7 +150,7 @@ if menu == "Dashboard Tổng Quan":
             for name, sym in tickers.items():
                 try:
                     t = yf.Ticker(sym)
-                    hist = t.history(period="5d") # Tăng lên 5d đảm bảo luôn có tối thiểu 2 phiên gần nhất
+                    hist = t.history(period="5d")
                     if len(hist) >= 2:
                         close_today = hist['Close'].iloc[-1]
                         close_yesterday = hist['Close'].iloc[-2]
@@ -169,7 +159,6 @@ if menu == "Dashboard Tổng Quan":
                     pass
             return base_results
 
-        # Nạp dữ liệu nền, kích hoạt bộ số Fallback thực tế chuẩn xác nếu API nghẽn mạng
         base_data = get_base_market_data()
         g_base_today, g_base_yes = base_data.get("Vàng (XAU/USD)", (2354.50, 2350.00))
         dxy_base_today, dxy_base_yes = base_data.get("DXY Index", (104.15, 104.00))
@@ -177,8 +166,6 @@ if menu == "Dashboard Tổng Quan":
         vix_base_today, vix_base_yes = base_data.get("VIX Index", (13.85, 13.50))
         oil_base_today, oil_base_yes = base_data.get("Crude Oil WTI", (78.40, 78.00))
 
-        # 2. Thuật toán Giả lập Biến động Tick-Data từng giây (Bám sát xu hướng thực tế của phiên)
-        # Tạo độ nhấp nháy ngẫu nhiên siêu nhỏ chuẩn xác theo biên độ dao động sàn giao dịch
         np.random.seed(int(datetime.now().timestamp()))
         g_price = round(g_base_today + np.random.uniform(-0.15, 0.15), 2)
         dxy_price = round(dxy_base_today + np.random.uniform(-0.005, 0.005), 3)
@@ -186,7 +173,6 @@ if menu == "Dashboard Tổng Quan":
         vix_price = round(vix_base_today + np.random.uniform(-0.02, 0.02), 2)
         oil_price = round(oil_base_today + np.random.uniform(-0.01, 0.01), 2)
 
-        # 3. Tính toán lại biến động toán học động (Dynamic Delta) theo thời gian thực
         g_chg = round(g_price - g_base_yes, 2)
         g_pct = (g_chg / g_base_yes) * 100
 
@@ -202,12 +188,10 @@ if menu == "Dashboard Tổng Quan":
         oil_chg = round(oil_price - oil_base_yes, 2)
         oil_pct = (oil_chg / oil_base_yes) * 100
 
-        # ĐỒNG BỘ GIÁ THỜI GIAN THỰC LÊN SESSION STATE ĐỂ BIẾN TOÀN CỤC KHÔNG BỊ TRỐNG
         st.session_state["live_gold_price"] = g_price
         st.session_state["live_dxy_price"] = dxy_price
         st.session_state["live_us10y_price"] = us10y_price
 
-        # 4. Thiết lập cấu trúc giao diện 5 cột độc lập (Giữ nguyên cấu trúc gốc của bạn)
         col1, col2, col3, col4, col5 = st.columns(5)
 
         col1.metric("XAU/USD", f"${g_price:,}", f"{g_chg:+} ({g_pct:+.2f}%)")
@@ -216,22 +200,14 @@ if menu == "Dashboard Tổng Quan":
         col4.metric("VIX Index", f"{vix_price}", f"{vix_chg:+} ({vix_pct:+.2f}%)") # ĐÃ SỬA LỖI: Trả lại đúng biến vix_chg thay vì vix_price
         col5.metric("Crude Oil WTI", f"${oil_price}", f"{oil_chg:+} ({oil_pct:+.2f}%)")
 
-    # Kích hoạt thực thi gọi hàm hiển thị nhảy giây
     hien_thi_metrics_realtime_tung_giay()
     
-    # Đồng bộ lại biến toàn cục bên ngoài khối Fragment để cấp nguồn cho biểu đồ và AI đọc dữ liệu
     g_price = st.session_state.get("live_gold_price", 2354.50)
     dxy_price = st.session_state.get("live_dxy_price", 104.15)
     us10y_price = st.session_state.get("live_us10y_price", 4.21)
-    # ===============================================================================================
 
-    # Biểu đồ kỹ thuật tương tác
     st.subheader("📊 Biểu đồ Kỹ thuật ")
     asset_option = st.selectbox("Chọn tài sản để xem biểu đồ chi tiết:", ["XAU/USD", "DXY", "US10Y", "VIX", "WTI Oil"])
-    # ===============================================================================================
-    # CODE MỚI: NHÚNG WIDGET TRADINGVIEW ADVANCED CHUẨN ĐẸP NHƯ APP GỐC (THAY THẾ PLOTLY)
-    # ===============================================================================================
-    # Ánh xạ từ ô selectbox của bạn sang mã ID chuẩn trên hệ thống TradingView
     asset_mapping = {
         "XAU/USD": "OANDA:XAUUSD",
         "DXY": "CAPITALCOM:DXY",
@@ -252,27 +228,23 @@ if menu == "Dashboard Tổng Quan":
             "width": "100%",
             "height": 520,
             "symbol": "{chosen_tv_symbol}",
-            "interval": "60", /* Khung thời gian mặc định (H1) */
+            "interval": "60",
             "timezone": "Asia/Ho_Chi_Minh",
-            "theme": "dark",   /* Ép nền đen huyền bí chuẩn như ảnh bạn chụp */
+            "theme": "dark",
             "style": "1",
             "locale": "vi_VN",
             "toolbar_bg": "#131722",
             "enable_publishing": false,
-            "hide_side_toolbar": false,   /* HIỆN THANH CÔNG CỤ VẼ BÊN TRÁI ĐỂ PHÂN TÍCH */
-            "allow_symbol_change": false, /* Khóa gõ đổi mã trên chart để nó chạy đồng bộ theo selectbox */
+            "hide_side_toolbar": false,
+            "allow_symbol_change": false,
             "container_id": "macro_chart_widget"
         }});
         </script>
     </div>
     """
-    
-    # Kết xuất mã HTML lên giao diện Streamlit, thiết lập chiều cao vừa vặn không bị lỗi cuộn
+
     components.html(macro_tradingview_html, height=530, scrolling=False)
-    # ===============================================================================================
-    # ===============================================================================================
-    # LỊCH KINH TẾ USD REAL-TIME CẬP NHẬT THẬT 100% THEO TỪNG GIÂY (BIỆT LẬP HOÀN TOÀN)
-    # ===============================================================================================
+
     st.markdown("---")
     c_left, c_right = st.columns([2.3, 1])
     
@@ -280,7 +252,6 @@ if menu == "Dashboard Tổng Quan":
         st.subheader("📅 Lịch Kinh Tế Vĩ Mô USD")
         st.caption("Dữ liệu thô cập nhật trực tiếp theo thời gian thực từ cổng API tài chính")
 
-        # Khai báo cấu trúc bảng phẳng bằng chuỗi biến đơn, bọc kín để bảo vệ code bên dưới không bị lỗi
         custom_css = (
             "<style>"
             ".custom-wrapper { width: 100%; overflow-x: auto; border: 2px solid #000000; }"
@@ -391,21 +362,18 @@ if menu == "Dashboard Tổng Quan":
         st.subheader("🤖 AI Phân Tích Chỉ Số Vĩ Mô ")
         st.caption("Khai phá logic dòng tiền vĩ mô từ dữ liệu thời gian thực")
 
-        # Hàm gọi API Gemini v2.5 THỰC TẾ bóc tách dữ liệu lịch kinh tế
         def process_real_ai_analysis(gold_p, dxy_p, us10y_p, data_list):
             try:
                 import os
                 api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY", ""))
                 if not api_key:
                     return "⚠️ Vui lòng cấu hình GEMINI_API_KEY trong file secrets."
-                
-                # Khởi tạo client theo chuẩn thư viện google-genai
+
                 client = genai.Client(api_key=api_key)
 
                 events_context = ""
                 if data_list:
                     for ev in data_list[:3]:
-                        # Sử dụng phương thức .get() an toàn tránh lỗi khuyết trường dữ liệu
                         title_val = ev.get('Title', ev.get('title', 'N/A'))
                         actual_val = ev.get('Actual', ev.get('actual', '---'))
                         forecast_val = ev.get('Forecast', ev.get('forecast', '---'))
@@ -430,7 +398,6 @@ Hãy phân tích logic dòng tiền chạy: Các chỉ số lạm phát/việc l
 
 Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụng các thẻ HTML cơ bản (như <b>, <br>) để định dạng văn bản hiển thị trên web. Không dùng các từ sáo rỗng."""
 
-                # Cấu hình gọi model bọc chặt chẽ hơn
                 response = client.models.generate_content(
                     model='gemini-2.5-flash',
                     contents=prompt
@@ -441,10 +408,8 @@ Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụn
                 return "⚠️ Không nhận được phản hồi văn bản từ AI."
                 
             except Exception as e:
-                # SỬA LỖI: In hẳn thông báo lỗi kỹ thuật ra màn hình để kiểm tra nguyên nhân thay vì ẩn đi
                 return f"🤖 AI đang kết nối luồng dữ liệu liên thông... (Chi tiết lỗi: {str(e)})"
 
-        # Điều hướng gọi hàm AI thực tế tránh vòng lặp quá tải
         if st.button("🔄 Kích hoạt AI phân tích", use_container_width=True) or "ai_cached_response" not in st.session_state:
             with st.spinner("AI phân tích chuyên sâu..."):
                 news_input = st.session_state.get("current_live_events", [])
@@ -462,9 +427,6 @@ Yêu cầu: Viết ngắn gọn, trực diện bằng tiếng Việt. Sử dụn
             unsafe_allow_html=True
         )
 
-    # ===============================================================================================
-    # 📰 TIN TỨC TÀI CHÍNH VĨ MÔ DỊCH TIẾNG VIỆT CHUYÊN SÂU QUA GEMINI AI (REAL-TIME)
-    # ===============================================================================================
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("📰 Bài báo phân tích vĩ mô chuyên sâu")
     st.caption("Luồng tin tức vĩ mô liên thông bóc tách từ cổng truyền thông quốc tế - Tự động dịch bởi Gemini AI")
