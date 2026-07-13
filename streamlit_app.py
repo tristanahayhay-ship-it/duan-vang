@@ -61,12 +61,23 @@ st.markdown("""
     }
     .news-card:hover {
         transform: translateY(-4px);
-        border-color: #3b82f6; /* Đổi viền sang màu xanh Neon khi di chuột */
+        border-color: #3b82f6; 
         box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.5);
     }
     .news-card h4, .news-card h5 {
         margin-top: 0px !important;
         color: #f3f4f6 !important;
+    }
+
+    /* ĐOẠN THÊM MỚI: TỰ ĐỘNG THAY ĐỔI KÍCH THƯỚC TRÊN ĐIỆN THOẠI */
+    @media (max-width: 768px) {
+        .block-container { padding-left: 1rem !important; padding-right: 1rem !important; padding-top: 2rem !important; }
+        div[data-testid="stMetric"] { padding: 10px 12px !important; border-radius: 10px !important; }
+        div[data-testid="stMetric"] label { font-size: 0.85rem !important; }
+        div[data-testid="stMetric"] div[data-testid="stMetricValue"] { font-size: 1.3rem !important; }
+        .ai-box { padding: 12px; font-size: 13px !important; }
+        .news-card { padding: 12px; margin-bottom: 10px; }
+        .js-plotly-plot, .plot-container { width: 100% !important; height: auto !important; }
     }
 </style>
 """, unsafe_allow_html=True)
