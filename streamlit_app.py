@@ -1382,7 +1382,7 @@ elif menu == "Công Cụ Hỗ Trợ & Demo Trade":
 
     # 3. GIAO DIỆN HIỂN THỊ KẾT QUẢ ĐIỂM SỐ LINH HOẠT
     st.markdown("---")
-    st.subheader("📢 Kết quả Đánh giá hệ thống")
+    st.subheader("📢 Đánh giá hệ thống")
     
     score_col1, score_col2 = st.columns(2)
     with score_col1:
