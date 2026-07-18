@@ -1531,7 +1531,6 @@ elif menu == "Giá Vàng VIỆT NAM":
             3. <b>Rủi ro tỷ giá USD/VND:</b> Giá vàng thế giới tính bằng USD, khi tỷ giá USD biến động mạnh, các nhà kinh doanh trong nước buộc phải giữ giá bán cao để phòng thủ rủi ro mua lại nguyên liệu.
         </div>
         """, unsafe_allow_html=True)
-
 # ===================================================================================================
 # 8. 📅 Lịch Kinh Tế & AI Nhận Định (USD)
 # ===================================================================================================
