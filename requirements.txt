@@ -6,3 +6,4 @@ yfinance
 requests
 google-genai
 ccxt
+streamlit-autorefresh
