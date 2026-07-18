@@ -1253,10 +1253,7 @@ elif menu == "Công Cụ Hỗ Trợ & Demo Trade":
 
     st.title("🛠️ Phân Tích Kỹ Thuật & Tín Hiệu Thực Chiến XAU/USD")
     
-    # -------------------------------------------------------------------------
-    # PHẦN 1: BIỂU ĐỒ NẾN TRADINGVIEW (Giữ nguyên phần đang chạy mượt của bạn)
-    # -------------------------------------------------------------------------
-    st.subheader("📊 1. Biểu đồ nến & Chỉ báo kỹ thuật Real-time")
+    st.subheader("📊 1. Chỉ báo kỹ thuật")
     
     tradingview_chart_html = """
     <div style="height:450px; width:100%;">
@@ -1290,12 +1287,10 @@ elif menu == "Công Cụ Hỗ Trợ & Demo Trade":
 
     st.markdown("---")
 
-    # =========================================================================
-    # PHẦN 2: THUẬT TOÁN ĐIỂM SỐ TÍCH LŨY ĐỘNG - CHUYÊN BIỆT BẮT ĐÁY NGẮN HẠN
-    # =========================================================================
+
     st.markdown("---")
-    st.subheader("🤖 Bot Thuật Toán Phân Tích & Gợi Ý Tín Hiệu Động")
-    st.caption("Hệ thống chấm điểm tích lũy linh hoạt từ 1 đến 10 - Đã tối ưu hóa thuật toán nhận diện Đáy/Đỉnh ngắn hạn.")
+    st.subheader("🤖 Bot Phân Tích Gợi Ý Tín Hiệu")
+    st.caption("Hệ thống chấm điểm tích lũy linh hoạt")
 
     # 1. TẠO CÁC Ô NHỎ ĐỂ ĐIỀN THÔNG SỐ THỦ CÔNG (4 cột thông số kỹ thuật)
     input_col1, input_col2, input_col3, input_col4 = st.columns(4)
