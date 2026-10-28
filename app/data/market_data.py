@@ -6,7 +6,7 @@ from typing import Any
 import pandas as pd
 import yfinance as yf
 
-from app.config import CACHE_TTL_MEDIUM, MARKET_CONFIG
+from app.config import MARKET_CONFIG
 
 
 def _safe_price(symbol: str) -> dict[str, Any]:
